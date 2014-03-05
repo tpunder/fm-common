@@ -1,1 +1,1 @@
-fm-common
+These are common Scala classes that we use at Frugal Mechanic that have no external dependencies.
