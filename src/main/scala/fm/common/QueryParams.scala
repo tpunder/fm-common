@@ -23,14 +23,26 @@ import Implicits._
 object QueryParams {
   private def defaultCharset: String = "UTF-8"
   
+  /** Create a QueryParams instance given a URL or Query String */
   def apply(queryString: String): QueryParams = apply(queryString, defaultCharset)
-    
+  
+  /** Create Query Params form a URI */
   def apply(uri: URI): QueryParams = apply(uri, defaultCharset)
+  
+  /** Create Query Params form a URL */
   def apply(url: URL): QueryParams = apply(url, defaultCharset)
   
+  /** Create Query Params form a URI */
   def apply(uri: URI, charset: String): QueryParams = apply(uri.getRawQuery(), charset)
+  
+  /** Create Query Params form a URL */
   def apply(url: URL, charset: String): QueryParams = apply(url.getQuery(), charset)
 
+  /**
+   * Create a QueryParams instance given a URL or Query String
+   * 
+   * @param queryString the URI/URL or Query String to extract Query Parameters from
+   */
   def apply(queryString: String, charset: String): QueryParams = {
     if (queryString.isBlank) return empty
 
@@ -65,6 +77,7 @@ object QueryParams {
   
   def apply(params: Seq[(String, String)]): QueryParams = new QueryParams(params)
   
+  /** An empty instance of QueryParams */
   val empty: QueryParams = new QueryParams()
   
   def newBuilder: Builder[(String, String), QueryParams] = new QueryParamsBuilder
@@ -78,12 +91,12 @@ final class QueryParamsBuilder extends Builder[(String, String), QueryParams] {
 }
 
 /**
- * Represents query paramters from a query string (e.g. "?foo=bar&asd=qwe")
+ * Represents immutable query parameters from a query string (e.g. "?foo=bar&asd=qwe").
  * 
  * This class distinguishes between 3 different types of values for a key:
- *   1. null - "?foo"
- *   2. blank - "?foo="
- *   3. non-blank - "?foo=bar"
+ *   - null - "?foo"
+ *   - blank - "?foo="
+ *   - non-blank - "?foo=bar"
  */
 final class QueryParams private (params: Seq[(String, String)] = Nil) extends Seq[(String, String)] with SeqLike[(String, String), QueryParams] {
   
@@ -207,21 +220,29 @@ final class QueryParams private (params: Seq[(String, String)] = Nil) extends Se
   
   /**
    * Add a key/value pair
+   * 
+   * @return A new QueryParams instance with the added key/value pair
    */
   def add(key: String, value: String): QueryParams = new QueryParams(params ++ Seq(key -> value))
   
   /**
    * Add multiple key/value pairs
+   * 
+   * @return A new QueryParams instance with the added key/value pair
    */
   def add(kvPairs: (String, String)*): QueryParams = new QueryParams(params ++ kvPairs)
   
   /**
    * Remove any params with blank values
+   * 
+   * @return A new QueryParams instance without blank values
    */
   def withoutBlankValues(): QueryParams = filter{ case (k, v) => v.isNotBlank }
   
   /**
    * Remove a key/value pair based on the key
+   * 
+   * @return A new QueryParams instance without the keys
    */
   def remove(keys: String*): QueryParams = filterNot{ case (k, v) => keys.contains(k) }
   
@@ -269,10 +290,20 @@ final class QueryParams private (params: Seq[(String, String)] = Nil) extends Se
     }.mkString(", ")+"}"
   }
   
+  /** An alias for toQueryString("UTF-8") */
   override def toString(): String = toString(QueryParams.defaultCharset)
+  
+  /** An alias for toQueryString */
   def toString(charset: String): String = toQueryString(charset)
+  
+  /** An alias for toQueryString("UTF-8") */
   def toQueryString(): String = toQueryString(QueryParams.defaultCharset)
   
+  /**
+   * Create a valid query string using the current parameters (everything after the ?).
+   * 
+   * e.g.: foo=bar&hello=world
+   */
   def toQueryString(charset: String): String = {
     params.map{ case (k, v) =>
       URLEncoder.encode(k, charset) + (if (null == v) "" else "="+URLEncoder.encode(v, charset))

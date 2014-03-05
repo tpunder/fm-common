@@ -18,15 +18,41 @@ package fm
 import scala.util.Try
 
 package object common extends Implicits {
+  /** A type alias for java.net.URL */
   type URL = java.net.URL
+  
+  /** A type alias for java.net.URI */
   type URI = java.net.URI
   
+  /**
+   * Simple wrappers for the java.net.URL constructors
+   */
   object URL {
+    /** 
+     * Create a URL
+     * 
+     * @param url The url
+     * @return The URL instance
+     */
     def apply(url: String): URL = new java.net.URL(url)
+    
+    /**
+     * Try to create a URL
+     * 
+     * @param url The url
+     * @return A Try[URL]
+     */
     def tryParse(url: String): Try[URL] = Try{ apply(url) }
+    
+    /**
+     * Same as URL.tryParse(url).toOption
+     */
     def get(url: String): Option[URL] = tryParse(url).toOption
   }
   
+  /**
+   * Simple wrappers for the java.net.URI constructors
+   */
   object URI {
     def apply(uri: String): URI = new java.net.URI(uri)
     def tryParse(uri: String): Try[URI] = Try{ apply(uri) }

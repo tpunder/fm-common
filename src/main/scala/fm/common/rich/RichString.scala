@@ -64,7 +64,7 @@ final class RichString(val s: String) extends AnyVal {
   }
   def toBigInteger: BigInteger = toBigIntegerOption.getOrElse{ throw new NumberFormatException("RichString.toBigInteger parsing error on value: $s") }
 
-  /** A shortcut for "new File(s)" or "new java.io.File(s)" */
+  /** A shortcut for "new java.io.File(s)" */
   def toFile: File = new File(s)
   
   /**
