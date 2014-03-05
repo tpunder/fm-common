@@ -15,8 +15,17 @@
  */
 package fm.common.rich
 
-object Implicits extends Implicits
+import java.net.URL
+import fm.common.QueryParams
 
-trait Implicits {  
-  implicit def toRichCharSequence(s: CharSequence): RichCharSequence = new RichCharSequence(s)
+final class RichURL(val self: URL) extends AnyVal with RichURIBase[URL] {
+  def scheme: Option[String] = Option(self.getProtocol)
+  def userInfo: Option[String] = Option(self.getUserInfo)
+  def host: Option[String] = Option(self.getHost)
+  def port: Option[Int] = if (-1 == self.getPort) None else Some(self.getPort)
+  def path: Option[String] = Option(self.getPath)
+  def query: Option[String] = Option(self.getQuery)
+  def fragment: Option[String] = Option(self.getRef)
+  def queryParams: QueryParams = QueryParams(self)
+  protected def make(s: String): URL = new URL(s)
 }

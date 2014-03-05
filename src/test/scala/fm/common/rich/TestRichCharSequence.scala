@@ -19,7 +19,7 @@ import org.scalatest.FunSuite
 import org.scalatest.Matchers
 
 final class TestRichCharSequence extends FunSuite with Matchers {
-  import Implicits._
+  import fm.common.Implicits._
   
   test("isBlank null") {
     null.asInstanceOf[String].isBlank should equal(true)

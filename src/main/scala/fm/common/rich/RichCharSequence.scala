@@ -49,7 +49,7 @@ final class RichCharSequence(val s: CharSequence) extends AnyVal {
   /**
    * Do the next characters starting at idx match the target
    */
-  def nextCharsMatch(target: CharSequence, idx: Int = 0): Boolean = {   
+  def nextCharsMatch(target: CharSequence, idx: Int = 0): Boolean = {
     require(idx >= 0, s"RichSequence.nextCharsMatch - Negative Idx: $idx")
     
     if(null == target || target.length == 0) return false
