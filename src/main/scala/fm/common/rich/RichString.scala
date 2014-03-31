@@ -20,6 +20,11 @@ import java.math.{BigDecimal, BigInteger}
 
 final class RichString(val s: String) extends AnyVal {
   /**
+   * Same as String.intern but safe for use when the string is null (i.e. it just returns null)
+   */
+  def internOrNull: String = if (null == s) null else s.intern
+  
+  /**
    * If the string is blank returns None else Some(string)
    */
   def toBlankOption: Option[String] = if(new RichCharSequence(s).isNotBlank) Some(s) else None

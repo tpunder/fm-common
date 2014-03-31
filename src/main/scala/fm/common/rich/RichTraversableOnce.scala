@@ -156,6 +156,6 @@ final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal 
         set += x
       }
       
-      set  
+      set
   }
 }
