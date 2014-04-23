@@ -25,34 +25,11 @@ import org.mozilla.universalchardet.UniversalDetector
  * Collection of IO Utilities.  Some implemented via Apache Commons IO
  */
 object IOUtils {
-  private[this] val HasCommonsCodec: Boolean = ClassUtil.classExists("org.apache.commons.codec.digest.DigestUtils")
-  private[this] val HasCommonsIO: Boolean = ClassUtil.classExists("org.apache.commons.io.IOUtils")
-  private[this] val HasJUniversalCharDetection: Boolean = ClassUtil.classExists("org.mozilla.universalchardet.UniversalDetector")
+  def md5(input: InputStream): Array[Byte] = DigestUtils.md5(input)
+  def md5Hex(input: InputStream): String = DigestUtils.md5Hex(input)
   
-  private def requireCommonsDigest(): Unit = if (!HasCommonsCodec) throw new ClassNotFoundException("commons-codec not found required for this functionality: http://commons.apache.org/proper/commons-codec/")
-  private def requireCommonsIO(): Unit = if (!HasCommonsCodec) throw new ClassNotFoundException("commons-io not found required for this functionality: http://commons.apache.org/proper/commons-io/")
-  
-  val HasApacheByteArrayOutputStream: Boolean = ClassUtil.classExists("org.apache.commons.io.output.ByteArrayOutputStream")
-  
-  def md5(input: InputStream): Array[Byte] = {
-    requireCommonsDigest()
-    DigestUtils.md5(input)
-  }
-  
-  def md5Hex(input: InputStream): String = {
-    requireCommonsDigest()
-    DigestUtils.md5Hex(input)
-  }
-  
-  def sha1(input: InputStream): Array[Byte] = {
-    requireCommonsDigest()
-    DigestUtils.sha1(input)
-  }
-  
-  def sha1Hex(input: InputStream): String = {
-    requireCommonsDigest()
-    DigestUtils.sha1Hex(input)
-  }
+  def sha1(input: InputStream): Array[Byte] = DigestUtils.sha1(input)  
+  def sha1Hex(input: InputStream): String = DigestUtils.sha1Hex(input)
   
   /**
    * If this is already a BufferedInputStream return this otherwise wrap in a BufferedInputStream
@@ -91,114 +68,78 @@ object IOUtils {
    * 
    * This method buffers the input internally, so there is no need to use a BufferedInputStream. 
    */
-  def copy(input: Resource[InputStream], output: Resource[OutputStream]): Int = {
-    requireCommonsIO()
-    Resource.use(input, output) { ApacheIOUtils.copy(_, _) }
-  }
+  def copy(input: Resource[InputStream], output: Resource[OutputStream]): Int = Resource.use(input, output) { ApacheIOUtils.copy(_, _) }
   
   /**
    * Copy bytes from an InputStream to an OutputStream.
    * 
    * This method buffers the input internally, so there is no need to use a BufferedInputStream. 
    */
-  def copy(input: InputStream, output: OutputStream): Int = {
-    requireCommonsIO()
-    ApacheIOUtils.copy(input, output)
-  }
+  def copy(input: InputStream, output: OutputStream): Int = ApacheIOUtils.copy(input, output)
   
   /**
    * Copy chars from a Reader to a Writer.
    * 
    * This method buffers the input internally, so there is no need to use a BufferedReader. 
    */
-  def copy(input: Reader, output: Writer): Int = {
-    requireCommonsIO()
-    ApacheIOUtils.copy(input, output)
-  }
+  def copy(input: Reader, output: Writer): Int = ApacheIOUtils.copy(input, output)
   
   /**
    * Read bytes from an input stream. This implementation guarantees that it will read as many bytes as possible before giving up; 
    * this IS NOT ALWAYS the case for subclasses of InputStream. 
    */
-  def read(input: InputStream, buffer: Array[Byte]): Int = {
-    requireCommonsIO()
-    ApacheIOUtils.read(input, buffer)
-  }
+  def read(input: InputStream, buffer: Array[Byte]): Int = ApacheIOUtils.read(input, buffer)
   
   /**
    * Read bytes from an input stream. This implementation guarantees that it will read as many bytes as possible before giving up; 
    * this IS NOT ALWAYS the case for subclasses of InputStream. 
    */
-  def read(input: InputStream, buffer: Array[Byte], offset: Int, length: Int): Int = {
-    requireCommonsIO()
-    ApacheIOUtils.read(input, buffer, offset, length)
-  }
+  def read(input: InputStream, buffer: Array[Byte], offset: Int, length: Int): Int = ApacheIOUtils.read(input, buffer, offset, length)
   
   /**
    * Read characters from an input character stream. This implementation guarantees that it will read as many characters as possible before giving up; 
    * this IS NOT ALWAYS the case for subclasses of Reader. 
    */
-  def read(input: Reader, buffer: Array[Char]): Int = {
-    requireCommonsIO()
-    ApacheIOUtils.read(input, buffer)
-  }
+  def read(input: Reader, buffer: Array[Char]): Int = ApacheIOUtils.read(input, buffer)
   
   /**
    * Read characters from an input character stream. This implementation guarantees that it will read as many characters as possible before giving up; 
    * this IS NOT ALWAYS the case for subclasses of Reader. 
    */
-  def read(input: Reader, buffer: Array[Char], offset: Int, length: Int): Int = {
-    requireCommonsIO()
-    ApacheIOUtils.read(input, buffer, offset, length)
-  }
+  def read(input: Reader, buffer: Array[Char], offset: Int, length: Int): Int = ApacheIOUtils.read(input, buffer, offset, length)
   
   /**
    * Skip bytes from an input byte stream. This implementation guarantees that it will read as many bytes as possible before giving up;
    * this IS NOT ALWAYS the case for subclasses of Reader. 
    */
-  def skip(input: InputStream, toSkip: Long): Long = {
-    requireCommonsIO()
-    ApacheIOUtils.skip(input, toSkip)
-  }
+  def skip(input: InputStream, toSkip: Long): Long = ApacheIOUtils.skip(input, toSkip)
   
   /**
    * Skip characters from an input character stream. This implementation guarantees that it will read as many characters as possible before giving up;
    * this IS NOT ALWAYS the case for subclasses of Reader. 
    */
-  def skip(input: Reader, toSkip: Long): Long = {
-    requireCommonsIO()
-    ApacheIOUtils.skip(input, toSkip)
-  }
+  def skip(input: Reader, toSkip: Long): Long = ApacheIOUtils.skip(input, toSkip)
   
   /**
    * Get the contents of an InputStream as a byte[].
    * 
    * This method buffers the input internally, so there is no need to use a BufferedInputStream. 
    */
-  def toByteArray(input: InputStream): Array[Byte] = {
-    requireCommonsIO()
-    ApacheIOUtils.toByteArray(input)
-  }
+  def toByteArray(input: InputStream): Array[Byte] = ApacheIOUtils.toByteArray(input)
   
   /**
    * Get the contents of a Reader as a character array.
    * 
    * This method buffers the input internally, so there is no need to use a BufferedReader. 
    */
-  def toCharArray(input: Reader): Array[Char] = {
-    requireCommonsIO()
-    ApacheIOUtils.toCharArray(input)
-  }
+  def toCharArray(input: Reader): Array[Char] = ApacheIOUtils.toCharArray(input)
   
   /**
    * Get the contents of a Reader as a String.
    * 
    * This method buffers the input internally, so there is no need to use a BufferedReader. 
    */
-  def toString(input: Reader): String = {
-    requireCommonsIO()
-    ApacheIOUtils.toString(input)
-  }
+  def toString(input: Reader): String = ApacheIOUtils.toString(input)
   
   /**
    * Attempt to detect the charset of the InputStream
@@ -210,8 +151,6 @@ object IOUtils {
    * Attempt to detect the charset of the InputStream
    */
   def detectCharsetName(is: InputStream, useMarkReset: Boolean): Option[String] = {
-    if (!HasJUniversalCharDetection) throw new ClassNotFoundException("Charset Detection requires juniversalchardet: https://code.google.com/p/juniversalchardet/")
-    
     if (useMarkReset) require(is.markSupported, "detectCharsetName required mark/reset support!  Try wrapping in a BufferedInputStream")
     
     val bufSize: Int = 8192
