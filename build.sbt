@@ -1,11 +1,61 @@
 name := "fm-common"
 
-organization := "Frugal Mechanic"
+organization := "com.frugalmechanic"
 
-version := "1.0"
+version := "0.1-SNAPSHOT"
+
+description := "Common Scala classes that we use at Frugal Mechanic that have no required external dependencies."
+
+licenses := Seq("Apache License, Version 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
+
+homepage := Some(url("https://github.com/frugalmechanic/fm-common"))
 
 scalaVersion := "2.10.4"
 
+// Note: Use "++ 2.11.0" to select a specific version when building
+crossScalaVersions := Seq("2.10.4", "2.11.0")
+
 scalacOptions := Seq("-unchecked", "-deprecation", "-language:implicitConversions", "-feature", "-optimise")
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "2.0" % "test"
+libraryDependencies ++= Seq(
+  "org.slf4j" % "slf4j-api" % "1.7.5" % "compile",
+  "ch.qos.logback" % "logback-classic" % "1.0.13" % "compile",
+  "org.apache.commons" % "commons-compress" % "1.8" % "embedded",
+  "org.xerial.snappy" % "snappy-java" % "1.1.0.1" % "compile",
+  "com.googlecode.juniversalchardet" % "juniversalchardet" % "1.0.3" % "embedded",
+  "commons-codec" % "commons-codec" % "1.9" % "embedded",
+  "commons-io" % "commons-io" % "2.4" % "embedded"
+)
+
+libraryDependencies += "org.scalatest" %% "scalatest" % "2.1.3" % "compile,test"
+
+publishMavenStyle := true
+
+publishTo <<= version { (v: String) =>
+  val nexus = "https://oss.sonatype.org/"
+  if (v.trim.endsWith("SNAPSHOT")) 
+    Some("snapshots" at nexus + "content/repositories/snapshots") 
+  else
+    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+}
+
+publishArtifact in Test := false
+
+pomIncludeRepository := { _ => false }
+
+pomExtra := (
+  <developers>
+    <developer>
+      <id>tim</id>
+      <name>Tim Underwood</name>
+      <email>tim@frugalmechanic.com</email>
+      <organization>Frugal Mechanic</organization>
+      <organizationUrl>http://frugalmechanic.com</organizationUrl>
+    </developer>
+  </developers>
+  <scm>
+      <connection>scm:git:git@github.com:frugalmechanic/fm-common.git</connection>
+      <developerConnection>scm:git:git@github.com:frugalmechanic/fm-common.git</developerConnection>
+      <url>git@github.com:frugalmechanic/fm-common.git</url>
+  </scm>)
+
