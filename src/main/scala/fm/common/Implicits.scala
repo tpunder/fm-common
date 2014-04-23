@@ -17,8 +17,10 @@ package fm.common
 
 import fm.common.rich._
 
+import java.io.InputStream
 import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
 import java.math.{BigDecimal => JavaBigDecimal, BigInteger => JavaBigInteger}
+import scala.concurrent.Future
 import scala.math.{BigDecimal => ScalaBigDecimal, BigInt => ScalaBigInt}
 
 object Implicits extends Implicits
@@ -31,6 +33,8 @@ trait Implicits {
   
   implicit def toRichMap[A,B,This <: scala.collection.MapLike[A,B,This] with scala.collection.Map[A,B]](m: scala.collection.MapLike[A,B,This]) = new RichMap(m)
   implicit def toRichConcurrentMap[K,V](m: java.util.concurrent.ConcurrentMap[K,V]): RichConcurrentMap[K,V] = new RichConcurrentMap(m)
+  
+  implicit def toRichFuture[V](f: Future[V]): RichFuture[V] = RichFuture(f)
   
   implicit def toRichURI(uri: URI): RichURI = new RichURI(uri)
   implicit def toRichURI(url: URL): RichURL = new RichURL(url)
@@ -45,4 +49,6 @@ trait Implicits {
   implicit def bigDecimalOrdering: Ordering[JavaBigDecimal] = RichBigDecimal
   implicit def toRichBigDecimal(d: JavaBigDecimal): RichBigDecimal = new RichBigDecimal(d)
   implicit def toRichBigDecimal(d: ScalaBigDecimal): RichBigDecimal = new RichBigDecimal(d.bigDecimal)
+  
+  implicit def toRichInputStream(is: InputStream): RichInputStream = new RichInputStream(is)
 }

@@ -1,0 +1,84 @@
+package fm.common.rich
+
+import java.io.{BufferedInputStream, File, InputStream}
+import java.util.zip.GZIPInputStream
+
+import org.apache.commons.compress.archivers.{ArchiveEntry, ArchiveInputStream, ArchiveStreamFactory}
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
+import org.apache.commons.compress.compressors.xz.XZCompressorInputStream
+
+import fm.common.Snappy
+
+/**
+ * Rich wrapper for an InputStream
+ * 
+ * Note:  This class has an optional dependency on Snappy Java (https://github.com/xerial/snappy-java)
+ */
+final class RichInputStream(val is: InputStream) extends AnyVal {
+  import RichInputStream._
+  
+  def toBufferedInputStream: BufferedInputStream = is match {
+    case buffered: BufferedInputStream => buffered
+    case _ => new BufferedInputStream(is)
+  }
+  
+  def gunzip: GZIPInputStream = new GZIPInputStream(is)
+  def unsnappy: InputStream = Snappy.newInputStream(is)
+  def bunzip2: BZip2CompressorInputStream = new BZip2CompressorInputStream(is)
+  def unxz: XZCompressorInputStream = new XZCompressorInputStream(is)
+  
+  // This appears to be as fast as using ZipInputStream directly
+  def unzip: InputStream = unarchive(toBufferedInputStream, ArchiveStreamFactory.ZIP)
+  def unjar: InputStream = unarchive(toBufferedInputStream, ArchiveStreamFactory.JAR)
+  def untar: InputStream = unarchive(toBufferedInputStream, ArchiveStreamFactory.TAR)
+  
+//  def unzip: InputStream = {
+//    import java.util.zip._
+//    val zis = new ZipInputStream(is)
+//    
+//    var entry: ZipEntry = null
+//    
+//    // We want to skip over any directory entries and also any OS X added ._{OriginalFileName} files
+//    // Also ignore the META-INF stuff in JAR files
+//    do {
+//      entry = zis.getNextEntry()
+//      require(entry != null, s"ZIP Input Stream doesn't appear to have a file in it?")
+//    } while (entry.isDirectory || new File(entry.getName).getName.startsWith("._") || entry.getName.startsWith("META-INF/"))
+//    
+//    require(entry != null, s"ZIP Input Stream doesn't appear to have a file in it?")
+//      
+//    zis
+//  }
+  
+  /** For debugging archive files */
+  def showArchiveEntries(): Unit = {    
+    val ais: ArchiveInputStream = new ArchiveStreamFactory().createArchiveInputStream(is)
+    var e: ArchiveEntry = ais.getNextEntry()
+    while(e != null) {
+      println(s"""name: "${e.getName}", isDirectory: ${e.isDirectory}, size: ${e.getSize}""")
+      e = ais.getNextEntry()
+    }
+  }
+  
+  private def unarchive(is: BufferedInputStream, archiverName: String): InputStream = {
+    // From http://commons.apache.org/proper/commons-compress/examples.html
+    // The stream classes all wrap around streams provided by the calling code and they work on them directly without any additional buffering. 
+    // On the other hand most of them will benefit from buffering so it is highly recommended that users wrap their stream in Buffered(In|Out)putStreams before using the Commons Compress API.
+    val ais: ArchiveInputStream = new ArchiveStreamFactory().createArchiveInputStream(archiverName, is)
+    //val ais: ArchiveInputStream = new ArchiveStreamFactory().createArchiveInputStream(archiverName, is)
+    
+    var entry: ArchiveEntry = null
+    
+    // We want to skip over any directory entries and also any OS X added ._{OriginalFileName} files
+    // Also ignore the META-INF stuff in JAR files
+    do {
+      entry = ais.getNextEntry()
+      require(entry != null, s"${archiverName.toUpperCase} Input Stream doesn't appear to have a file in it?")
+    } while (entry.isDirectory || new File(entry.getName).getName.startsWith("._") || entry.getName.startsWith("META-INF/"))
+    
+    require(entry != null, s"${archiverName.toUpperCase} Input Stream doesn't appear to have a file in it?")
+      
+    ais
+  }
+
+}

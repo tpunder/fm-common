@@ -1,0 +1,71 @@
+/*
+ * Copyright 2014 Frugal Mechanic (http://frugalmechanic.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package fm.common
+
+import java.util.concurrent.{ArrayBlockingQueue, BlockingQueue, LinkedBlockingQueue, SynchronousQueue}
+import java.util.concurrent.{Callable, RejectedExecutionException, RejectedExecutionHandler, ThreadFactory, ThreadPoolExecutor, TimeUnit}
+import java.util.concurrent.atomic.AtomicInteger
+import java.io.Closeable
+import scala.util.Try
+import scala.concurrent.{Future, Promise}
+
+object TaskRunner extends Logging {
+
+  def apply(name: String, threads: Int = Runtime.getRuntime().availableProcessors(), queueSize: Int = Int.MinValue, coreThreads: Int = Int.MinValue, maxThreads: Int = Int.MinValue, blockOnFullQueue: Boolean = true): TaskRunner = {
+    val _coreThreads: Int = if (coreThreads == Int.MinValue) threads else coreThreads
+    val _maxThreads:  Int = if (maxThreads == Int.MinValue) threads else maxThreads
+    val _queueSize:   Int = if (queueSize == Int.MinValue) threads * 2 else queueSize
+    new TaskRunner(name, _coreThreads, _maxThreads, _queueSize, blockOnFullQueue)
+  }
+
+}
+
+final class TaskRunner(val name: String, val coreThreads: Int, val maxThreads: Int, val queueSize: Int, val blockOnFullQueue: Boolean = true) extends TaskRunnerBase(name) {
+  
+  private[this] val queue: BlockingQueue[Runnable] = if(queueSize > 0) new ArrayBlockingQueue[Runnable](queueSize) else if(queueSize == 0) new SynchronousQueue[Runnable]() else new LinkedBlockingQueue[Runnable]()
+  
+  private class BlockRejectExecutionHandler() extends RejectedExecutionHandler {
+    def rejectedExecution(r: Runnable, executor: ThreadPoolExecutor) {
+      // If the executor is shutting down then display a warning and drop the task
+      if(executor.isShutdown) {
+        shutdownWarning
+        return
+      }
+      
+      // Block on adding the task to the queue
+      queue.put(r)
+    }
+  }
+  
+  private class StandardRejectExecutionHandler() extends RejectedExecutionHandler {
+    def rejectedExecution(r: Runnable, executor: ThreadPoolExecutor) {
+      // If the executor is shutting down then display a warning and drop the task
+      if(executor.isShutdown) {
+        shutdownWarning
+        return
+      }
+      
+      throw new RejectedExecutionException(s"$name - Queue is full")
+    }
+  }
+
+  protected val executor: ThreadPoolExecutor = {
+    val rejectedHandler: RejectedExecutionHandler = if (blockOnFullQueue) new BlockRejectExecutionHandler() else new StandardRejectExecutionHandler()
+    val exec = new ThreadPoolExecutor(coreThreads, maxThreads, 60, TimeUnit.SECONDS, queue, newTaskRunnerThreadFactory(), rejectedHandler)
+    exec.allowCoreThreadTimeOut(true)
+    exec
+  }
+}
