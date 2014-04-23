@@ -156,11 +156,6 @@ final class QueryParams private (params: Seq[(String, String)] = Nil) extends Se
   }
   
   /**
-   * This throws an exception because it's too easy to assume that contains(key) works.
-   */
-  override def contains(any: Any): Boolean = throw new NotImplementedError("This probably isn't the method you want!")
-  
-  /**
    * Check for key existence
    */
   def contains(key: String): Boolean = hasKey(key)
