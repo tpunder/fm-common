@@ -2019,6 +2019,9 @@ public class Base64
          */
         @Override
         public void close() throws java.io.IOException {
+            // Don't do anything if we are already closed
+            if( null == out ) return;
+          
             // 1. Ensure that pending characters are written
             flushBase64();
 
