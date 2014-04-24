@@ -24,6 +24,8 @@ final case class InvalidIPException(msg: String) extends Exception(msg)
  * Helpers for parsing and working with IPv4 addresses
  */
 object IP {
+  val MAX_IP: Long = 4294967295L
+  
   /**
    * Is this a valid IPv4 Address formatted as xxx.xxx.xxx.xxx ?
    * NOTE!: This doesn't mean the apply() method will fail since it does hostname resolution.
