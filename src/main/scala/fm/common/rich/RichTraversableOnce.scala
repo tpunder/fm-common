@@ -38,7 +38,7 @@ final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal 
    * A combination of map + find that returns the first Some that is found
    * after applying the map operation.
    */
-  def findMapped[B](f: A => Option[B]): Option[B] = {
+  @inline def findMapped[B](f: A => Option[B]): Option[B] = {
     self.foreach{ a: A =>
       val b: Option[B] = f(a)
       if(b.isDefined) return b

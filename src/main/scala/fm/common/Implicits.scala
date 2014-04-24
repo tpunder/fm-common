@@ -22,10 +22,11 @@ import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
 import java.math.{BigDecimal => JavaBigDecimal, BigInteger => JavaBigInteger}
 import scala.concurrent.Future
 import scala.math.{BigDecimal => ScalaBigDecimal, BigInt => ScalaBigInt}
+import scala.util.Try
 
 object Implicits extends Implicits
 
-trait Implicits {  
+trait Implicits extends OrderingImplicits {  
   implicit def toRichCharSequence(s: CharSequence): RichCharSequence = new RichCharSequence(s)
   implicit def toRichString(s: String): RichString = new RichString(s)
   
@@ -34,6 +35,7 @@ trait Implicits {
   implicit def toRichMap[A,B,This <: scala.collection.MapLike[A,B,This] with scala.collection.Map[A,B]](m: scala.collection.MapLike[A,B,This]) = new RichMap(m)
   implicit def toRichConcurrentMap[K,V](m: java.util.concurrent.ConcurrentMap[K,V]): RichConcurrentMap[K,V] = new RichConcurrentMap(m)
   
+  implicit def toRichTry[T](t: Try[T]): RichTry[T] = new RichTry(t)
   implicit def toRichFuture[V](f: Future[V]): RichFuture[V] = RichFuture(f)
   
   implicit def toRichURI(uri: URI): RichURI = new RichURI(uri)

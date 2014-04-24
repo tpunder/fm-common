@@ -15,17 +15,16 @@ import fm.common.Snappy
  * Note:  This class has an optional dependency on Snappy Java (https://github.com/xerial/snappy-java)
  */
 final class RichInputStream(val is: InputStream) extends AnyVal {
-  import RichInputStream._
   
   def toBufferedInputStream: BufferedInputStream = is match {
     case buffered: BufferedInputStream => buffered
     case _ => new BufferedInputStream(is)
   }
   
-  def gunzip: GZIPInputStream = new GZIPInputStream(is)
+  def gunzip:   InputStream = new GZIPInputStream(is)
   def unsnappy: InputStream = Snappy.newInputStream(is)
-  def bunzip2: BZip2CompressorInputStream = new BZip2CompressorInputStream(is)
-  def unxz: XZCompressorInputStream = new XZCompressorInputStream(is)
+  def bunzip2:  InputStream = new BZip2CompressorInputStream(is)
+  def unxz:     InputStream = new XZCompressorInputStream(is)
   
   // This appears to be as fast as using ZipInputStream directly
   def unzip: InputStream = unarchive(toBufferedInputStream, ArchiveStreamFactory.ZIP)

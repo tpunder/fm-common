@@ -17,7 +17,6 @@ package fm.common
 
 import java.io._
 import java.nio.charset.Charset
-import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.{IOUtils => ApacheIOUtils}
 import org.mozilla.universalchardet.UniversalDetector
 
@@ -25,12 +24,6 @@ import org.mozilla.universalchardet.UniversalDetector
  * Collection of IO Utilities.  Some implemented via Apache Commons IO
  */
 object IOUtils {
-  def md5(input: InputStream): Array[Byte] = DigestUtils.md5(input)
-  def md5Hex(input: InputStream): String = DigestUtils.md5Hex(input)
-  
-  def sha1(input: InputStream): Array[Byte] = DigestUtils.sha1(input)  
-  def sha1Hex(input: InputStream): String = DigestUtils.sha1Hex(input)
-  
   /**
    * If this is already a BufferedInputStream return this otherwise wrap in a BufferedInputStream
    */

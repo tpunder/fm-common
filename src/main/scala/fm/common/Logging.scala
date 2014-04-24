@@ -16,9 +16,7 @@
 package fm.common
 
 import java.io.{File, OutputStream, PrintStream}
-import org.slf4j.{Logger => SLF4JLogger, LoggerFactory => SLF4JLoggerFactory}
 import ch.qos.logback.classic.{Level => LogbackLevel, Logger => LogbackLogger}
-import org.apache.commons.io.output.TeeOutputStream
 import scala.collection.JavaConversions._
 
 /**
@@ -29,7 +27,7 @@ trait Logging {
 }
 
 // TODO: move this?
-final case class LoggingCaptureConfig(logger: SLF4JLogger, pattern: String, file: File, overwrite: Boolean)
+final case class LoggingCaptureConfig(logger: org.slf4j.Logger, pattern: String, file: File, overwrite: Boolean)
 
 /**
  * This has SLF4J/Logback Helpers that depend on SLF4j/Logback
@@ -45,13 +43,13 @@ object Logging {
   def setLevelToWarn(logger: AnyRef):  Unit = setLevel(logger, LogbackLevel.WARN)
   def setLevelToError(logger: AnyRef): Unit = setLevel(logger, LogbackLevel.ERROR)
   
-  def setLevel(logger: AnyRef, level: LogbackLevel): Unit = setLevel(Logger.getLogger(logger), level)
-  def setLevel(logger: SLF4JLogger, level: LogbackLevel): Unit = logger match { case logback: LogbackLogger => logback.setLevel(level) }
+  def setLevel(logger: AnyRef, level: LogbackLevel): Unit = setLevel(Logger.SLF4JLogger(logger).underlying, level)
+  def setLevel(logger: org.slf4j.Logger, level: LogbackLevel): Unit = logger match { case logback: LogbackLogger => logback.setLevel(level) }
   
   /**
    * Capture logging to a file
    */
-  def capture[T](logger: SLF4JLogger, pattern: String = """%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n""", file: File, overwrite: Boolean)(fun: => T): T = FileUtil.writeFile(file, overwrite){ os => capture(logger.asInstanceOf[ch.qos.logback.classic.Logger], pattern, os)(fun) }
+  def capture[T](logger: org.slf4j.Logger, pattern: String = """%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n""", file: File, overwrite: Boolean)(fun: => T): T = FileUtil.writeFile(file, overwrite){ os => capture(logger.asInstanceOf[ch.qos.logback.classic.Logger], pattern, os)(fun) }
   
   /**
    * Capture logging based on a LoggingCaptureConfig
@@ -72,7 +70,7 @@ object Logging {
   def capture[T](logger: ch.qos.logback.classic.Logger, pattern: String, os: OutputStream)(fun: => T): T = {
     import ch.qos.logback.classic.LoggerContext
     
-    val ctx = SLF4JLoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext]
+    val ctx = org.slf4j.LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext]
     val encoder = new ch.qos.logback.classic.encoder.PatternLayoutEncoder
     encoder.setContext(ctx)
     encoder.setPattern(pattern)

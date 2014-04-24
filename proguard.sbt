@@ -10,7 +10,9 @@ ProguardKeys.options in Proguard ++= Seq(
   "-keep class fm.** { *; }",
   "-repackageclasses 'fm.common.libs'",
   "-keepattributes",
-  "-keepparameternames"
+  "-keepparameternames",
+  "-dontnote org.apache.commons.lang3.ObjectUtils",
+  "-dontnote org.apache.commons.io.LineIterator"
 )
 
 ProguardKeys.defaultInputFilter in Proguard := Some("!META-INF/**,!org/apache/commons/codec/language/bm/*.txt")

@@ -21,7 +21,7 @@ final class RichConcurrentMap[K,V](val map: ConcurrentMap[K,V]) extends AnyVal {
   /**
    * Attempts to only evaluate the value if the key is not present in the map
    */
-  def getOrElseUpdate(key: K, makeValue: => V): V = {
+  @inline def getOrElseUpdate(key: K, makeValue: => V): V = {
     if (map.containsKey(key)) {
       val v: V = map.get(key)
       if (null != v) return v

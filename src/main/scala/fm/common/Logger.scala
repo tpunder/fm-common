@@ -15,10 +15,8 @@
  */
 package fm.common
 
-import org.slf4j.LoggerFactory
-
 object Logger {
-  private val hasSLF4J: Boolean = try { getClass.getClassLoader.loadClass("org.slf4j.Logger"); true } catch { case _: ClassNotFoundException => false }
+  private[this] val hasSLF4J: Boolean = ClassUtil.classExists("org.slf4j.Logger")
   
   def getLogger(obj: AnyRef): Logger = if (hasSLF4J) SLF4JLogger(obj) else NoLogger
   
@@ -43,9 +41,11 @@ object Logger {
   }
   
   object SLF4JLogger {
-    def apply(obj: AnyRef): SLF4JLogger = new SLF4JLogger(getLogger(obj))
+    import org.slf4j.LoggerFactory
     
-    private def getLogger(obj: AnyRef) = obj match {
+    def apply(obj: AnyRef): SLF4JLogger = new SLF4JLogger(getLoggerImpl(obj))
+    
+    private def getLoggerImpl(obj: AnyRef) = obj match {
       case s: String   => LoggerFactory.getLogger(s)
       case c: Class[_] => LoggerFactory.getLogger(loggerNameForClass(c.getName))
       case _           => LoggerFactory.getLogger(loggerNameForClass(obj.getClass.getName))
@@ -57,6 +57,8 @@ object Logger {
   }
   
   final class SLF4JLogger(self: org.slf4j.Logger) extends Logger {
+    def underlying: org.slf4j.Logger = self
+    
     def isTraceEnabled: Boolean = self.isTraceEnabled()
     def isDebugEnabled: Boolean = self.isDebugEnabled()
     def isInfoEnabled : Boolean = self.isInfoEnabled()

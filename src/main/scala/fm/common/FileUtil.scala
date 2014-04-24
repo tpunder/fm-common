@@ -24,10 +24,10 @@ object FileUtil extends Logging {
   
   def touch(f: File): Unit = if (!f.exists) f.createNewFile
 
-  def md5(f: File): Array[Byte] = Resource.using(new FileInputStream(f)){ IOUtils.md5(_) }
-  def md5Hex(f: File): String = Resource.using(new FileInputStream(f)){ IOUtils.md5Hex(_) }
-  def sha1(f: File): Array[Byte] = Resource.using(new FileInputStream(f)){ IOUtils.sha1(_) }
-  def sha1Hex(f: File): String = Resource.using(new FileInputStream(f)){ IOUtils.sha1Hex(_) }
+  def md5(f: File)    : Array[Byte] = Resource.using(new FileInputStream(f)){ DigestUtils.md5(_) }
+  def md5Hex(f: File) : String      = Resource.using(new FileInputStream(f)){ DigestUtils.md5Hex(_) }
+  def sha1(f: File)   : Array[Byte] = Resource.using(new FileInputStream(f)){ DigestUtils.sha1(_) }
+  def sha1Hex(f: File): String      = Resource.using(new FileInputStream(f)){ DigestUtils.sha1Hex(_) }
 
   def detectCharset(f: File): Option[Charset] = InputStreamResource.forFileOrResource(f).detectCharset()
   def detectCharsetName(f: File): Option[String] = InputStreamResource.forFileOrResource(f).detectCharsetName()

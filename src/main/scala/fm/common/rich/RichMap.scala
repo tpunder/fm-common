@@ -27,7 +27,7 @@ final class RichMap[A, B, This <: MapLike[A,B,This] with scala.collection.Map[A,
    * https://issues.scala-lang.org/browse/SI-4776
    */
   // TODO: figure out how to make the CanBuildFrom stuff actually work so you end up with the same Map type that you started with
-  def mapValuesStrict[C, That <: scala.collection.Map[A, C]](f: B => C)(implicit bf: CanBuildFrom[This, (A, C), That]): That = self.map{ case (k,v) => (k, f(v)) }
+  @inline def mapValuesStrict[C, That <: scala.collection.Map[A, C]](f: B => C)(implicit bf: CanBuildFrom[This, (A, C), That]): That = self.map{ case (k,v) => (k, f(v)) }
   
   def toSortedMap(implicit ord: Ordering[A]): SortedMap[A, B] = self match {
     case sorted: SortedMap[_,_] => sorted.asInstanceOf[SortedMap[A,B]]

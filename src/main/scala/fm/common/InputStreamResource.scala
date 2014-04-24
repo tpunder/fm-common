@@ -123,15 +123,15 @@ final case class InputStreamResource(resource: Resource[InputStream], fileName: 
   }
   
   def readBytes(): Array[Byte] = use{ is: InputStream =>
-    val os = new org.apache.commons.io.output.ByteArrayOutputStream
+    val os = new fm.common.ByteArrayOutputStream
     IOUtils.copy(is, os)
     os.toByteArray()    
   }
   
-  def md5: Array[Byte] = use{ IOUtils.md5 }
-  def md5Hex: String = use{ IOUtils.md5Hex }
-  def sha1: Array[Byte] = use{ IOUtils.sha1 }
-  def sha1Hex: String = use{ IOUtils.sha1Hex }
+  def md5: Array[Byte]  = use{ DigestUtils.md5     }
+  def md5Hex: String    = use{ DigestUtils.md5Hex  }
+  def sha1: Array[Byte] = use{ DigestUtils.sha1    }
+  def sha1Hex: String   = use{ DigestUtils.sha1Hex }
   
   def writeTo(output: Resource[OutputStream]): Unit = output.use{ writeTo }
   

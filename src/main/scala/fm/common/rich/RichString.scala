@@ -17,6 +17,7 @@ package fm.common.rich
 
 import java.io.File
 import java.math.{BigDecimal, BigInteger}
+import org.apache.commons.lang3.text.WordUtils
 
 final class RichString(val s: String) extends AnyVal {
   /**
@@ -80,7 +81,30 @@ final class RichString(val s: String) extends AnyVal {
    * @param length The length to truncate the string to
    * @param ommission If the string is truncated then add this to the end (Note: The resulting still will be at most length)
    */
-  def truncate(length: Int, omission: String = ""):String = {
+  def truncate(length: Int, omission: String = ""): String = {
     if (s.length > length) s.substring(0, length-omission.length)+omission else s
+  }
+  
+  /**
+   * This just calls org.apache.commons.lang3.text.WordUtils.capitalize
+   */
+  def capitalizeWords: String = WordUtils.capitalize(s)
+  
+  def pad(length: Int, c: Char = ' '): String = rPad(length, c)
+
+  def lPad(length: Int, c: Char = ' '): String = {
+    val target = length - s.length
+    if(target <= 0) s else repeat(c, target)+s
+  }
+
+  def rPad(length: Int, c: Char = ' '): String = {
+    val target = length - s.length
+    if(target <= 0) s else s+repeat(c, target)
+  }
+  
+  private def repeat(c: Char, times: Int): String = {
+    val arr = new Array[Char](times)
+    java.util.Arrays.fill(arr, c)
+    new String(arr)
   }
 }
