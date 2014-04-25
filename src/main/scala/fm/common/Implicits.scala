@@ -20,7 +20,7 @@ import fm.common.rich._
 import java.io.InputStream
 import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
 import java.math.{BigDecimal => JavaBigDecimal, BigInteger => JavaBigInteger}
-import scala.concurrent.Future
+import scala.concurrent.{Await, Future}
 import scala.math.{BigDecimal => ScalaBigDecimal, BigInt => ScalaBigInt}
 import scala.util.Try
 
@@ -37,6 +37,7 @@ trait Implicits extends OrderingImplicits {
   
   implicit def toRichTry[T](t: Try[T]): RichTry[T] = new RichTry(t)
   implicit def toRichFuture[V](f: Future[V]): RichFuture[V] = RichFuture(f)
+  implicit def toRichAwait[V](await: Await.type): RichAwait = new RichAwait(await)
   
   implicit def toRichURI(uri: URI): RichURI = new RichURI(uri)
   implicit def toRichURI(url: URL): RichURL = new RichURL(url)
