@@ -2,7 +2,7 @@ name := "fm-common"
 
 organization := "com.frugalmechanic"
 
-version := "0.1"
+version := "0.2-SNAPSHOT"
 
 description := "Common Scala classes that we use at Frugal Mechanic that have no required external dependencies."
 
