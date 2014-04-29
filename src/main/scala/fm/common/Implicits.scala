@@ -29,6 +29,7 @@ object Implicits extends Implicits
 trait Implicits extends OrderingImplicits {  
   implicit def toRichCharSequence(s: CharSequence): RichCharSequence = new RichCharSequence(s)
   implicit def toRichString(s: String): RichString = new RichString(s)
+  implicit def toRichStringOption(opt: Option[String]): RichStringOption = new RichStringOption(opt)
   
   implicit def toRichTraversableOnce[T](t: scala.collection.TraversableOnce[T]) = new RichTraversableOnce(t)
   
