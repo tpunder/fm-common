@@ -1,6 +1,11 @@
+import com.typesafe.sbt.SbtProguard._
+import com.typesafe.sbt.SbtProguard.ProguardKeys.proguard
+
 // Modeled after https://github.com/rtimush/sbt-updates/blob/master/proguard.sbt
 
 proguardSettings
+
+javaOptions in (Proguard, proguard) := Seq("-Xmx1024M", "-Dfile.encoding=UTF8")
 
 ProguardKeys.proguardVersion in Proguard := "4.11"
 
