@@ -18,6 +18,7 @@ package fm.common.rich
 import java.io.File
 import java.math.{BigDecimal, BigInteger}
 import org.apache.commons.lang3.text.WordUtils
+import scala.util.matching.Regex
 
 final class RichString(val s: String) extends AnyVal {
   /**
@@ -41,12 +42,20 @@ final class RichString(val s: String) extends AnyVal {
   def stripTrailing(trail: String): String = if (s.endsWith(trail)) s.substring(0, s.length - trail.length) else s
   
   def toBooleanOption: Option[Boolean] = try { Some(java.lang.Boolean.valueOf(s)) } catch { case _: NumberFormatException => None }
-  def toByteOption: Option[Byte]       = try { Some(java.lang.Byte.valueOf(s)) }    catch { case _: NumberFormatException => None }
-  def toShortOption: Option[Short]     = try { Some(java.lang.Short.valueOf(s)) }   catch { case _: NumberFormatException => None }
-  def toIntOption: Option[Int]         = try { Some(java.lang.Integer.valueOf(s)) } catch { case _: NumberFormatException => None }
-  def toLongOption: Option[Long]       = try { Some(java.lang.Long.valueOf(s)) }    catch { case _: NumberFormatException => None }
-  def toFloatOption: Option[Float]     = try { Some(java.lang.Float.valueOf(s)) }   catch { case _: NumberFormatException => None }
-  def toDoubleOption: Option[Double]   = try { Some(java.lang.Double.valueOf(s)) }  catch { case _: NumberFormatException => None }
+  def toByteOption:    Option[Byte]    = try { Some(java.lang.Byte.valueOf(s))    } catch { case _: NumberFormatException => None }
+  def toShortOption:   Option[Short]   = try { Some(java.lang.Short.valueOf(s))   } catch { case _: NumberFormatException => None }
+  def toIntOption:     Option[Int]     = try { Some(java.lang.Integer.valueOf(s)) } catch { case _: NumberFormatException => None }
+  def toLongOption:    Option[Long]    = try { Some(java.lang.Long.valueOf(s))    } catch { case _: NumberFormatException => None }
+  def toFloatOption:   Option[Float]   = try { Some(java.lang.Float.valueOf(s))   } catch { case _: NumberFormatException => None }
+  def toDoubleOption:  Option[Double]  = try { Some(java.lang.Double.valueOf(s))  } catch { case _: NumberFormatException => None }
+  
+  def isBoolean: Boolean = toBooleanOption.isDefined
+  def isByte:    Boolean = toByteOption.isDefined
+  def isShort:   Boolean = toShortOption.isDefined
+  def isInt:     Boolean = toIntOption.isDefined
+  def isLong:    Boolean = toLongOption.isDefined
+  def isFloat:   Boolean = toFloatOption.isDefined
+  def isDouble:  Boolean = toDoubleOption.isDefined
   
   def toBigDecimalOption: Option[BigDecimal] = {
     try {
@@ -107,4 +116,8 @@ final class RichString(val s: String) extends AnyVal {
     java.util.Arrays.fill(arr, c)
     new String(arr)
   }
+  
+  def replaceAll(regex: Regex, replacement: String): String = regex.replaceAllIn(s, replacement)
+  
+  def replaceFirst(regex: Regex, replacement: String): String = regex.replaceFirstIn(s, replacement)
 }

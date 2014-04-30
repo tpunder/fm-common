@@ -40,5 +40,20 @@ final class TestRichString extends FunSuite with Matchers {
     "foo".toIntOption should equal (None)
     "123.45".toIntOption should equal (None)
     "1234567890000".toIntOption should equal (None) // Too big for Int
+    
+    "123asd".toIntOption should equal (None)
+  }
+  
+  test("isInt") {
+    "123".isInt should equal (true)
+    "-123".isInt should equal (true)
+    
+    (null: String).isInt should equal (false)
+    "".isInt should equal (false)
+    "foo".isInt should equal (false)
+    "123.45".isInt should equal (false)
+    "1234567890000".isInt should equal (false) // Too big for Int
+    
+    "123asd".isInt should equal (false)
   }
 }
