@@ -2,7 +2,7 @@ name := "fm-common"
 
 organization := "com.frugalmechanic"
 
-version := "0.2-SNAPSHOT"
+version := "0.2.0-SNAPSHOT"
 
 description := "Common Scala classes that we use at Frugal Mechanic that have no required external dependencies."
 
@@ -15,7 +15,7 @@ scalaVersion := "2.10.4"
 // Note: Use "++ 2.11.0" to select a specific version when building
 crossScalaVersions := Seq("2.10.4", "2.11.0")
 
-scalacOptions := Seq("-unchecked", "-deprecation", "-language:implicitConversions", "-feature", "-optimise")
+scalacOptions := Seq("-unchecked", "-deprecation", "-language:implicitConversions", "-feature", "-optimise", "-Yinline-warnings")
 
 libraryDependencies ++= Seq(
   "org.slf4j" % "slf4j-api" % "1.7.5" % "provided",
