@@ -1,13 +1,4 @@
-import com.typesafe.sbt.SbtProguard._
-import com.typesafe.sbt.SbtProguard.ProguardKeys.proguard
-
-// Modeled after https://github.com/rtimush/sbt-updates/blob/master/proguard.sbt
-
-proguardSettings
-
-javaOptions in (Proguard, proguard) := Seq("-Xmx1024M", "-Dfile.encoding=UTF8")
-
-ProguardKeys.proguardVersion in Proguard := "4.11"
+FMProguardSettings
 
 ProguardKeys.options in Proguard ++= Seq(
   "-dontoptimize",
@@ -24,17 +15,3 @@ ProguardKeys.defaultInputFilter in Proguard := Some("!META-INF/**,!org/apache/co
 
 // Some of the Apache libs need javax.crypto
 ProguardKeys.libraries in Proguard += new File(System.getProperty("java.home"), "lib/jce.jar")
-
-ProguardKeys.inputs in Proguard <<= (dependencyClasspath in Embedded, packageBin in Runtime) map {
-  (dcp, pb) => Seq(pb) ++ dcp.files
-}
-
-Build.publishMinJar <<= (ProguardKeys.proguard in Proguard) map (_.head)
-
-packagedArtifact in (Compile, packageBin) <<= (packagedArtifact in (Compile, packageBin), Build.publishMinJar) map {
-  case ((art, _), jar) => (art, jar)
-}
-
-dependencyClasspath in Compile <++= dependencyClasspath in Embedded
-
-dependencyClasspath in Test <++= dependencyClasspath in Embedded
