@@ -123,6 +123,15 @@ final class IP private(val ip: Int) extends AnyVal with Ordered[IP] {
   
   def longValue: Long = toLong(ip)
   def intValue: Int = ip
+  
+  /** Is this a 127.0.0.0/8 IP Address? */
+  def isLocalhost: Boolean = IPSubnet.Localhost.contains(this)
+  
+  /** Is this NOT a 127.0.0.0/8 IP Address? */
+  def isNotLocalhost: Boolean = !isLocalhost
+  
+  /** Is this an RFC 1918 Private IP Address (or Localhost)? */
+  def isPrivate: Boolean = IPSubnets.Private.contains(this)
 
   def reversedString: String = toReversedString(ip)
   override def toString: String = IP.toString(ip)
