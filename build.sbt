@@ -11,7 +11,7 @@ scalaVersion := "2.10.4"
 // Note: Use "++ 2.11.0" to select a specific version when building
 crossScalaVersions := Seq("2.10.4", "2.11.0")
 
-scalacOptions := Seq("-unchecked", "-deprecation", "-language:implicitConversions", "-feature", "-optimise", "-Yinline-warnings")
+scalacOptions := Seq("-unchecked", "-deprecation", "-language:implicitConversions", "-feature", "-Xlint", "-optimise", "-Yinline-warnings")
 
 libraryDependencies ++= Seq(
   "org.slf4j" % "slf4j-api" % "1.7.5" % "provided",

@@ -23,7 +23,7 @@ final case class ProgressStats(dotPer: Long = 1000L, statsPer: Long = 25000L, lo
   
   def count: Long = _count.get
   
-  def increment {
+  def increment(): Unit = {
     val c: Long = _count.incrementAndGet
 
     if (c % dotPer == 0) {
@@ -39,7 +39,7 @@ final case class ProgressStats(dotPer: Long = 1000L, statsPer: Long = 25000L, lo
     }
   }
 
-  def sectionStats {
+  def sectionStats(): Unit = {
     if (hide) return
 
     val c: Long = _count.get
@@ -55,17 +55,17 @@ final case class ProgressStats(dotPer: Long = 1000L, statsPer: Long = 25000L, lo
     }
   }
   
-  def finalStats {
+  def finalStats(): Unit = {
     sectionStats
     
     if (sectionStartTime != startTimeMillis) finalTime
   }
   
-  def sectionTime {
+  def sectionTime(): Unit = {
     printTime("Time", sectionStartTime)
   }
   
-  def finalTime {    
+  def finalTime(): Unit = {    
     printTime("Total Time", startTimeMillis)
   }
   
