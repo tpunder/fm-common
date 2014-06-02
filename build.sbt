@@ -6,12 +6,14 @@ version := "0.2.0-SNAPSHOT"
 
 description := "Common Scala classes that we use at Frugal Mechanic that have no required external dependencies."
 
-scalaVersion := "2.10.4"
+scalaVersion := "2.11.1"
 
 // Note: Use "++ 2.11.0" to select a specific version when building
-crossScalaVersions := Seq("2.10.4", "2.11.0")
+crossScalaVersions := Seq("2.10.4", "2.11.1")
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-language:implicitConversions", "-feature", "-Xlint", "-optimise", "-Yinline-warnings")
+
+javacOptions ++= Seq("-source", "1.7", "-target", "1.7")
 
 libraryDependencies ++= Seq(
   "org.slf4j" % "slf4j-api" % "1.7.5" % "provided",
