@@ -17,7 +17,7 @@ package fm.common
 
 import fm.common.rich._
 
-import java.io.InputStream
+import java.io.{File, InputStream}
 import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
 import java.math.{BigDecimal => JavaBigDecimal, BigInteger => JavaBigInteger}
 import scala.concurrent.{Await, Future}
@@ -54,5 +54,6 @@ trait Implicits extends OrderingImplicits {
   implicit def toRichBigDecimal(d: JavaBigDecimal): RichBigDecimal = new RichBigDecimal(d)
   implicit def toRichBigDecimal(d: ScalaBigDecimal): RichBigDecimal = new RichBigDecimal(d.bigDecimal)
   
+  implicit def toRichFile(f: File): RichFile = new RichFile(f)
   implicit def toRichInputStream(is: InputStream): RichInputStream = new RichInputStream(is)
 }
