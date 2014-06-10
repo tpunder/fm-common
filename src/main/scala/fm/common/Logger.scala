@@ -33,6 +33,12 @@ object Logger {
     def warn(msg: => String) : Unit = {}
     def error(msg: => String): Unit = {}
     
+    def trace(ex: Throwable): Unit = {}
+    def debug(ex: Throwable): Unit = {}
+    def info(ex: Throwable) : Unit = {}
+    def warn(ex: Throwable) : Unit = {}
+    def error(ex: Throwable): Unit = {}
+    
     def trace(msg: => String, ex: Throwable): Unit = {}
     def debug(msg: => String, ex: Throwable): Unit = {}
     def info(msg: => String, ex: Throwable) : Unit = {}
@@ -71,6 +77,12 @@ object Logger {
     def warn(msg: => String) : Unit = self.warn(msg)
     def error(msg: => String): Unit = self.error(msg)
     
+    def trace(ex: Throwable): Unit = self.trace("Caught Exception", ex)
+    def debug(ex: Throwable): Unit = self.debug("Caught Exception", ex)
+    def info(ex: Throwable) : Unit = self.info("Caught Exception", ex)
+    def warn(ex: Throwable) : Unit = self.warn("Caught Exception", ex)
+    def error(ex: Throwable): Unit = self.error("Caught Exception", ex)
+    
     def trace(msg: => String, ex: Throwable): Unit = self.trace(msg, ex)
     def debug(msg: => String, ex: Throwable): Unit = self.debug(msg, ex)
     def info(msg: => String, ex: Throwable) : Unit = self.info(msg, ex)
@@ -91,6 +103,12 @@ trait Logger {
   def info(msg: => String) : Unit
   def warn(msg: => String) : Unit
   def error(msg: => String): Unit
+  
+  def trace(ex: Throwable): Unit
+  def debug(ex: Throwable): Unit
+  def info(ex: Throwable) : Unit
+  def warn(ex: Throwable) : Unit
+  def error(ex: Throwable): Unit
   
   def trace(msg: => String, ex: Throwable): Unit
   def debug(msg: => String, ex: Throwable): Unit
