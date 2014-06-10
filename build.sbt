@@ -20,8 +20,8 @@ libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic" % "1.0.13" % "provided",
   "org.xerial.snappy" % "snappy-java" % "1.1.0.1" % "provided",
   "com.googlecode.juniversalchardet" % "juniversalchardet" % "1.0.3" % "embedded",
-  "org.apache.commons" % "commons-compress" % "1.8" % "embedded",
-  "org.apache.commons" % "commons-lang3" % "3.2.1" % "embedded",
+  "org.apache.commons" % "commons-compress" % "1.8.1" % "embedded",
+  "org.apache.commons" % "commons-lang3" % "3.3.2" % "embedded",
   "commons-codec" % "commons-codec" % "1.9" % "embedded",
   "commons-io" % "commons-io" % "2.4" % "embedded"
 )
