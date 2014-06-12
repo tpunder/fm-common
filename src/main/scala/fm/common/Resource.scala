@@ -15,12 +15,12 @@
  */
 package fm.common
 
-import java.io.{Closeable, IOException}
+import java.io.IOException
 
 object Resource {
   private[this] val logger = Logger.getLogger(this) 
   
-  def using[T, R <% Closeable](resource: R)(f: R => T): T = try {
+  def using[T, R <% AutoCloseable](resource: R)(f: R => T): T = try {
     f(resource)
   } catch {
     case ex: Exception =>
@@ -30,7 +30,7 @@ object Resource {
     if(null != resource) resource.close()
   }
   
-  def using[T, R <% Closeable](resources: Seq[R])(f: Seq[R] => T): T = try {
+  def using[T, R <% AutoCloseable](resources: Seq[R])(f: Seq[R] => T): T = try {
     f(resources)
   } catch {
     case ex: Exception =>
@@ -40,16 +40,16 @@ object Resource {
     if(null != resources) resources.foreach{r => if(null != r) r.close() }
   }
   
-  implicit def toCloseable[T <: { def close(): Unit }](obj: T): Closeable = new Closeable {
+  implicit def toCloseable[T <: { def close(): Unit }](obj: T): AutoCloseable = new AutoCloseable {
     import scala.language.reflectiveCalls
     
     // This causes a reflective call
     def close(): Unit = obj.close()
   }
   
-  def apply[T <: Closeable](resource: T): Resource[T] = toResource(resource)
+  def apply[T <: AutoCloseable](resource: T): Resource[T] = toResource(resource)
   
-  implicit def toResource[T <: Closeable](resource: T): Resource[T] = SingleUseResource(resource)
+  implicit def toResource[T <: AutoCloseable](resource: T): Resource[T] = SingleUseResource(resource)
   
   val empty: Resource[Unit] = UnitResource
   
@@ -109,13 +109,13 @@ final case class DummyResource[A](a: A) extends Resource[A] {
 
 
 object MultiUseResource {
-  def apply[A <% Closeable](makeResource: => A) = new MultiUseResource(makeResource)
+  def apply[A <% AutoCloseable](makeResource: => A) = new MultiUseResource(makeResource)
 }
 
 /**
  * A Resource that can be used multiple times (e.g. opening an InputStream or Reader for a File)
  */
-final class MultiUseResource[+A <% Closeable](makeResource: => A) extends Resource[A] {
+final class MultiUseResource[+A <% AutoCloseable](makeResource: => A) extends Resource[A] {
   final def isUsable: Boolean = true
   final def isMultiUse: Boolean = true
   
@@ -123,13 +123,13 @@ final class MultiUseResource[+A <% Closeable](makeResource: => A) extends Resour
 }
 
 object SingleUseResource {
-  def apply[A <% Closeable](resource: A) = new SingleUseResource(resource)
+  def apply[A <% AutoCloseable](resource: A) = new SingleUseResource(resource)
 }
 
 /**
  * A Resource that can only be used once (e.g. reading an InputStream)
  */
-final class SingleUseResource[+A <% Closeable](resource: A) extends Resource[A] {
+final class SingleUseResource[+A <% AutoCloseable](resource: A) extends Resource[A] {
   @volatile private[this] var used: Boolean = false
   
   final def isUsable: Boolean = !used
