@@ -16,7 +16,6 @@
 package fm.common
 
 import fm.common.rich._
-
 import java.io.{File, InputStream}
 import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
 import java.math.{BigDecimal => JavaBigDecimal, BigInteger => JavaBigInteger}
