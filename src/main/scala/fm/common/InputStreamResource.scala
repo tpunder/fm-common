@@ -16,7 +16,8 @@
 package fm.common
 
 import java.io._
-import java.nio.ByteBuffer
+import java.nio.{ByteBuffer, MappedByteBuffer}
+import java.nio.channels.FileChannel
 import java.nio.charset.Charset
 import fm.common.Implicits._
 
@@ -48,8 +49,18 @@ object InputStreamResource {
     forFileImpl(resource, file, originalFileName = originalFileName, autoDecompress = autoDecompress, autoBuffer = autoBuffer)
   }
   
+  def forRandomAccessFile(raf: RandomAccessFile, originalFileName: String = "", autoDecompress: Boolean = true, autoBuffer: Boolean = true): InputStreamResource = {
+    val bufs: Vector[MappedByteBuffer] = ByteBufferUtil.map(raf, FileChannel.MapMode.READ_ONLY)
+    forByteBuffers(bufs, originalFileName = originalFileName, autoDecompress = autoDecompress, autoBuffer = autoBuffer)
+  }
+  
   def forByteBuffer(buf: ByteBuffer, originalFileName: String = "", autoDecompress: Boolean = true, autoBuffer: Boolean = true): InputStreamResource = {
     val resource: Resource[InputStream] = MultiUseResource{ new ByteBufferInputStream(buf.duplicate()) }
+    InputStreamResource(resource, fileName = originalFileName, autoDecompress = autoDecompress, autoBuffer = autoBuffer)
+  }
+  
+  def forByteBuffers(bufs: Vector[ByteBuffer], originalFileName: String = "", autoDecompress: Boolean = true, autoBuffer: Boolean = true): InputStreamResource = {
+    val resource: Resource[InputStream] = MultiUseResource{ ByteBufferInputStream(bufs) }
     InputStreamResource(resource, fileName = originalFileName, autoDecompress = autoDecompress, autoBuffer = autoBuffer)
   }
   
