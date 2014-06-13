@@ -158,4 +158,15 @@ final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal 
       
       set
   }
+  
+  /**
+   * Like .toSet but returns a scala.collection.immutable.SortedSet instead
+   */
+  def toSortedSet(implicit ord: Ordering[A]): immutable.SortedSet[A] = self match {
+    case sortedSet: immutable.HashSet[_] => sortedSet.asInstanceOf[immutable.SortedSet[A]]
+    case _ =>
+      val builder = immutable.SortedSet.newBuilder[A]
+      builder ++= self
+      builder.result
+  }
 }
