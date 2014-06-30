@@ -31,9 +31,9 @@ object InputStreamResource {
     InputStreamResource(SingleUseResource(is), fileName = fileName, autoDecompress = autoDecompress, autoBuffer = autoBuffer)
   }
   
-  def forFileOrResource(file: File, originalFileName: String = "", autoDecompress: Boolean = true, autoBuffer: Boolean = true): InputStreamResource = {
+  def forFileOrResource(file: File, originalFileName: String = "", autoDecompress: Boolean = true, autoBuffer: Boolean = true, classLoader: ClassLoader = defaultClassLoader): InputStreamResource = {
     val resource: Resource[InputStream] = MultiUseResource{
-      if (file.isFile && file.canRead) new FileInputStream(file) else Thread.currentThread.getContextClassLoader.getResourceAsStream(file.toString())
+      if (file.isFile && file.canRead) new FileInputStream(file) else classLoader.getResourceAsStream(file.toString())
     }.map{ is: InputStream =>
       if (null == is) throw new IOException("Missing File or Classpath Resource: "+file)
       is
@@ -64,8 +64,8 @@ object InputStreamResource {
     InputStreamResource(resource, fileName = originalFileName, autoDecompress = autoDecompress, autoBuffer = autoBuffer)
   }
   
-  def forResource(file: File, originalFileName: String = "", autoDecompress: Boolean = true, autoBuffer: Boolean = true): InputStreamResource = {
-    val resource: Resource[InputStream] = MultiUseResource{ Thread.currentThread.getContextClassLoader.getResourceAsStream(file.toString()) }.map{ is: InputStream =>
+  def forResource(file: File, originalFileName: String = "", autoDecompress: Boolean = true, autoBuffer: Boolean = true, classLoader: ClassLoader = defaultClassLoader): InputStreamResource = {
+    val resource: Resource[InputStream] = MultiUseResource{ classLoader.getResourceAsStream(file.toString()) }.map{ is: InputStream =>
       if (null == is) throw new IOException("Missing Classpath Resource: "+file)
       is
     }
@@ -77,6 +77,10 @@ object InputStreamResource {
     InputStreamResource(resource, fileName = fileName, autoDecompress = autoDecompress, autoBuffer = autoBuffer)
   }
   
+  private def defaultClassLoader: ClassLoader = {
+    val cl: ClassLoader = Thread.currentThread.getContextClassLoader
+    if (null != cl) cl else getClass().getClassLoader()
+  }
 }
 
 final case class InputStreamResource(resource: Resource[InputStream], fileName: String = "", autoDecompress: Boolean = true, autoBuffer: Boolean = true) extends Resource[InputStream] with Logging {
