@@ -56,4 +56,16 @@ final class TestRichString extends FunSuite with Matchers {
     
     "123asd".isInt should equal (false)
   }
+  
+  test("capitalizeWords") {
+    "foo baR".capitalizeWords should equal ("Foo BaR")
+    
+    "foo_bAR".capitalizeWords('_') should equal ("Foo_BAR")
+  }
+  
+  test("capitalizeFully") {
+    "foo baR".capitalizeFully should equal ("Foo Bar")
+    
+    "foo_bar".capitalizeFully('_') should equal ("Foo_Bar")
+  }
 }
