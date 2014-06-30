@@ -15,6 +15,7 @@
  */
 package fm.common.rich
 
+import fm.common.Normalize
 import java.io.File
 import java.math.{BigDecimal, BigInteger}
 import org.apache.commons.lang3.text.WordUtils
@@ -95,10 +96,23 @@ final class RichString(val s: String) extends AnyVal {
     if (s.length > length) s.substring(0, length-omission.length)+omission else s
   }
   
-  /**
-   * This just calls org.apache.commons.lang3.text.WordUtils.capitalize
-   */
+  /** See fm.common.Normalize.lowerAlphaNumeric */
+  def lowerAlphaNumeric: String = Normalize.lowerAlphanumeric(s)
+  
+  /** See fm.common.Normalize.name */
+  def urlName: String = Normalize.urlName(s)
+  
+  /** See org.apache.commons.lang3.text.WordUtils.capitalize */
   def capitalizeWords: String = WordUtils.capitalize(s)
+  
+  /** See org.apache.commons.lang3.text.WordUtils.capitalize */
+  def capitalizeWords(delimiters: Char*): String = WordUtils.capitalize(s, delimiters:_*)
+  
+  /** See org.apache.commons.lang3.text.WordUtils.capitalizeFully */
+  def capitalizeFully: String = WordUtils.capitalizeFully(s)
+  
+  /** See org.apache.commons.lang3.text.WordUtils.capitalizeFully */
+  def capitalizeFully(delimiters: Char*): String = WordUtils.capitalizeFully(s, delimiters:_*)
   
   def pad(length: Int, c: Char = ' '): String = rPad(length, c)
 
