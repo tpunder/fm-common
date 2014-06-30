@@ -17,6 +17,8 @@ package fm.common.rich
 
 import fm.common.QueryParams
 import fm.common.Implicits._
+import java.io.File
+import java.net.{URI, URL}
 
 trait RichURIBase[T] extends Any {
   def scheme: Option[String]
@@ -30,6 +32,21 @@ trait RichURIBase[T] extends Any {
   
   protected def self: T
   protected def make(s: String): T
+  
+  protected def toURI: URI
+  protected def toURL: URL
+  
+  /**
+   * Is this a file:// URI/URL?
+   */
+  def isFile: Boolean = scheme.exists{ _ == "file" }
+  
+  def toFile: File = {
+    require(isFile, "Not a file: "+toURI)
+    new File(toURI)
+  }
+    
+  def toFileOption: Option[File] = if (isFile) Some(new File(toURI)) else None
 
   def updateQueryParam(key: String, value: String): T = withQueryParams(queryParams.updated(key, value))
   
