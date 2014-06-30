@@ -84,4 +84,20 @@ class TestNormalize extends FunSuite with Matchers {
     Normalize.reverseLowerAlphanumeric(" BOSCH - ", "bosch") should equal (Some("BOSCH"))
     Normalize.reverseLowerAlphanumeric(" - BOSCH - ", "bosch") should equal (Some("BOSCH"))
   }
+  
+  test("urlname") {
+    def t(pair: (String,String)) {
+      val (str, urlName) = pair
+      Normalize.urlName(str) should equal(urlName)
+    }
+
+    t("Foo" -> "foo")
+    t("  Foo  " -> "foo")
+    t(" - Foo - " -> "foo")
+    t("foo BAR" -> "foo-bar")
+    t("  foo  BAR  " -> "foo-bar")
+    t("Dorman HELP!" -> "dorman-help")
+    t("Dorman HELP\\!" -> "dorman-help")
+    t("\\\\foo_bar\\asd//\\" -> "foo-bar-asd")
+  }
 }

@@ -169,4 +169,53 @@ object Normalize {
   def numeric(s: String): String = {
     new String(s.filter{ch => Character.isDigit(ch) || '.' == ch || '-' == ch }.toArray)
   }
+  
+  /** The word seperator character for urlName */
+  private[this] val SepChar: Char = '-'
+  
+  /** These characters should be transformed into the SepChar in urlName */
+  private[this] val ReplaceWithSepChars: Set[Char] = Set('_', '\\', '/', ' ')
+  
+  /** These characters should be expanded into words in urlName */
+  private[this] val ExpandCharMap: Map[Char, String] = Map(
+    '&' -> "and",
+    '+' -> "plus",
+    '"' -> "inch"
+  )
+  
+  /**
+   * Transform the string into something that is URL Friendly.
+   */
+  def urlName(s: String): String = {
+    val sb = new java.lang.StringBuilder(s.length)
+    var i: Int = 0
+    var lastCharWasSep: Boolean = false
+    
+    while (i < s.length) {
+      val ch: Char = s.charAt(i)
+      
+      if (ch == SepChar || ReplaceWithSepChars.contains(ch)) {
+        if (!lastCharWasSep) {
+          sb.append(SepChar)
+          lastCharWasSep = true
+        }
+      } else if (ExpandCharMap.contains(ch)) {
+        if (!lastCharWasSep) sb.append(SepChar)
+        sb.append(ExpandCharMap(ch))
+        sb.append(SepChar)
+        lastCharWasSep = true
+      } else if (Character.isLetterOrDigit(ch)) {
+        sb.append(Character.toLowerCase(ch))
+        lastCharWasSep = false
+      }
+
+      i += 1
+    }
+    
+    // We can end up with a leading and/or trailing SepChar so lets remove those
+    if (sb.charAt(0) == SepChar) sb.deleteCharAt(0)
+    if (sb.charAt(sb.length - 1) == SepChar) sb.deleteCharAt(sb.length - 1)
+    
+    sb.toString
+  }
 }
