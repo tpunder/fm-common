@@ -15,6 +15,7 @@
  */
 package fm.common.rich
 
+import fm.common.Normalize
 import scala.collection.{immutable, mutable, TraversableOnce}
 
 final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal {
@@ -64,8 +65,8 @@ final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal 
   /**
    * Like .toMap but creates an immutable.HashMap
    */
-  def toHashMap[T, U](implicit ev: A <:< (T, U)): immutable.HashMap[T, U] = {
-    val b = immutable.HashMap.newBuilder[T, U]
+  def toHashMap[K, V](implicit ev: A <:< (K, V)): immutable.HashMap[K, V] = {
+    val b = immutable.HashMap.newBuilder[K, V]
     for (x <- self)
       b += x
 
@@ -75,11 +76,11 @@ final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal 
   /**
    * Same as .toHashMap but ensures there are no duplicate keys
    */
-  def toUniqueHashMap[T, U](implicit ev: A <:< (T, U)): immutable.HashMap[T, U] = {
-    var m = immutable.HashMap.empty[T, U]
+  def toUniqueHashMap[K, V](implicit ev: A <:< (K, V)): immutable.HashMap[K, V] = {
+    var m = immutable.HashMap.empty[K, V]
     
     for (x <- self) {
-      val key = x._1
+      val key: K = x._1
       require(!m.contains(key), s"RichTraversableOnce.toUniqueHashMap - Map already contains key: $key   Existing Value: ${m(key)}  Trying to add value: ${x._2}")
       m += x
     }
@@ -88,16 +89,41 @@ final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal 
   }
   
   /**
-   * Like .toHashMap except allows multiple values per key
+   * Same as toUniqueHashMap but allows you to specify transform functions for the key and value
    */
-  def toMultiValuedMap[T, U](implicit ev: A <:< (T, U)): immutable.Map[T, Vector[U]] = {
-    var m = immutable.HashMap.empty[T, Vector[U]]
+  def toUniqueHashMapWithTransforms[K, V, K2, V2](keyTransform: K => K2, valueTransform: V => V2)(implicit ev: A <:< (K, V)): immutable.HashMap[K2, V2] = {
+    var m = immutable.HashMap.empty[K2, V2]
     
     for (x <- self) {
-      val key: T = x._1
-      val value: U = x._2
+      val key: K2 = keyTransform(x._1)
+      val value: V2 = valueTransform(x._2)
+      require(!m.contains(key), s"RichTraversableOnce.toUniqueHashMap - Map already contains key: $key   Existing Value: ${m(key)}  Trying to add value: $value")
+      m += ((key, value))
+    }
+    
+    m
+  }
+
+  private def identityTransform[T](t: T): T = t
+  
+  /**
+   * Same as toUniqueHashMap but allows you to specify a transform function for the key
+   */
+  def toUniqueHashMapWithKeyTransform[K, V, K2](keyTransform: K => K2)(implicit ev: A <:< (K, V)): immutable.HashMap[K2, V] = {
+    toUniqueHashMapWithTransforms(keyTransform, identityTransform[V])
+  }
+    
+  /**
+   * Like .toHashMap except allows multiple values per key
+   */
+  def toMultiValuedMap[K, V](implicit ev: A <:< (K, V)): immutable.HashMap[K, Vector[V]] = {
+    var m = immutable.HashMap.empty[K, Vector[V]]
+    
+    for (x <- self) {
+      val key: K = x._1
+      val value: V = x._2
       
-      val values: Vector[U] = m.get(key) match {
+      val values: Vector[V] = m.get(key) match {
         case Some(existing) => existing :+ value
         case None => Vector(value)
       }
@@ -109,9 +135,37 @@ final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal 
   }
   
   /**
+   * Same as toMultiValuedMap but allows you to specify transform functions for the key and value
+   */
+  def toMultiValuedMapWithTransforms[K, V, K2, V2](keyTransform: K => K2, valueTransform: V => V2)(implicit ev: A <:< (K, V)): immutable.HashMap[K2, Vector[V2]] = {
+    var m = immutable.HashMap.empty[K2, Vector[V2]]
+    
+    for (x <- self) {
+      val key: K2 = keyTransform(x._1)
+      val value: V2 = valueTransform(x._2)
+      
+      val values: Vector[V2] = m.get(key) match {
+        case Some(existing) => existing :+ value
+        case None => Vector(value)
+      }
+      
+      m = m.updated(key, values)
+    }
+    
+    m
+  }
+  
+  /**
+   * Same as toMultiValuedMap but allows you to specify a transform function for the key
+   */
+  def toMultiValuedMapWithKeyTransform[K, V, K2](keyTransform: K => K2)(implicit ev: A <:< (K, V)): immutable.HashMap[K2, Vector[V]] = {
+    toMultiValuedMapWithTransforms(keyTransform, identityTransform[V])
+  }
+  
+  /**
    * Same as .toMap but ensures there are no duplicate keys
    */
-  def toUniqueMap[T, U](implicit ev: A <:< (T, U)): immutable.HashMap[T, U] = toUniqueHashMap(ev)
+  def toUniqueMap[K, V](implicit ev: A <:< (K, V)): immutable.HashMap[K, V] = toUniqueHashMap(ev)
   
   /**
    * Like .toSet but creates an immutable.HashSet
@@ -123,9 +177,6 @@ final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal 
       builder ++= self
       builder.result
   }
-  
-  // No idea what this version was for
-  //def toHashSet[B >: A]: scala.collection.immutable.HashSet[B] = self.to[scala.collection.immutable.HashSet].asInstanceOf[scala.collection.immutable.HashSet[B]]
   
   /**
    * Like .toHashSet but makes sure there are no duplicates
@@ -140,7 +191,7 @@ final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal 
         set += x
       }
       
-      set  
+      set
   }
   
   /**
@@ -169,4 +220,10 @@ final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal 
       builder ++= self
       builder.result
   }
+
+  def toUniqueLowerAlphaNumericMap[V](implicit ev: A <:< (String,V)): immutable.HashMap[String, V] = toUniqueHashMapWithKeyTransform(Normalize.lowerAlphanumeric)
+  def toUniqueURLNameMap[V](implicit ev: A <:< (String,V)): immutable.HashMap[String, V] = toUniqueHashMapWithKeyTransform(Normalize.urlName)
+  
+  def toMultiValuedLowerAlphaNumericMap[V](implicit ev: A <:< (String,V)): immutable.HashMap[String, Vector[V]] = toMultiValuedMapWithKeyTransform(Normalize.lowerAlphanumeric)
+  def toMultiValuedURLNameMap[V](implicit ev: A <:< (String,V)): immutable.HashMap[String, Vector[V]] = toMultiValuedMapWithKeyTransform(Normalize.urlName)
 }
