@@ -17,31 +17,125 @@ package fm.common
 
 import java.lang.annotation.Annotation
 import java.lang.reflect.Modifier
-import java.net.URLDecoder
-import java.io.File
+import java.net.{URLConnection, URLDecoder}
+import java.io.{File, InputStream}
+import java.nio.file.Path
 import java.util.jar.{JarFile, JarEntry}
 import scala.collection.JavaConverters._
 
+import Implicits._
+
+/**
+ * This contains utility methods for scanning Classes or Files on the classpath.
+ * 
+ * Originally we used the classpath scanning functionality in the Spring Framework
+ * and then later switched to the Reflections library (https://code.google.com/p/reflections/)
+ * to avoid the dependency on Spring.  At some point we ran into issues with the Reflections
+ * library not properly detecting classes so I ended up writing this as a replacement.
+ */
 object ClassUtil extends Logging {
 
-  def classExists(cls: String, classLoader: ClassLoader = currentThreadClassLoader): Boolean = try {
+  /**
+   * Check if a class exists.
+   */
+  def classExists(cls: String, classLoader: ClassLoader = defaultClassLoader): Boolean = try {
     classLoader.loadClass(cls)
     true
   } catch {
     case _: ClassNotFoundException => false
   }
   
-  def requireClass(cls: String, msg: => String, classLoader: ClassLoader = currentThreadClassLoader): Unit = {
+  /** Check if a file exists on the classpath */
+  def classpathFileExists(file: String): Boolean = classpathFileExists(file, defaultClassLoader)
+  
+  /** Check if a file exists on the classpath */
+  def classpathFileExists(file: String, classLoader: ClassLoader): Boolean = classpathFileExists(new File(file), classLoader)
+    
+  /** Check if a file exists on the classpath */
+  def classpathFileExists(file: File): Boolean = classpathFileExists(file, defaultClassLoader)
+  
+  /** Check if a file exists on the classpath */
+  def classpathFileExists(file: File, classLoader: ClassLoader): Boolean = {
+    val path: String = file.toString.stripLeading("/")
+    val urls: Vector[URL] = classLoader.getResources(path).asScala.toVector
+    
+    urls.headOption.map{ url: URL =>
+      if (url.isFile) url.toFile.isFile()
+      else Resource.using(url.openStream()){ is: InputStream =>
+        // This should work for a file
+        try { is.read(); true } catch { case ex: NullPointerException => false }
+      }
+    }.getOrElse(false)
+  }
+  
+  /** Check if a directory exists on the classpath */
+  def classpathDirExists(file: String): Boolean = classpathDirExists(file, defaultClassLoader)
+  
+  /** Check if a directory exists on the classpath */
+  def classpathDirExists(file: String, classLoader: ClassLoader): Boolean = classpathDirExists(new File(file), classLoader)
+    
+  /** Check if a directory exists on the classpath */
+  def classpathDirExists(file: File): Boolean = classpathDirExists(file, defaultClassLoader)
+  
+  /** Check if a directory exists on the classpath */
+  def classpathDirExists(file: File, classLoader: ClassLoader): Boolean = {
+    val path: String = file.toString.stripLeading("/")
+    val urls: Vector[URL] = classLoader.getResources(path).asScala.toVector
+    
+    urls.headOption.map{ url: URL =>
+      if (url.isFile) url.toFile.isDirectory()
+      else Resource.using(url.openStream()){ is: InputStream =>
+        // Not sure if there is a better way to do this -- A NullPointerException is thrown for a directory
+        try { is.read(); false } catch { case ex: Exception => true }
+      }
+    }.getOrElse(false)
+  }
+  
+  /** Lookup the lastModified timestamp for a resource on the classpath */
+  def classpathLastModified(file: String): Long = classpathLastModified(file, defaultClassLoader)
+  
+  /** Lookup the lastModified timestamp for a resource on the classpath */
+  def classpathLastModified(file: String, classLoader: ClassLoader): Long = classpathLastModified(file, classLoader)
+  
+  /** Lookup the lastModified timestamp for a resource on the classpath */
+  def classpathLastModified(file: File): Long = classpathLastModified(file, defaultClassLoader)
+  
+  /** Lookup the lastModified timestamp for a resource on the classpath */
+  def classpathLastModified(file: File, classLoader: ClassLoader): Long = {
+    val path: String = file.toString.stripLeading("/")
+    val urls: Vector[URL] = classLoader.getResources(path).asScala.toVector
+    
+    urls.headOption.map{ url: URL =>
+      if (url.isFile) url.toFile.isDirectory()
+      val conn: URLConnection = url.openConnection()
+      conn.getLastModified()
+    }.getOrElse(-1)
+  }
+  
+  /**
+   * Check if a class exists.  If it does not then a ClassNotFoundException is thrown.
+   */
+  def requireClass(cls: String, msg: => String, classLoader: ClassLoader = defaultClassLoader): Unit = {
     if (!classExists(cls, classLoader)) throw new ClassNotFoundException(s"Missing Class: $cls - $msg")
   }
   
-  def findAnnotatedClasses[T <: Annotation](basePackage: String, annotationClass: Class[T], classLoader: ClassLoader = currentThreadClassLoader): Set[Class[_]] = {
+  /**
+   * Find all classes annotated with a Java Annotation.
+   * 
+   * Note: This loads ALL classes under the basePackage!
+   */
+  def findAnnotatedClasses[T <: Annotation](basePackage: String, annotationClass: Class[T], classLoader: ClassLoader = defaultClassLoader): Set[Class[_]] = {
     findClassNames(basePackage, classLoader).filterNot { _.contains("$") }.map{ classLoader.loadClass }.filter { c: Class[_] =>
       c.getAnnotation(annotationClass) != null
     }
   }
 
-  def findImplementingClasses[T](basePackage: String, clazz: Class[T], classLoader: ClassLoader = currentThreadClassLoader): Set[Class[_ <: T]] = {    
+  /**
+   * Find all concrete classes that extend a trait/interface/class.
+   * 
+   * Note: This loads ALL classes under the basePackage and uses Class.isAssignableFrom for checking.
+   */
+  def findImplementingClasses[T](basePackage: String, clazz: Class[T], classLoader: ClassLoader = defaultClassLoader): Set[Class[_ <: T]] = {    
     findClassNames(basePackage, classLoader).filterNot { _.contains("$") }.map{ classLoader.loadClass }.filter { c: Class[_] =>
       clazz.isAssignableFrom(c)
     }.filterNot{ c: Class[_] => 
@@ -53,7 +147,7 @@ object ClassUtil extends Logging {
   /**
    * Find all class names under the base package (includes anonymous/inner/objects etc...)
    */
-  private def findClassNames(basePackage: String, classLoader: ClassLoader = currentThreadClassLoader): Set[String] = {
+  def findClassNames(basePackage: String, classLoader: ClassLoader = defaultClassLoader): Set[String] = {
     findClasspathFiles(basePackage, classLoader).filter{ f: File =>
       f.getName.endsWith(".class")
     }.map{ f: File =>
@@ -62,8 +156,19 @@ object ClassUtil extends Logging {
     }
   }
   
-  private def findClasspathFiles(basePackage: String, classLoader: ClassLoader = currentThreadClassLoader): Set[File] = {
-    val packageDirPath: String = basePackage.replace(".", File.separator)
+  /**
+   * Similar to File.listFiles() (i.e. a non-recursive findClassPathFiles)
+   */
+  def listClasspathFiles(basePackage: String, classLoader: ClassLoader = defaultClassLoader): Set[File] = {
+    val packageDirPath: Path = new File(getPackageDirPath(basePackage)).toPath
+    findClasspathFiles(basePackage, classLoader).map{ _.toPath.subpath(0, packageDirPath.getNameCount() + 1).toFile }
+  }
+  
+  /**
+   * Recursively Find files on the classpath given a base package.
+   */
+  def findClasspathFiles(basePackage: String, classLoader: ClassLoader = defaultClassLoader): Set[File] = {
+    val packageDirPath: String = getPackageDirPath(basePackage)
     val urls: Set[URL] = classLoader.getResources(packageDirPath).asScala.toSet
     
     urls.flatMap { url: URL =>
@@ -114,5 +219,10 @@ object ClassUtil extends Logging {
     builder.result
   }
 
-  private def currentThreadClassLoader: ClassLoader = Thread.currentThread.getContextClassLoader
+  private def getPackageDirPath(basePackage: String): String = basePackage.stripLeading(File.separator).replace(".", File.separator)
+  
+  private def defaultClassLoader: ClassLoader = {
+    val cl: ClassLoader = Thread.currentThread.getContextClassLoader
+    if (null != cl) cl else getClass().getClassLoader()
+  }
 }
