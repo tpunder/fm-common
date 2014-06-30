@@ -18,6 +18,8 @@ package fm.common.rich
 import java.io.File
 import scala.collection.mutable.Builder
 
+import fm.common.Implicits.toRichPath
+
 final class RichFile(val f: File) extends AnyVal {
 
   /**
@@ -39,6 +41,12 @@ final class RichFile(val f: File) extends AnyVal {
     val indexOfDot: Int = name.lastIndexOf('.')
     if (-1 == indexOfDot) name else name.substring(0, indexOfDot)
   }
+  
+  /** If this path starts with the passed in path then strip it */
+  def stripLeading(path: File): File = f.toPath.stripLeading(path.toPath).toFile
+  
+  /** If this path ends with the passed in path then strip it */
+  def stripTrailing(path: File): File = f.toPath.stripTrailing(path.toPath).toFile
   
   /**
    * Find all files under this directory (directories are not included in the result)
