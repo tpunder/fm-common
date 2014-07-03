@@ -24,7 +24,18 @@ import scala.concurrent.{Await, Future}
 import scala.math.{BigDecimal => ScalaBigDecimal, BigInt => ScalaBigInt}
 import scala.util.Try
 
-object Implicits extends Implicits
+object Implicits extends Implicits {
+  implicit class ToImmutableArrayByte   (val col: TraversableOnce[Byte])    extends AnyVal { def toImmutableArray: ImmutableArray[Byte]    = ImmutableArray(col) }
+  implicit class ToImmutableArrayShort  (val col: TraversableOnce[Short])   extends AnyVal { def toImmutableArray: ImmutableArray[Short]   = ImmutableArray(col) }
+  implicit class ToImmutableArrayInt    (val col: TraversableOnce[Int])     extends AnyVal { def toImmutableArray: ImmutableArray[Int]     = ImmutableArray(col) }
+  implicit class ToImmutableArrayLong   (val col: TraversableOnce[Long])    extends AnyVal { def toImmutableArray: ImmutableArray[Long]    = ImmutableArray(col) }
+  implicit class ToImmutableArrayFloat  (val col: TraversableOnce[Float])   extends AnyVal { def toImmutableArray: ImmutableArray[Float]   = ImmutableArray(col) }
+  implicit class ToImmutableArrayDouble (val col: TraversableOnce[Double])  extends AnyVal { def toImmutableArray: ImmutableArray[Double]  = ImmutableArray(col) }
+  implicit class ToImmutableArrayBoolean(val col: TraversableOnce[Boolean]) extends AnyVal { def toImmutableArray: ImmutableArray[Boolean] = ImmutableArray(col) }
+  implicit class ToImmutableArrayChar   (val col: TraversableOnce[Char])    extends AnyVal { def toImmutableArray: ImmutableArray[Char]    = ImmutableArray(col) }
+  
+  implicit class ToImmutableArrayAnyRef[T <: AnyRef](val col: TraversableOnce[T]) extends AnyVal { def toImmutableArray: ImmutableArray[T] = ImmutableArray[AnyRef](col).asInstanceOf[ImmutableArray[T]] }
+}
 
 trait Implicits extends OrderingImplicits {  
   implicit def toRichCharSequence(s: CharSequence): RichCharSequence = new RichCharSequence(s)
