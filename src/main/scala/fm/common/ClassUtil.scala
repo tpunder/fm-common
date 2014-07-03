@@ -56,12 +56,9 @@ object ClassUtil extends Logging {
   
   /** Check if a file exists on the classpath */
   def classpathFileExists(file: File, classLoader: ClassLoader): Boolean = {
-    val path: String = file.toString.stripLeading("/")
-    val urls: Vector[URL] = classLoader.getResources(path).asScala.toVector
-    
-    urls.headOption.map{ url: URL =>
+    withClasspathURL(file, classLoader){ url: URL =>
       if (url.isFile) url.toFile.isFile()
-      else Resource.using(url.openStream()){ is: InputStream =>
+      else withURLInputStream(url){ is: InputStream =>
         // This should work for a file
         try { is.read(); true } catch { case ex: NullPointerException => false }
       }
@@ -79,12 +76,9 @@ object ClassUtil extends Logging {
   
   /** Check if a directory exists on the classpath */
   def classpathDirExists(file: File, classLoader: ClassLoader): Boolean = {
-    val path: String = file.toString.stripLeading("/")
-    val urls: Vector[URL] = classLoader.getResources(path).asScala.toVector
-    
-    urls.headOption.map{ url: URL =>
+    withClasspathURL(file, classLoader){ url: URL =>
       if (url.isFile) url.toFile.isDirectory()
-      else Resource.using(url.openStream()){ is: InputStream =>
+      else withURLInputStream(url){ is: InputStream =>
         // Not sure if there is a better way to do this -- A NullPointerException is thrown for a directory
         try { is.read(); false } catch { case ex: Exception => true }
       }
@@ -102,14 +96,48 @@ object ClassUtil extends Logging {
   
   /** Lookup the lastModified timestamp for a resource on the classpath */
   def classpathLastModified(file: File, classLoader: ClassLoader): Long = {
+    withClasspathURLConnection(file, classLoader){ _.getLastModified() }.getOrElse(0L) // This default matches File.lastModified()
+  }
+    
+  /** Lookup the legnth for a resource on the classpath */
+  def classpathContentLength(file: String): Long = classpathContentLength(file, defaultClassLoader)
+  
+  /** Lookup the legnth for a resource on the classpath */
+  def classpathContentLength(file: String, classLoader: ClassLoader): Long = classpathContentLength(file, classLoader)
+  
+  /** Lookup the legnth for a resource on the classpath */
+  def classpathContentLength(file: File): Long = classpathContentLength(file, defaultClassLoader)
+  
+  /** Lookup the legnth for a resource on the classpath */
+  def classpathContentLength(file: File, classLoader: ClassLoader): Long = {
+    withClasspathURLConnection(file, classLoader){ _.getContentLengthLong() }.getOrElse(0L) // This default matches File.length()
+  }
+  
+  /** A helper for the above methods */
+  private def withClasspathURL[T](file: File, classLoader: ClassLoader)(f: URL => T): Option[T] = {
     val path: String = file.toString.stripLeading("/")
     val urls: Vector[URL] = classLoader.getResources(path).asScala.toVector
     
-    urls.headOption.map{ url: URL =>
-      if (url.isFile) url.toFile.isDirectory()
+    urls.headOption.map{ url: URL => f(url) }
+  }
+  
+  /** A helper for the above methods */
+  private def withClasspathURLConnection[T](file: File, classLoader: ClassLoader)(f: URLConnection => T): Option[T] = {
+    withClasspathURL(file, classLoader){ url: URL =>
       val conn: URLConnection = url.openConnection()
-      conn.getLastModified()
-    }.getOrElse(-1)
+      f(conn)
+    }
+  }
+  
+  /** A helper for the above methods */
+  private def withURLInputStream[T](url: URL)(f: InputStream => T): T = {
+    val is: InputStream = url.openStream()
+    try {
+      f(is)
+    } finally {
+      // close() can throw exceptions if the file doesn't exist
+      try{ is.close() } catch { case _: Exception => }
+    }
   }
   
   /**
