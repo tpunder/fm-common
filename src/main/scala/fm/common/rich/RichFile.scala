@@ -15,13 +15,25 @@
  */
 package fm.common.rich
 
+import fm.common.ClassUtil
+import fm.common.Implicits.toRichPath
 import java.io.File
 import scala.collection.mutable.Builder
 
-import fm.common.Implicits.toRichPath
-
 final class RichFile(val f: File) extends AnyVal {
 
+  def isClasspathFile: Boolean = ClassUtil.classpathFileExists(f)
+  def isClasspathFile(cl: ClassLoader): Boolean = ClassUtil.classpathFileExists(f, cl)
+  
+  def isClasspathDirectory: Boolean = ClassUtil.classpathDirExists(f)
+  def isClasspathDirectory(cl: ClassLoader): Boolean = ClassUtil.classpathDirExists(f, cl)
+  
+  def classpathLastModified: Long = ClassUtil.classpathLastModified(f)
+  def classpathLastModified(cl: ClassLoader): Long = ClassUtil.classpathLastModified(f, cl)
+  
+  def classpathLength: Long = ClassUtil.classpathContentLength(f)
+  def classpathLength(cl: ClassLoader): Long = ClassUtil.classpathContentLength(f, cl)
+  
   /**
    * The extension (if any) of this file
    */
