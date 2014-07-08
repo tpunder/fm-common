@@ -17,10 +17,9 @@ package fm.common
 
 import java.io._
 import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets.UTF_8
 
 object FileUtil extends Logging {
-  private val readBufferSize = 8192
-  private val defaultCharset = Charset.forName("UTF-8")
   
   def touch(f: File): Unit = if (!f.exists) f.createNewFile
 
@@ -46,7 +45,7 @@ object FileUtil extends Logging {
   
   def writeFile[T](f: File, overwrite: Boolean)(fun: OutputStream => T): T = FileOutputStreamResource(f, overwrite = overwrite).use(fun)
 
-  def writeFile(f: File, contents: String, overwrite: Boolean): Unit = writeFile(f, contents.getBytes("UTF-8"), overwrite)
+  def writeFile(f: File, contents: String, overwrite: Boolean): Unit = writeFile(f, contents.getBytes(UTF_8), overwrite)
   
   def writeFile(f: File, bytes: Array[Byte], overwrite: Boolean): Unit = {
     writeFile(f, overwrite) { os =>
@@ -71,13 +70,29 @@ object FileUtil extends Logging {
     }
   }
   
-  def readFile(file: String): String = readFile(file, "UTF-8")
-  
+  def readFile(file: String): String = readFile(file, UTF_8)
   def readFile(file: String, encoding: String): String = readFile(new File(file), encoding)
+  def readFile(file: String, encoding: Charset): String = readFile(new File(file), encoding)
 
-  def readFile(f: File): String = readFile(f, "UTF-8")
-  
+  def readFile(f: File): String = readFile(f, UTF_8)
   def readFile(f: File, encoding: String): String = InputStreamResource.forFile(f).readToString(encoding)
+  def readFile(f: File, encoding: Charset): String = InputStreamResource.forFile(f).readToString(encoding)
+
+  def readResource(file: String): String = readResource(file, UTF_8)
+  def readResource(file: String, encoding: String): String = readResource(new File(file), encoding)
+  def readResource(file: String, encoding: Charset): String = readResource(new File(file), encoding)
+
+  def readResource(f: File): String = readResource(f, UTF_8)
+  def readResource(f: File, encoding: String): String = InputStreamResource.forResource(f).readToString(encoding)
+  def readResource(f: File, encoding: Charset): String = InputStreamResource.forResource(f).readToString(encoding)
+
+  def readFileOrResource(file: String): String = readFileOrResource(file, UTF_8)
+  def readFileOrResource(file: String, encoding: String): String = readFileOrResource(new File(file), encoding)
+  def readFileOrResource(file: String, encoding: Charset): String = readFileOrResource(new File(file), encoding)
+
+  def readFileOrResource(f: File): String = readFileOrResource(f, UTF_8)
+  def readFileOrResource(f: File, encoding: String): String = InputStreamResource.forFileOrResource(f).readToString(encoding)
+  def readFileOrResource(f: File, encoding: Charset): String = InputStreamResource.forFileOrResource(f).readToString(encoding)
 
   def readLines(file: File)(f: String => Unit): Unit = readLines(InputStreamResource.forFile(file).bufferedReader())(f)
   
@@ -95,7 +110,7 @@ object FileUtil extends Logging {
 
   def readBytes(f: File): Array[Byte] = InputStreamResource.forFile(f).readBytes()
 
-  def readInputStream(is: InputStream): String = readInputStream(is, "UTF-8")
+  def readInputStream(is: InputStream): String = readInputStream(is, UTF_8)
   
   def readInputStream(is: InputStream, encoding: String): String = readInputStream(is, Charset.forName(encoding))
   
