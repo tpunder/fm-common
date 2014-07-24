@@ -135,15 +135,28 @@ object IOUtils {
   def toString(input: Reader): String = ApacheIOUtils.toString(input)
   
   /**
-   * Attempt to detect the charset of the InputStream
+   * Attempt to detect the charset of the InputStream using the XML Detector or the Universal Detector
    */
   def detectCharset(is: InputStream, useMarkReset: Boolean): Option[Charset] = detectCharsetName(is, useMarkReset).map{ Charset.forName }
  
   
   /**
-   * Attempt to detect the charset of the InputStream
+   * Attempt to detect the charset of the InputStream using the XML Detector or the Universal Detector
    */
   def detectCharsetName(is: InputStream, useMarkReset: Boolean): Option[String] = {
+    XMLUtil.detectXMLCharsetName(is, useMarkReset) orElse detectUniversalCharsetName(is, useMarkReset)
+  }
+  
+  /**
+   * Attempt to detect the charset of the InputStream using org.mozilla.universalchardet.UniversalDetector
+   */
+  def detectUniversalCharset(is: InputStream, useMarkReset: Boolean): Option[Charset] = detectUniversalCharsetName(is, useMarkReset).map{ Charset.forName }
+ 
+  
+  /**
+   * Attempt to detect the charset of the InputStream using org.mozilla.universalchardet.UniversalDetector
+   */
+  def detectUniversalCharsetName(is: InputStream, useMarkReset: Boolean): Option[String] = {
     if (useMarkReset) require(is.markSupported, "detectCharsetName required mark/reset support!  Try wrapping in a BufferedInputStream")
     
     val bufSize: Int = 8192

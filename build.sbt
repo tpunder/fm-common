@@ -22,6 +22,7 @@ libraryDependencies ++= Seq(
   "com.googlecode.juniversalchardet" % "juniversalchardet" % "1.0.3" % "embedded",
   "org.apache.commons" % "commons-compress" % "1.8.1" % "embedded",
   "org.apache.commons" % "commons-lang3" % "3.3.2" % "embedded",
+  "org.codehaus.woodstox" % "woodstox-core-asl" % "4.4.0" % "embedded",
   "org.tukaani" % "xz" % "1.5" % "embedded",  // Used by commons-compress and should be synced up with whatever version commons-compress requires
   "commons-codec" % "commons-codec" % "1.9" % "embedded",
   "commons-io" % "commons-io" % "2.4" % "embedded"
