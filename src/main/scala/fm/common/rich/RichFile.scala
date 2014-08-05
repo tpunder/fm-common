@@ -38,7 +38,8 @@ final class RichFile(val f: File) extends AnyVal {
    * The extension (if any) of this file
    */
   def extension: Option[String] = {
-    require(f.isFile, s"Not a file: $f")
+    // July 30 2014 - The file should not have to be a file for this to work
+    //require(f.isFile, s"Not a file: $f")
     val name: String = f.getName()
     val indexOfDot: Int = name.lastIndexOf('.')
     if (-1 == indexOfDot) None else Some(name.substring(indexOfDot+1))
@@ -48,7 +49,8 @@ final class RichFile(val f: File) extends AnyVal {
    * The name of the file without it's extension
    */
   def nameWithoutExtension: String = {
-    require(f.isFile, s"Not a file: $f")
+    // July 30 2014 - The file should not have to be a file for this to work
+    //require(f.isFile, s"Not a file: $f")
     val name: String = f.getName()
     val indexOfDot: Int = name.lastIndexOf('.')
     if (-1 == indexOfDot) name else name.substring(0, indexOfDot)
