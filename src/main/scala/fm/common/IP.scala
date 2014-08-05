@@ -33,9 +33,9 @@ object IP {
   def isValid(ip: String): Boolean = try { toInt(ip); true } catch { case _: InvalidIPException => false }
 
   // ddd.ddd.ddd.ddd with an optional trailing dot followed by the end of the string/line or whitespace
-  private def ipPattern: Regex = """(^|\s|,)(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\.?($|(?=(\s|,)))""".r
+  private def ipv4Pattern: Regex = """(^|\s|,)(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\.?($|(?=(\s|,)))""".r
   
-  def findAllIPsIn(ips: String): IndexedSeq[IP] = if(null == ips) Vector.empty else ipPattern.findAllIn(ips).matchData.map{_.group(2)}.map{apply}.toIndexedSeq
+  def findAllIPsIn(ips: String): IndexedSeq[IP] = if(null == ips) Vector.empty else ipv4Pattern.findAllIn(ips).matchData.map{_.group(2)}.map{apply}.toIndexedSeq
   
   def get(ip: String): Option[IP] = try{ Some(apply(ip)) } catch{ case _: InvalidIPException => None }
   
