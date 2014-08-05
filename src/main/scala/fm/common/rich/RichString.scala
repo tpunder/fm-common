@@ -34,13 +34,32 @@ final class RichString(val s: String) extends AnyVal {
   
   /**
    * If this string starts with the lead param then return a new string with lead stripped from the start
+   * 
+   * NOTE: The same functionality is available in Scala's StringOps.stripPrefix
    */
   def stripLeading(lead: String): String = if (s.startsWith(lead)) s.substring(lead.length) else s
   
   /**
    * If this string ends with the trail param then return a new string with trail stripped from the end
+   * 
+   * NOTE: The same functionality is available in Scala's StringOps.stripSuffix
    */
   def stripTrailing(trail: String): String = if (s.endsWith(trail)) s.substring(0, s.length - trail.length) else s
+  
+  /**
+   * If this string does not start with the lead param then return a new string with it added to the start of the string
+   * 
+   * TODO: is there a better name for this?
+   */
+  def requireLeading(lead: String): String = if (s.startsWith(lead)) s else lead+s
+  
+  /**
+   * If this string does not ends with the trail param then return a new string with it added to the end of the string
+   * 
+   * TODO: is there a better name for this?
+   */
+  def requireTrailing(trail: String): String = if (s.endsWith(trail)) s else s+trail
+  
   
   def toBooleanOption: Option[Boolean] = try { Some(java.lang.Boolean.valueOf(s)) } catch { case _: NumberFormatException => None }
   def toByteOption:    Option[Byte]    = try { Some(java.lang.Byte.valueOf(s))    } catch { case _: NumberFormatException => None }
