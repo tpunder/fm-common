@@ -20,9 +20,6 @@ import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets.UTF_8
 
 object FileUtil extends Logging {
-  
-  def touch(f: File): Unit = if (!f.exists) f.createNewFile
-
   def md5(f: File)    : Array[Byte] = Resource.using(new FileInputStream(f)){ DigestUtils.md5(_) }
   def md5Hex(f: File) : String      = Resource.using(new FileInputStream(f)){ DigestUtils.md5Hex(_) }
   def sha1(f: File)   : Array[Byte] = Resource.using(new FileInputStream(f)){ DigestUtils.sha1(_) }
@@ -70,6 +67,15 @@ object FileUtil extends Logging {
     }
   }
   
+  def fileExists(file: String): Boolean = fileExists(new File(file))
+  def fileExists(file: File): Boolean = file.isFile
+  
+  def resourceExists(file: String): Boolean = ClassUtil.classpathFileExists(file)
+  def resourceExists(file: File): Boolean = ClassUtil.classpathFileExists(file)
+  
+  def fileOrResourceExists(file: String): Boolean = fileExists(file) || resourceExists(file)
+  def fileOrResourceExists(file: File): Boolean = fileExists(file) || resourceExists(file)
+  
   def readFile(file: String): String = readFile(file, UTF_8)
   def readFile(file: String, encoding: String): String = readFile(new File(file), encoding)
   def readFile(file: String, encoding: Charset): String = readFile(new File(file), encoding)
@@ -93,7 +99,7 @@ object FileUtil extends Logging {
   def readFileOrResource(f: File): String = readFileOrResource(f, UTF_8)
   def readFileOrResource(f: File, encoding: String): String = InputStreamResource.forFileOrResource(f).readToString(encoding)
   def readFileOrResource(f: File, encoding: Charset): String = InputStreamResource.forFileOrResource(f).readToString(encoding)
-
+  
   def readLines(file: File)(f: String => Unit): Unit = readLines(InputStreamResource.forFile(file).bufferedReader())(f)
   
   def readLines(is: InputStream)(f: String => Unit): Unit = readLines(InputStreamResource.wrap(is).bufferedReader())(f)
