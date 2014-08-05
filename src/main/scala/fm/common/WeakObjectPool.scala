@@ -26,7 +26,7 @@ import java.util.WeakHashMap
  * This is similar to how String.intern() works (although probably not as efficient)
  */
 final class WeakObjectPool[T] {
-  private val map: WeakHashMap[T,WeakReference[T]] = new WeakHashMap[T,WeakReference[T]]
+  private[this] val map: WeakHashMap[T,WeakReference[T]] = new WeakHashMap[T,WeakReference[T]]
 
   /**
    * Returns the canonical version of T
