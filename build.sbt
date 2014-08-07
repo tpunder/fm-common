@@ -18,7 +18,7 @@ javacOptions ++= Seq("-source", "1.7", "-target", "1.7")
 libraryDependencies ++= Seq(
   "org.slf4j" % "slf4j-api" % "1.7.5" % "provided",
   "ch.qos.logback" % "logback-classic" % "1.0.13" % "provided",
-  "org.xerial.snappy" % "snappy-java" % "1.1.0.1" % "provided",
+  "org.xerial.snappy" % "snappy-java" % "1.1.1",  // SnappyOutputStream might be messed up in 1.1.1.3
   "com.googlecode.juniversalchardet" % "juniversalchardet" % "1.0.3" % "embedded",
   "org.apache.commons" % "commons-compress" % "1.8.1" % "embedded",
   "org.apache.commons" % "commons-lang3" % "3.3.2" % "embedded",
