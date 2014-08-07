@@ -15,6 +15,7 @@
  */
 package fm.common
 
+import scala.annotation.unchecked.uncheckedVariance
 import scala.reflect.ClassTag
 import scala.collection.IndexedSeqOptimized
 import scala.collection.generic.CanBuildFrom
@@ -22,14 +23,27 @@ import scala.collection.immutable.IndexedSeq
 import scala.collection.mutable.Builder
 
 object ImmutableArray {
+  /**
+   * Create a new ImmutableArray by creating a copy of the passed in collection
+   */
   def apply[@specialized A: ClassTag](col: TraversableOnce[A]): ImmutableArray[A] = apply(col.toArray[A])
   
+  /**
+   * Create a new Immutable Array by creating a copy of the passed in array
+   */
   def apply[@specialized A: ClassTag](arr: Array[A]): ImmutableArray[A] = {
     if (arr.length == 0) empty else {
       val dst = new Array[A](arr.length)
       System.arraycopy(arr, 0, dst, 0, arr.length)
       new ImmutableArray(dst)
     }
+  }
+  
+  /**
+   * Wrap an existing array in an ImmutableArray.  The passed in array must not be changed after calling this!
+   */
+  def wrap[@specialized A: ClassTag](arr: Array[A]): ImmutableArray[A] = {
+    if (arr.length == 0) empty else new ImmutableArray(arr)
   }
 
   private type Coll = ImmutableArray[_]
@@ -40,7 +54,8 @@ object ImmutableArray {
   implicit val canBuildFromDouble: CanBuildFrom[Coll, Double, ImmutableArray[Double]] = CBF(builderForDouble)
   implicit val canBuildFromInt: CanBuildFrom[Coll, Int, ImmutableArray[Int]] = CBF(builderForInt)
   implicit val canBuildFromLong: CanBuildFrom[Coll, Long, ImmutableArray[Long]] = CBF(builderForLong)
-  implicit val canBuildFromAnyRef: CanBuildFrom[Coll, AnyRef, ImmutableArray[AnyRef]] = CBF(builderForAnyRef)
+  
+  implicit def canBuildFrom[A]: CanBuildFrom[Coll, A, ImmutableArray[A]] = CBF[A](builderForAnyRef.asInstanceOf[ImmutableArrayBuilder[A]])
   
   private case class CBF[Elem](builder: ImmutableArrayBuilder[Elem]) extends CanBuildFrom[Coll, Elem, ImmutableArray[Elem]] {
     def apply(): ImmutableArrayBuilder[Elem] = builder
@@ -63,10 +78,10 @@ object ImmutableArray {
   private val _empty: ImmutableArray[Nothing] = new ImmutableArray(new Array[AnyRef](0)).asInstanceOf[ImmutableArray[Nothing]]
 }
 
-final class ImmutableArray[@specialized A: ClassTag] (arr: Array[A]) extends IndexedSeq[A] with IndexedSeqOptimized[A, ImmutableArray[A]] {
+final class ImmutableArray[@specialized +A: ClassTag] (arr: Array[A]) extends IndexedSeq[A] with IndexedSeqOptimized[A, ImmutableArray[A]] {
   def apply(idx: Int): A = arr(idx)
   def length: Int = arr.length
-  override def newBuilder: ImmutableArrayBuilder[A] = new ImmutableArrayBuilder[A](0)
+  override def newBuilder: ImmutableArrayBuilder[A @uncheckedVariance] = new ImmutableArrayBuilder[A](0)
 }
 
 final class ImmutableArrayBuilder[@specialized A: ClassTag] (initialSize: Int) extends Builder[A, ImmutableArray[A]] {
