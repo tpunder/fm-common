@@ -15,6 +15,9 @@
  */
 package fm.common
 
+import fm.common.Implicits._
+import java.nio.charset.StandardCharsets.UTF_8
+import java.security.SecureRandom
 import org.bouncycastle.crypto.{BufferedBlockCipher, Digest, Mac}
 import org.bouncycastle.crypto.macs.HMac
 import org.bouncycastle.crypto.digests.{SHA1Digest, SHA256Digest}
@@ -22,13 +25,13 @@ import org.bouncycastle.crypto.engines.AESFastEngine
 import org.bouncycastle.crypto.modes.CBCBlockCipher
 import org.bouncycastle.crypto.paddings.{PaddedBufferedBlockCipher, PKCS7Padding}
 import org.bouncycastle.crypto.params.{KeyParameter, ParametersWithIV}
-import java.nio.charset.StandardCharsets.UTF_8
-import java.security.SecureRandom
 
 object Crypto {
-  private val DefaultCipher: BufferedBlockCipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(new AESFastEngine), new PKCS7Padding)
-  private val DefaultMac: Mac = new HMac(new SHA1Digest)
   private val DefaultKeyLengthBits: Int = 256
+  
+  def makeRandomKeyBase64(): String = makeRandomKeyBase64(DefaultKeyLengthBits, urlSafe = false)
+  
+  def makeRandomKeyBase64URLSafe(): String = makeRandomKeyBase64(DefaultKeyLengthBits, urlSafe = true)
   
   def makeRandomKeyBase64(bits: Int): String = makeRandomKeyBase64(bits, urlSafe = false)
   
@@ -42,6 +45,19 @@ object Crypto {
     new SecureRandom().nextBytes(bytes)
     bytes
   }
+  
+  def main(args: Array[String]): Unit = {
+    var bits: Int = DefaultKeyLengthBits
+    var urlSafe: Boolean = false
+    
+    args.foreach{ arg: String =>
+      if (arg.isInt) bits = arg.toInt
+      else if (arg.isBoolean) urlSafe = arg.toBoolean
+      else throw new IllegalArgumentException("Invalid Argument: "+arg)
+    }
+    
+    println(makeRandomKeyBase64(bits, urlSafe))
+  }
 }
 
 // Proguard doesn't like this setup:
@@ -53,9 +69,13 @@ object Crypto {
 final class Crypto (key: Array[Byte]) {
   def this(base64Key: String) = this(Base64.decode(base64Key))
   
+  // Duplicated to work propertly with proguard/scala
+  private[this] val DefaultCipher: BufferedBlockCipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(new AESFastEngine), new PKCS7Padding)
+  private[this] val DefaultMac: Mac = new HMac(new SHA1Digest)
+  
   private[this] val keyLengthBits: Int = Crypto.DefaultKeyLengthBits
-  private[this] val cipher: BufferedBlockCipher = Crypto.DefaultCipher
-  private[this] val mac: Mac = Crypto.DefaultMac
+  private[this] val cipher: BufferedBlockCipher = DefaultCipher
+  private[this] val mac: Mac = DefaultMac
   private[this] val secureRandom: SecureRandom = new SecureRandom()
   
   private def ENCRYPT: Boolean = true
