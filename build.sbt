@@ -16,6 +16,7 @@ scalacOptions := Seq("-unchecked", "-deprecation", "-language:implicitConversion
 javacOptions ++= Seq("-source", "1.7", "-target", "1.7")
 
 libraryDependencies ++= Seq(
+  "com.sun.mail" % "javax.mail" % "1.5.2" % "provided",
   "org.slf4j" % "slf4j-api" % "1.7.5" % "provided",
   "ch.qos.logback" % "logback-classic" % "1.0.13" % "provided",
   "org.xerial.snappy" % "snappy-java" % "1.1.1",  // SnappyOutputStream might be messed up in 1.1.1.3
