@@ -42,7 +42,7 @@ final class MessageCrypto(key: Array[Byte], json: Boolean = false) {
   def this(key: String) = this(key.getBytes(UTF_8))
   def this(key: String, json: Boolean) = this(key.getBytes(UTF_8), json)
   
-  private[this] val crypto: Crypto = new Crypto(key)
+  private[this] val crypto: Crypto = Crypto.defaultCipherForRawKey(key)
 
   def encryptAndSign(msg: String): String = sign(encrypt(msg))
   def decryptAndVerify(msg: String): Option[String] = verify(msg).map{decrypt}
