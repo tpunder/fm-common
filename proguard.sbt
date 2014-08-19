@@ -13,6 +13,7 @@ ProguardKeys.options in Proguard ++= Seq(
   "-keepparameternames",
   "-dontnote org.apache.commons.lang3.ObjectUtils",
   "-dontnote org.apache.commons.io.LineIterator",
+  "-dontnote org.bouncycastle.jcajce.provider.**",
   "-dontwarn com.ctc.wstx.**"
 )
 
