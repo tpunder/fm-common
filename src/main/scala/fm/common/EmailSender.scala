@@ -7,16 +7,20 @@ import javax.mail.internet.{AddressException, InternetAddress, MimeMessage}
 import scala.concurrent.{ExecutionContext, Future}
 
 final case class EmailSender (user: String, pass: String, host: String) {
-  def send(to: String, from: String, bcc: Seq[String] = Nil, replyTo: String, subject: String, body: String): Unit = Service.call("EmailSender") {
-    sendImpl(to, from, bcc, replyTo, subject, body)
+  def send(to: String, from: String, bcc: Seq[String] = Nil, replyTo: String, subject: String, body: String): Unit = {
+    Service.call("EmailSender", backOffStrategy = Service.BackOffStrategy.exponentialForRemote(), maxRetries = 3) {
+      sendImpl(to, from, bcc, replyTo, subject, body)
+    }
   }
   
-  def sendAsync(to: String, from: String, bcc: Seq[String] = Nil, replyTo: String, subject: String, body: String)(implicit executionContext: ExecutionContext, timer: ScheduledTaskRunner): Future[Unit] = Service.callAsync("EmailSenderAsync") {
-    Future { sendImpl(to, from, bcc, replyTo, subject, body) }
+  def sendAsync(to: String, from: String, bcc: Seq[String] = Nil, replyTo: String, subject: String, body: String)(implicit executionContext: ExecutionContext, timer: ScheduledTaskRunner): Future[Unit] = {
+    Service.callAsync("EmailSenderAsync", backOffStrategy = Service.BackOffStrategy.exponentialForRemote(), maxRetries = 3) {
+      Future { sendImpl(to, from, bcc, replyTo, subject, body) }
+    }
   }
   
   private def sendImpl(to: String, from: String, bcc: Seq[String], replyTo: String, subject: String, body: String): Unit = {
-    val props = new Properties
+    val props: Properties = new Properties
     props.put("mail.smtp.starttls.enable", "true")
     props.put("mail.smtp.host", host)
     props.put("mail.smtp.user", user)
@@ -34,7 +38,9 @@ final case class EmailSender (user: String, pass: String, host: String) {
       message.addRecipient(Message.RecipientType.BCC, new InternetAddress(bcc))
     }
 
-    if(replyTo.isNotBlank) try { message.setReplyTo(Array(new InternetAddress(replyTo))) } catch {
+    if(replyTo.isNotBlank) try {
+      message.setReplyTo(Array(new InternetAddress(replyTo)))
+    } catch {
       case ex: AddressException => // Bad replyTo Address, so don't set it
     }
 
