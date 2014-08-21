@@ -27,7 +27,16 @@ object InputStreamResource {
     case _ => InputStreamResource(resource, autoDecompress = false, autoBuffer = false)
   }
   
+  def forBytes(bytes: Array[Byte], fileName: String = "", autoDecompress: Boolean = true): InputStreamResource = {
+    InputStreamResource(MultiUseResource{ new ByteArrayInputStream(bytes) }, fileName = fileName, autoDecompress = autoDecompress, autoBuffer = false)
+  }
+  
+  @deprecated("Use InputStreamResource.forInputStream instead","")
   def wrap(is: InputStream, fileName: String = "", autoDecompress: Boolean = true, autoBuffer: Boolean = true): InputStreamResource = {
+    InputStreamResource(SingleUseResource(is), fileName = fileName, autoDecompress = autoDecompress, autoBuffer = autoBuffer)
+  }
+  
+  def forInputStream(is: InputStream, fileName: String = "", autoDecompress: Boolean = true, autoBuffer: Boolean = true): InputStreamResource = {
     InputStreamResource(SingleUseResource(is), fileName = fileName, autoDecompress = autoDecompress, autoBuffer = autoBuffer)
   }
   

@@ -102,7 +102,7 @@ object FileUtil extends Logging {
   
   def readLines(file: File)(f: String => Unit): Unit = readLines(InputStreamResource.forFile(file).bufferedReader())(f)
   
-  def readLines(is: InputStream)(f: String => Unit): Unit = readLines(InputStreamResource.wrap(is).bufferedReader())(f)
+  def readLines(is: InputStream)(f: String => Unit): Unit = readLines(InputStreamResource.forInputStream(is).bufferedReader())(f)
   
   def readLines(resource: Resource[BufferedReader])(f: String => Unit): Unit = resource.use{ reader: BufferedReader =>
     var line = reader.readLine
