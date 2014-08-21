@@ -44,8 +44,20 @@ final class RichBigInteger(val self: BigInteger) extends AnyVal with Ordered[Big
     self.intValue()
   }
   
+  def intValueExactOption(): Option[Int] = try {
+    Some(intValueExact())
+  } catch {
+    case _: ArithmeticException => None
+  }
+  
   def longValueExact(): Long = {
     if (lt(self, LongMin) || gt(self, LongMax)) throw new ArithmeticException("BigInteger is outside the range of an Long: "+self)
     self.longValue()
-  } 
+  }
+  
+  def longValueExactOption(): Option[Long] = try {
+    Some(longValueExact())
+  } catch {
+    case _: ArithmeticException => None
+  }
 }
