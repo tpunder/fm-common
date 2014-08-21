@@ -19,9 +19,20 @@ import java.util.concurrent.ConcurrentMap
 
 final class RichConcurrentMap[K,V](val map: ConcurrentMap[K,V]) extends AnyVal {
   /**
+   * Scala's Map.getOrElse method.
+   * 
+   * Assumes that the underlying ConcurrentMap does not allow null values.
+   */
+  @inline def getOrElse(key: K, default: => V): V = {
+    val v: V = map.get(key)
+    if (null != v) v else default
+  }
+  
+  /**
    * Attempts to only evaluate the value if the key is not present in the map
    */
   @inline def getOrElseUpdate(key: K, makeValue: => V): V = {
+    // TODO: figure out (and note!) why I was calling containsKey and not just map.get(key) with null checking
     if (map.containsKey(key)) {
       val v: V = map.get(key)
       if (null != v) return v
