@@ -44,6 +44,8 @@ trait Implicits extends OrderingImplicits {
   
   implicit def toRichTraversableOnce[T](t: scala.collection.TraversableOnce[T]) = new RichTraversableOnce(t)
   
+  implicit def toRichOption[T](opt: Option[T]): RichOption[T] = new RichOption[T](opt)
+  
   implicit def toRichMap[A,B,This <: scala.collection.MapLike[A,B,This] with scala.collection.Map[A,B]](m: scala.collection.MapLike[A,B,This]) = new RichMap(m)
   implicit def toRichConcurrentMap[K,V](m: java.util.concurrent.ConcurrentMap[K,V]): RichConcurrentMap[K,V] = new RichConcurrentMap(m)
   
