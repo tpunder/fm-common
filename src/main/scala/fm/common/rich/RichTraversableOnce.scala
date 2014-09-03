@@ -19,6 +19,45 @@ import fm.common.Normalize
 import scala.collection.{immutable, mutable, TraversableOnce}
 
 final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal {
+  /**
+   * Collapse records that are next to each other by a key
+   * 
+   * e.g.: This groups evens and odds together:
+   * 
+   * scala> Vector(2,4,6,1,3,2,5,7).collapseBy{ _ % 2 == 0 }
+   * res1: IndexedSeq[(Boolean, Seq[Int])] = Vector((true,Vector(2, 4, 6)), (false,Vector(1, 3)), (true,Vector(2)), (false,Vector(5, 7)))
+   */
+  def collapseBy[K](f: A => K): IndexedSeq[(K,Seq[A])] = {
+    val resBuilder = Vector.newBuilder[(K, Seq[A])]
+    
+    var isFirst: Boolean = true
+    var curKey: K = null.asInstanceOf[K]
+    var curBuilder: mutable.Builder[A, Vector[A]] = null
+    
+    self.foreach { a: A =>
+      val key: K = f(a)
+      
+      if (isFirst) {
+        curKey = key
+        curBuilder = Vector.newBuilder[A]
+        isFirst = false
+      }
+      
+      if (key != curKey) {
+        resBuilder += ((curKey, curBuilder.result))
+        curKey = key
+        curBuilder = Vector.newBuilder
+      }
+      
+      curBuilder += a
+    }
+    
+    if (isFirst) Vector.empty else {
+      resBuilder += ((curKey, curBuilder.result))
+    }
+    
+    resBuilder.result
+  }
   
   /**
    * Like groupBy but only allows a single value per key
