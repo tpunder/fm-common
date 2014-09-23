@@ -46,5 +46,5 @@ final class WeakObjectPool[T] {
 
   def contains(value: T): Boolean = synchronized{ map.containsKey(value) }
 
-  def clear(): Unit = synchronized{ map.clear }
+  def clear(): Unit = synchronized{ map.clear() }
 }

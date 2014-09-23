@@ -154,6 +154,8 @@ final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal 
     
   /**
    * Like .toHashMap except allows multiple values per key
+   * 
+   * TODO: Change this to IndexedSeq so we can switch to ImmutableArray (if we want to)
    */
   def toMultiValuedMap[K, V](implicit ev: A <:< (K, V)): immutable.HashMap[K, Vector[V]] = {
     var m = immutable.HashMap.empty[K, Vector[V]]
@@ -175,6 +177,8 @@ final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal 
   
   /**
    * Same as toMultiValuedMap but allows you to specify transform functions for the key and value
+   * 
+   * TODO: Change this to IndexedSeq so we can switch to ImmutableArray (if we want to)
    */
   def toMultiValuedMapWithTransforms[K, V, K2, V2](keyTransform: K => K2, valueTransform: V => V2)(implicit ev: A <:< (K, V)): immutable.HashMap[K2, Vector[V2]] = {
     var m = immutable.HashMap.empty[K2, Vector[V2]]
@@ -196,6 +200,8 @@ final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal 
   
   /**
    * Same as toMultiValuedMap but allows you to specify a transform function for the key
+   * 
+   * TODO: Change this to IndexedSeq so we can switch to ImmutableArray (if we want to)
    */
   def toMultiValuedMapWithKeyTransform[K, V, K2](keyTransform: K => K2)(implicit ev: A <:< (K, V)): immutable.HashMap[K2, Vector[V]] = {
     toMultiValuedMapWithTransforms(keyTransform, identityTransform[V])
@@ -263,6 +269,9 @@ final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal 
   def toUniqueLowerAlphaNumericMap[V](implicit ev: A <:< (String,V)): immutable.HashMap[String, V] = toUniqueHashMapWithKeyTransform(Normalize.lowerAlphanumeric)
   def toUniqueURLNameMap[V](implicit ev: A <:< (String,V)): immutable.HashMap[String, V] = toUniqueHashMapWithKeyTransform(Normalize.urlName)
   
+  // TODO: Change this to IndexedSeq so we can switch to ImmutableArray (if we want to)
   def toMultiValuedLowerAlphaNumericMap[V](implicit ev: A <:< (String,V)): immutable.HashMap[String, Vector[V]] = toMultiValuedMapWithKeyTransform(Normalize.lowerAlphanumeric)
+  
+  // TODO: Change this to IndexedSeq so we can switch to ImmutableArray (if we want to)
   def toMultiValuedURLNameMap[V](implicit ev: A <:< (String,V)): immutable.HashMap[String, Vector[V]] = toMultiValuedMapWithKeyTransform(Normalize.urlName)
 }

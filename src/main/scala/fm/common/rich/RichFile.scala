@@ -16,7 +16,7 @@
 package fm.common.rich
 
 import fm.common.ClassUtil
-import fm.common.Implicits.toRichPath
+import fm.common.Implicits.{toRichPath, toRichString}
 import java.io.File
 import scala.collection.mutable.Builder
 
@@ -56,6 +56,13 @@ final class RichFile(val f: File) extends AnyVal {
     if (-1 == indexOfDot) name else name.substring(0, indexOfDot)
   }
   
+  /**
+   * Change or Add an extension to this file
+   */
+  def withExtension(ext: String): File = {
+    new File(f.getParent(), nameWithoutExtension+ext.requireLeading("."))
+  }
+  
   /** If this path starts with the passed in path then strip it */
   def stripLeading(path: File): File = f.toPath.stripLeading(path.toPath).toFile
   
@@ -65,7 +72,7 @@ final class RichFile(val f: File) extends AnyVal {
   /**
    * Find all files under this directory (directories are not included in the result)
    */
-  def findFiles(recursive: Boolean = true): Vector[File]= {
+  def findFiles(recursive: Boolean = true): Vector[File] = {
     val builder: Builder[File, Vector[File]] = Vector.newBuilder[File]
     findFiles0(f, recursive, builder)
     builder.result

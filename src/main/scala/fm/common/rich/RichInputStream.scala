@@ -79,7 +79,6 @@ final class RichInputStream(val is: InputStream) extends AnyVal {
     // The stream classes all wrap around streams provided by the calling code and they work on them directly without any additional buffering. 
     // On the other hand most of them will benefit from buffering so it is highly recommended that users wrap their stream in Buffered(In|Out)putStreams before using the Commons Compress API.
     val ais: ArchiveInputStream = new ArchiveStreamFactory().createArchiveInputStream(archiverName, is)
-    //val ais: ArchiveInputStream = new ArchiveStreamFactory().createArchiveInputStream(archiverName, is)
     
     var entry: ArchiveEntry = null
     

@@ -35,14 +35,14 @@ object Service {
   sealed trait LoggingOption {
     def calling(msg: String): Unit
     def retrying(msg: String): Unit
-    def done(msg: String): Unit
+    def done(msg: String, totalTimeMillis: Long): Unit
     def exception(ex: Throwable): Unit
   }
   
   case object UseStdOut extends LoggingOption {
     def calling(msg: String): Unit = print(msg+"... ")
     def retrying(msg: String): Unit = print("Retrying: "+msg+"... ")
-    def done(msg: String): Unit = println(" Done")
+    def done(msg: String, totalTimeMillis: Long): Unit = println(" Done ("+totalTimeMillis+"ms)")
     def exception(ex: Throwable): Unit = println("Caught unhandled exception: "+ex)
   }
   
@@ -56,21 +56,21 @@ object Service {
   final case class UseLogger(logger: Logger) extends LoggingOption {
     def calling(msg: String): Unit = logger.info(msg+"... ")
     def retrying(msg: String): Unit = logger.warn("Retrying: "+msg)
-    def done(msg: String): Unit = logger.info(msg+"... Done")
+    def done(msg: String, totalTimeMillis: Long): Unit = logger.info(msg+"... Done ("+totalTimeMillis+"ms)")
     def exception(ex: Throwable): Unit = logger.warn("Caught unhandled exception: "+ex)
   }
   
   final case class SLF4JLogger(logger: org.slf4j.Logger) extends LoggingOption {
     def calling(msg: String): Unit = logger.info(msg+"... ")
     def retrying(msg: String): Unit = logger.warn("Retrying: "+msg)
-    def done(msg: String): Unit = logger.info(msg+"... Done")
+    def done(msg: String, totalTimeMillis: Long): Unit = logger.info(msg+"... Done ("+totalTimeMillis+"ms)")
     def exception(ex: Throwable): Unit = logger.warn("Caught unhandled exception: "+ex)
   }
   
   case object NoLogging extends LoggingOption {
     def calling(msg: String): Unit = {}
     def retrying(msg: String): Unit = {}
-    def done(msg: String): Unit = {}
+    def done(msg: String, totalTimeMillis: Long): Unit = {}
     def exception(ex: Throwable): Unit = {}
   }
   
@@ -127,7 +127,7 @@ object Service {
               exceptionHandler: PartialFunction[Exception,Unit] = Service.defaultExceptionHandler, 
               delayBetweenCalls: FiniteDuration = Service.defaultDelayBetweenCalls, // This is a constant delay before making the call (e.g. for rate limiting to external services)
               backOffStrategy: BackOffStrategy = Service.defaultBackOffStrategy,
-              maxRetries: Int = Service.defaultMaxRetries)(f: => X): X = call0(msg, logging, exceptionHandler, delayBetweenCalls, backOffStrategy, maxRetries, f, 0)
+              maxRetries: Int = Service.defaultMaxRetries)(f: => X): X = call0(msg, logging, exceptionHandler, delayBetweenCalls, backOffStrategy, maxRetries, f, 0, System.currentTimeMillis())
   
   @tailrec
   private def call0[X](
@@ -138,7 +138,8 @@ object Service {
       backOffStrategy: BackOffStrategy, 
       maxRetries: Int, 
       f: => X, 
-      tryCount: Int): X = {
+      tryCount: Int,
+      startTime: Long): X = {
     
     if (tryCount >= maxRetries) throw new Exception(s"Service Failed after $maxRetries retries")
     
@@ -153,7 +154,7 @@ object Service {
     
     val result: Option[X] = try {
       val ret: X = f
-      logging.done(msg)
+      logging.done(msg, System.currentTimeMillis() - startTime)
       Some(ret)
     } catch {
       case ex: Exception =>
@@ -164,7 +165,7 @@ object Service {
     }
     
     // Retry if the exception handler doesn't throw an exception
-    if (result.isDefined) result.get else call0(msg, logging, exceptionHandler, delayBetweenCalls, backOffStrategy, maxRetries, f, tryCount + 1)
+    if (result.isDefined) result.get else call0(msg, logging, exceptionHandler, delayBetweenCalls, backOffStrategy, maxRetries, f, tryCount + 1, startTime)
   }
   
   

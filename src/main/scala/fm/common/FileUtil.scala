@@ -125,7 +125,7 @@ object FileUtil extends Logging {
     val writer = new StringWriter()
 
     IOUtils.copy(reader, writer)
-    reader.close
+    reader.close()
     writer.toString
   }
 
