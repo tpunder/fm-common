@@ -16,10 +16,35 @@
 package fm.common.rich
 
 import fm.common.Normalize
+import fm.common.Implicits.toRichTraversableOnce
 import java.io.File
 import java.math.{BigDecimal, BigInteger}
 import org.apache.commons.lang3.text.WordUtils
 import scala.util.matching.Regex
+
+object RichString {
+  private[this] val booleanLookupMap: Map[String,Boolean] = Vector(
+    "true" -> true,
+    "yes" -> true,
+    "t" -> true,
+    "y" -> true,
+    "1" -> true,
+    "false" -> false,
+    "no" -> false,
+    "f" -> false,
+    "n" -> false,
+    "0" -> false
+  ).toUniqueHashMap
+  
+  def parseBoolean(s: String): Option[Boolean] = {
+    if (null == s) return None
+    
+    val lower: String = s.trim.toLowerCase
+    if (lower == "") return None
+    
+    booleanLookupMap.get(lower)
+  }
+}
 
 final class RichString(val s: String) extends AnyVal {
   /**
@@ -60,7 +85,6 @@ final class RichString(val s: String) extends AnyVal {
    */
   def requireTrailing(trail: String): String = if (s.endsWith(trail)) s else s+trail
   
-  
   def toBooleanOption: Option[Boolean] = try { Some(java.lang.Boolean.valueOf(s)) } catch { case _: NumberFormatException => None }
   def toByteOption:    Option[Byte]    = try { Some(java.lang.Byte.valueOf(s))    } catch { case _: NumberFormatException => None }
   def toShortOption:   Option[Short]   = try { Some(java.lang.Short.valueOf(s))   } catch { case _: NumberFormatException => None }
@@ -100,6 +124,12 @@ final class RichString(val s: String) extends AnyVal {
   
   def toBigInteger: BigInteger = toBigIntegerOption.getOrElse{ throw new NumberFormatException(s"RichString.toBigInteger parsing error on value: $s") }
 
+  /**
+   * Unlike toBoolean/toBooleanOption/isBoolean this method will
+   * attempt to parse a boolean value from a string.
+   */
+  def parseBoolean: Option[Boolean] = RichString.parseBoolean(s)
+  
   /** A shortcut for "new java.io.File(s)" */
   def toFile: File = new File(s)
   
@@ -117,6 +147,9 @@ final class RichString(val s: String) extends AnyVal {
   
   /** See fm.common.Normalize.lowerAlphaNumeric */
   def lowerAlphaNumeric: String = Normalize.lowerAlphanumeric(s)
+  
+  /** See fm.common.Normalize.lowerAlphaNumericWords */
+  def lowerAlphaNumericWords: Array[String] = Normalize.lowerAlphaNumericWords(s)
   
   /** See fm.common.Normalize.name */
   def urlName: String = Normalize.urlName(s)
