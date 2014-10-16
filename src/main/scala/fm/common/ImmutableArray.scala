@@ -23,19 +23,24 @@ import scala.collection.immutable.IndexedSeq
 import scala.collection.mutable.Builder
 
 object ImmutableArray {
+  def apply[@specialized A: ClassTag](elems: A*): ImmutableArray[A] = {
+    if (elems.isEmpty) empty[A]
+    else copy[A](elems)
+  }  
+  
   /**
    * Create a new ImmutableArray by creating a copy of the passed in collection
    */
-  def apply[@specialized A: ClassTag](col: TraversableOnce[A]): ImmutableArray[A] = apply(col.toArray[A])
+  def copy[@specialized A: ClassTag](col: TraversableOnce[A]): ImmutableArray[A] = copy[A](col.toArray[A])
   
   /**
    * Create a new Immutable Array by creating a copy of the passed in array
    */
-  def apply[@specialized A: ClassTag](arr: Array[A]): ImmutableArray[A] = {
+  def copy[@specialized A: ClassTag](arr: Array[A]): ImmutableArray[A] = {
     if (arr.length == 0) empty else {
       val dst = new Array[A](arr.length)
       System.arraycopy(arr, 0, dst, 0, arr.length)
-      new ImmutableArray(dst)
+      new ImmutableArray[A](dst)
     }
   }
   
