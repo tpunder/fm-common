@@ -45,7 +45,7 @@ final private class FileOutputStreamResource private (file: File, overwrite: Boo
     logger.debug(s"Writing to file: $file  Overwrite: $overwrite  Append: $append  useTmpFile: $useTmpFile   usingTmpFile: $usingTmpFile")
     
     val outFile: File = if(usingTmpFile) {
-      val tmp = File.createTempFile(file.getName, ".frugalmechanic_tmp", getDirectoryForFile(file))
+      val tmp = File.createTempFile(".fm_tmp", file.getName, getDirectoryForFile(file))
       // DO NOT USE File.deleteOnExit() since it uses an append-only LinkedHashSet
       //tmp.deleteOnExit()
       tmp
