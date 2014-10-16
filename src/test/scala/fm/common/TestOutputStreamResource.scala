@@ -44,6 +44,6 @@ final class TestOutputStreamResource extends FunSuite with Matchers {
     
     val bis = new ByteArrayInputStream(bos.toByteArray())
     
-    InputStreamResource.wrap(bis, fileName = name).readToString("UTF-8") should equal ("Hello World!\n")
+    InputStreamResource.forInputStream(bis, fileName = name).readToString("UTF-8") should equal ("Hello World!\n")
   }
 }
