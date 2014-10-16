@@ -15,7 +15,7 @@
  */
 package fm.common
 
-object Util {
+object Util extends Logging {
   @inline def time(f: => Unit): Long = timeOnly(f)
 
   @inline def timeOnly(f: => Unit): Long = {
@@ -32,5 +32,18 @@ object Util {
     val end: Long = System.currentTimeMillis
     val total: Long = end - start
     (total,result)
+  }
+  
+  @inline def statusMsg[T](msg: String, logger: Logger = logger)(f: => T): T = {
+    logger.info(msg+"... ")
+    val (total,result) = time(f)
+    logger.info(msg+"... Done.  "+total+"ms")
+    result
+  }
+
+  @inline def benchmark[T](name: String, logger: Logger = logger)(f: => T): T = {
+    val (total,result) = time(f)
+    logger.info("[BENCHMARK] "+name+": "+total+"ms")
+    result
   }
 }
