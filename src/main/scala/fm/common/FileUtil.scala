@@ -54,6 +54,23 @@ object FileUtil extends Logging {
     IOUtils.copy(is, os)
   }
   
+  /**
+   * Creates a tmp file that can be written to and then will be atomically renamed to the target
+   */
+  def writeFileWithTemp[T](target: File)(f: File => T): T = {
+    val tmp: File = File.createTempFile(".fm_tmp", target.getName, getDirectoryForFile(target))
+    
+    try {
+      val res: T = f(tmp)
+      tmp.renameTo(target)
+      res
+    } catch {
+      case ex: Throwable =>
+        if (tmp.isFile) tmp.delete()
+        throw ex
+    }
+  }
+  
   def copy(src: File, dst: File, overwrite: Boolean = true) {    
     def bothEndWith(s: String): Boolean = src.getName.endsWith(s) && dst.getName.endsWith(s)
     
