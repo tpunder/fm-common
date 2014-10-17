@@ -17,12 +17,48 @@ package fm.common
 
 import java.io.{File, InputStream}
 import java.util.{Timer, TimerTask}
+import scala.ref.WeakReference
+import scala.util.Try
 
 object ReloadableResource {
   private val timer: Timer = new Timer("ReloadableResource Check", true /* isDaemon */)
+
+  private class ResourceCheckTimerTask[T](resource: ReloadableResource[T], logger: Logger) extends TimerTask {
+    private[this] val ref: WeakReference[ReloadableResource[T]] = WeakReference(resource)
+    
+    /** This should be the lastModified date of the currently loaded resource */
+    private[this] var lastModified: Long = lookupLastModified(resource).getOrElse{ -1 }
+
+    def run(): Unit = {
+      ref.get match {
+        case None => cancel() // The reference has been cleared so cancel the task
+        case Some(r) => lookupLastModified(r).foreach { doReload(r, _) }
+      }
+    }
+    
+    private def lookupLastModified(r: ReloadableResource[T]): Option[Long] = Try{ r.lookupLastModified() }.toOption
+    
+    private def doReload(r: ReloadableResource[T], currentLastModified: Long): Unit = {
+      if (currentLastModified == lastModified) return
+      
+      logger.info("Detected Updated Resource, Reloading...")
+      if (r.reload()) {
+        // We only update the lastModified if the resource was successfully reloaded.
+        // This still isn't very fullproof and should really be modified so that reload
+        // returns an Option[Long] which is the lastModified of the reloaded resource.
+        lastModified = currentLastModified
+        logger.info("Reload Successful.")
+      } else {
+        logger.info("Reload Failed.")
+      }
+    }
+  }
+  
 }
 
 abstract class ReloadableResource[T] extends Logging {
+  import ReloadableResource.ResourceCheckTimerTask
+  
   /** Load the resource from it's primary source */
   protected def loadFromPrimary(): Option[T]
   
@@ -47,26 +83,44 @@ abstract class ReloadableResource[T] extends Logging {
     _current
   }
   
-  /** Attempt to reload the current resource.  If there is a problem the existing version will be left in place */
-  final def reload(): Unit = tryLoadResource(tryBackup = false).foreach { resource: T => _current = resource }
+  /**
+   * Attempt to reload the current resource.  If there is a problem the existing version will be left in place
+   * 
+   * Returns true if the resource was successfully updated
+   * 
+   * TODO: This should probably return an Option[Long] which is the last modified time of the reloaded resource
+   */
+  final def reload(): Boolean = tryLoadResource(tryBackup = false) match {
+    case None => false
+    case Some(resource) => 
+      _current = resource
+      true
+  }
   
   /** Directly load the resource and return the result.  Doesn't touch the current resource in this class. */
   final def loadResource(): T = (tryLoadResource(tryBackup = true) orElse defaultResource).getOrElse{ throw new Exception("Unable to load resource") }
 
+  private[this] var timerTask: ResourceCheckTimerTask[T] = null
+  
   /**
    * Enable checking and automatic reload of the resource if the external file is updated
    */
   final def enableAutoUpdateCheck(delaySeconds: Int = 300, periodSeconds: Int = 300): Unit = {
-    ReloadableResource.timer.schedule(ResourceCheckTimerTask, delaySeconds.toLong * 1000L, periodSeconds.toLong * 1000L)
+    require(null == timerTask, "TimerTask already enabled!")
+    timerTask = new ResourceCheckTimerTask(this, logger)
+    ReloadableResource.timer.schedule(timerTask, delaySeconds.toLong * 1000L, periodSeconds.toLong * 1000L)
   }
   
   /** Disable the auto update checks */
-  final def disableAutoUpdateCheck(): Unit = ResourceCheckTimerTask.cancel()
+  final def disableAutoUpdateCheck(): Unit = {
+    Option(timerTask).foreach{ _.cancel() }
+    timerTask = null
+  }
   
   private def tryLoadResource(tryBackup: Boolean): Option[T] = {
     
     try {
-      val (millis, result): (Long, Option[T]) = Util.time(loadFromPrimary())
+      val (millis, result): (Long, Option[T]) = Util.time{ loadFromPrimary() }
       if (result.isDefined) {
         logger.info(s"Loaded resource from primary source ($millis ms)")
         return result
@@ -78,7 +132,7 @@ abstract class ReloadableResource[T] extends Logging {
     if (!tryBackup) return None
     
     try {
-      val (millis, result): (Long, Option[T]) = Util.time(loadFromBackup())
+      val (millis, result): (Long, Option[T]) = Util.time{ loadFromBackup() }
       if (result.isDefined) {
         logger.info(s"Loaded resource from backup source ($millis ms)")
         return result
@@ -90,19 +144,8 @@ abstract class ReloadableResource[T] extends Logging {
     None
   }
   
-  private object ResourceCheckTimerTask extends TimerTask {
-    /**
-     * This should be the lastModified date of the currently loaded resource
-     */
-    private[this] var lastModified: Long = lookupLastModified()
-
-    def run() {
-      val currentLastModified = lookupLastModified()
-      if (currentLastModified != lastModified) {
-        logger.info("Detected Updated Resource, Reloading...")
-        reload()
-        lastModified = currentLastModified
-      }
-    }
+  override def finalize(): Unit = {
+    disableAutoUpdateCheck()
+    super.finalize()
   }
 }
