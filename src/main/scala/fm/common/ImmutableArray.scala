@@ -53,18 +53,18 @@ object ImmutableArray {
 
   private type Coll = ImmutableArray[_]
   
-  implicit val canBuildFromChar: CanBuildFrom[Coll, Char, ImmutableArray[Char]] = CBF(builderForChar)
-  implicit val canBuildFromShort: CanBuildFrom[Coll, Short, ImmutableArray[Short]] = CBF(builderForShort)
-  implicit val canBuildFromFloat: CanBuildFrom[Coll, Float, ImmutableArray[Float]] = CBF(builderForFloat)
-  implicit val canBuildFromDouble: CanBuildFrom[Coll, Double, ImmutableArray[Double]] = CBF(builderForDouble)
-  implicit val canBuildFromInt: CanBuildFrom[Coll, Int, ImmutableArray[Int]] = CBF(builderForInt)
-  implicit val canBuildFromLong: CanBuildFrom[Coll, Long, ImmutableArray[Long]] = CBF(builderForLong)
+  implicit val canBuildFromChar: CanBuildFrom[Coll, Char, ImmutableArray[Char]] = new CBF(builderForChar)
+  implicit val canBuildFromShort: CanBuildFrom[Coll, Short, ImmutableArray[Short]] = new CBF(builderForShort)
+  implicit val canBuildFromFloat: CanBuildFrom[Coll, Float, ImmutableArray[Float]] = new CBF(builderForFloat)
+  implicit val canBuildFromDouble: CanBuildFrom[Coll, Double, ImmutableArray[Double]] = new CBF(builderForDouble)
+  implicit val canBuildFromInt: CanBuildFrom[Coll, Int, ImmutableArray[Int]] = new CBF(builderForInt)
+  implicit val canBuildFromLong: CanBuildFrom[Coll, Long, ImmutableArray[Long]] = new CBF(builderForLong)
   
-  implicit def canBuildFrom[A]: CanBuildFrom[Coll, A, ImmutableArray[A]] = CBF[A](builderForAnyRef.asInstanceOf[ImmutableArrayBuilder[A]])
+  implicit def canBuildFrom[A]: CanBuildFrom[Coll, A, ImmutableArray[A]] = new CBF[A](builderForAnyRef.asInstanceOf[ImmutableArrayBuilder[A]])
   
-  private case class CBF[Elem](builder: ImmutableArrayBuilder[Elem]) extends CanBuildFrom[Coll, Elem, ImmutableArray[Elem]] {
-    def apply(): ImmutableArrayBuilder[Elem] = builder
-    def apply(from: Coll): ImmutableArrayBuilder[Elem] = builder
+  private class CBF[Elem](makeBuilder: => ImmutableArrayBuilder[Elem]) extends CanBuildFrom[Coll, Elem, ImmutableArray[Elem]] {
+    def apply(): ImmutableArrayBuilder[Elem] = makeBuilder
+    def apply(from: Coll): ImmutableArrayBuilder[Elem] = makeBuilder
   }
   
   def empty[A]: ImmutableArray[A] = _empty.asInstanceOf[ImmutableArray[A]]
@@ -96,8 +96,10 @@ final class ImmutableArrayBuilder[@specialized A: ClassTag] (initialSize: Int) e
   private var arr: Array[A] = if (initialSize > 0) new Array[A](initialSize) else Array.empty
   private var capacity: Int = arr.length
   private var length: Int = 0
+  @volatile private var done: Boolean = false
   
   def +=(elem: A): this.type = {
+    assert(!done, "Trying to add to an already closed ImmutableArrayBuilder")
     ensureCapacity(length + 1)
     arr(length) = elem
     length += 1
@@ -105,6 +107,13 @@ final class ImmutableArrayBuilder[@specialized A: ClassTag] (initialSize: Int) e
   }
   
   def result: ImmutableArray[A] = {
+    assert(!done, "Calling result again on an already closed ImmutableArrayBuilder")
+    
+    done = true
+    
+    if (length == 0) return ImmutableArray.empty
+    assert(length <= arr.length, s"Length: $length,  Array.length: ${arr.length}")
+    
     val buf = new Array[A](length)
     System.arraycopy(arr, 0, buf, 0, length)
     new ImmutableArray[A](buf)
@@ -114,6 +123,7 @@ final class ImmutableArrayBuilder[@specialized A: ClassTag] (initialSize: Int) e
     arr = Array.empty
     capacity = 0
     length = 0
+    done = false
   }
   
   override def sizeHint(size: Int): Unit = {
