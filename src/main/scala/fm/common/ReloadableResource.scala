@@ -97,6 +97,15 @@ abstract class ReloadableResource[T] extends Logging {
       true
   }
   
+  /**
+   * Clear the reference to the current version of the resource.
+   * 
+   * NOTE: Calling apply() after this will return null
+   */
+  final def clear(): Unit = {
+    _current = null.asInstanceOf[T]
+  }
+  
   /** Directly load the resource and return the result.  Doesn't touch the current resource in this class. */
   final def loadResource(): T = (tryLoadResource(tryBackup = true) orElse defaultResource).getOrElse{ throw new Exception("Unable to load resource") }
 
