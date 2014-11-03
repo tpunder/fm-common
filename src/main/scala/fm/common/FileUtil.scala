@@ -18,6 +18,7 @@ package fm.common
 import java.io._
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets.UTF_8
+import java.nio.file.{Files, StandardCopyOption}
 
 object FileUtil extends Logging {
   def md5(f: File)    : Array[Byte] = Resource.using(new FileInputStream(f)){ DigestUtils.md5(_) }
@@ -62,7 +63,7 @@ object FileUtil extends Logging {
     
     try {
       val res: T = f(tmp)
-      tmp.renameTo(target)
+      Files.move(tmp.toPath, target.toPath, StandardCopyOption.ATOMIC_MOVE)
       res
     } catch {
       case ex: Throwable =>

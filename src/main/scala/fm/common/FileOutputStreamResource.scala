@@ -17,6 +17,7 @@ package fm.common
 
 import java.io.{File, FileOutputStream, IOException, OutputStream, RandomAccessFile}
 import java.nio.charset.Charset
+import java.nio.file.{Files, StandardCopyOption}
 import java.util.zip.Deflater
 import fm.common.Implicits._
 
@@ -44,34 +45,35 @@ final private class FileOutputStreamResource private (file: File, overwrite: Boo
     
     logger.debug(s"Writing to file: $file  Overwrite: $overwrite  Append: $append  useTmpFile: $useTmpFile   usingTmpFile: $usingTmpFile")
     
-    val outFile: File = if(usingTmpFile) {
+    val outFile: File = if (usingTmpFile) {
       val tmp = File.createTempFile(".fm_tmp", file.getName, getDirectoryForFile(file))
       // DO NOT USE File.deleteOnExit() since it uses an append-only LinkedHashSet
       //tmp.deleteOnExit()
       tmp
     } else file
     
-    try {
-      SingleUseResource(new FileOutputStream(outFile, append)).use { os => 
-        val res: T = f(os)
-        
-        if(usingTmpFile && !outFile.renameTo(file)) {
-          val msg = "Rename Failed! "+outFile.getAbsolutePath+" => "+file.getAbsolutePath
-          logger.error(msg)
-          throw new IOException(msg)
-        }
-        
-        res
-      }
+    val res: T = try {
+      SingleUseResource(new FileOutputStream(outFile, append)).use { f }
     } catch {
       case ex: Throwable =>
-        if(usingTmpFile) {
-          logger.error("Caught Exception Writing File: "+file+".  Deleting tmp file: "+outFile, ex)
-          outFile.delete()
-        }
+        logger.error(s"Caught Exception Writing File: $file")
+        if (usingTmpFile) outFile.delete()
         throw ex
     }
     
+    // Do an atomic move to the final location
+    if (usingTmpFile) {
+      try {
+        Files.move(outFile.toPath, file.toPath, StandardCopyOption.ATOMIC_MOVE)
+      } catch {
+        case ex: Throwable =>
+          logger.error(s"Caught Exception performing atomic move of $outFile to $file")
+          outFile.delete()
+          throw ex
+      }
+    }
+    
+    res
   }
   
   private def getDirectoryForFile(f: File): File = {
