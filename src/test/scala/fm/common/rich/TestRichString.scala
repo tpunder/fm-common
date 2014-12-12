@@ -15,8 +15,7 @@
  */
 package fm.common.rich
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
+import org.scalatest.{FunSuite, Matchers}
 
 final class TestRichString extends FunSuite with Matchers {
   import fm.common.Implicits._
