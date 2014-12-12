@@ -20,6 +20,7 @@ import java.io.{File, InputStream}
 import java.nio.charset.Charset
 import javax.xml.stream.{XMLInputFactory, XMLStreamReader}
 import javax.xml.stream.XMLStreamConstants.START_ELEMENT
+import org.apache.commons.io.input.BoundedInputStream
 import org.codehaus.stax2.XMLStreamReader2
 
 object XMLUtil {
@@ -28,13 +29,17 @@ object XMLUtil {
   def isXML(is: InputStream): Boolean = isXML(is, true)
   
   def isXML(is: InputStream, useMarkReset: Boolean): Boolean = {
+    val markLimit: Int = 1024
+    
     if (useMarkReset) {
       require(is.markSupported, "Need an InputStream that supports mark()/reset()")
-      is.mark(1024)
+      is.mark(markLimit)
     }
     
     try {
-      withXMLStreamReader2(is){ xmlStreamReader: XMLStreamReader =>
+      val wrappedIs: InputStream = if (useMarkReset) new BoundedInputStream(is, markLimit) else is
+      
+      withXMLStreamReader2(wrappedIs){ xmlStreamReader: XMLStreamReader =>
         // Check if there are any START_ELEMENT events
         while(xmlStreamReader.getEventType != START_ELEMENT) xmlStreamReader.next()
         
@@ -57,13 +62,17 @@ object XMLUtil {
    * If this looks like an XML document attempt to detect it's encoding
    */
   def detectXMLCharsetName(is: InputStream, useMarkReset: Boolean): Option[String] = {
+    val markLimit: Int = 1024
+    
     if (useMarkReset) {
       require(is.markSupported, "Need an InputStream that supports mark()/reset()")
-      is.mark(1024)
+      is.mark(markLimit)
     }
     
     try {
-      withXMLStreamReader2(is){ xmlStreamReader: XMLStreamReader =>
+      val wrappedIs: InputStream = if (useMarkReset) new BoundedInputStream(is, markLimit) else is
+      
+      withXMLStreamReader2(wrappedIs){ xmlStreamReader: XMLStreamReader =>
         // Check if there are any START_ELEMENT events
         while(xmlStreamReader.getEventType != START_ELEMENT) xmlStreamReader.next()
         
