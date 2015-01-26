@@ -184,6 +184,7 @@ final case class InputStreamResource(resource: Resource[InputStream], fileName: 
   
   def bufferedReader(): Resource[BufferedReader] = reader() flatMap { r => Resource(new BufferedReader(r)) }
   def bufferedReader(encoding: String): Resource[BufferedReader] = reader(encoding) flatMap { r => Resource(new BufferedReader(r)) }
+  def bufferedReader(cs: Charset): Resource[BufferedReader] = reader(cs) flatMap { r => Resource(new BufferedReader(r)) }
   
   def dataInput(): Resource[DataInput] = flatMap{ is => Resource(new DataInputStream(is)) }
 

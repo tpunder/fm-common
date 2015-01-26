@@ -62,7 +62,7 @@ final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal 
   /**
    * Like groupBy but only allows a single value per key
    */
-  def uniqueGroupBy[K](f: A ⇒ K): Map[K, A] = {
+  def uniqueGroupBy[K](f: A ⇒ K): immutable.HashMap[K, A] = {
     var m = immutable.HashMap.empty[K, A]
     
     for (x <- self) {
@@ -126,6 +126,11 @@ final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal 
     
     m
   }
+  
+  /**
+   * Alias of uniqueGroupBy
+   */
+  def toUniqueHashMapUsing[K](f: A => K): immutable.HashMap[K, A] = uniqueGroupBy(f)
   
   /**
    * Same as toUniqueHashMap but allows you to specify transform functions for the key and value

@@ -20,7 +20,6 @@ import java.io.{File, InputStream}
 import java.nio.charset.Charset
 import javax.xml.stream.{XMLInputFactory, XMLStreamReader}
 import javax.xml.stream.XMLStreamConstants.START_ELEMENT
-import org.apache.commons.io.input.BoundedInputStream
 import org.codehaus.stax2.XMLStreamReader2
 
 object XMLUtil {

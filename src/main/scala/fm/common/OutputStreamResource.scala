@@ -43,11 +43,13 @@ final case class OutputStreamResource(resource: Resource[OutputStream], fileName
   
   def use[T](f: OutputStream => T): T = filteredResource(bufferedFilter(resource)).use{ os: OutputStream => f(os) }
   
-  def writer(): Resource[Writer]  = flatMap{ is => Resource(new OutputStreamWriter(is)) }
-  def writer(encoding: String): Resource[Writer]  = flatMap{ is => Resource(new OutputStreamWriter(is, encoding)) }
+  def writer(): Resource[Writer] = flatMap{ is => Resource(new OutputStreamWriter(is)) }
+  def writer(encoding: String): Resource[Writer] = flatMap{ is => Resource(new OutputStreamWriter(is, encoding)) }
+  def writer(cs: Charset): Resource[Writer] = flatMap{ is => Resource(new OutputStreamWriter(is, cs)) }
   
   def bufferedWriter(): Resource[BufferedWriter] = writer() flatMap { r => Resource(new BufferedWriter(r)) }
   def bufferedWriter(encoding: String): Resource[BufferedWriter] = writer(encoding) flatMap { r => Resource(new BufferedWriter(r)) }
+  def bufferedWriter(cs: Charset): Resource[BufferedWriter] = writer(cs) flatMap { r => Resource(new BufferedWriter(r)) }
   
   def dataOutput(): Resource[DataOutput] = flatMap{ os => Resource(new DataOutputStream(os)) }
 
