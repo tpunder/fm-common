@@ -158,6 +158,26 @@ final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal 
   }
     
   /**
+   * Like .groupBy but gives you an immutable.HashMap[K, IndexedSeq]
+   */
+  def toMultiValuedMapUsing[K](toKey: A => K): immutable.HashMap[K, IndexedSeq[A]] = {
+    var m = immutable.HashMap.empty[K, Vector[A]]
+    
+    for (value <- self) {
+      val key: K = toKey(value)
+      
+      val values: Vector[A] = m.get(key) match {
+        case Some(existing) => existing :+ value
+        case None => Vector(value)
+      }
+      
+      m = m.updated(key, values)
+    }
+    
+    m
+  }
+  
+  /**
    * Like .toHashMap except allows multiple values per key
    * 
    * TODO: Change this to IndexedSeq so we can switch to ImmutableArray (if we want to)
