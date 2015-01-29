@@ -23,6 +23,7 @@ libraryDependencies ++= Seq(
   "commons-io" % "commons-io" % "2.4" % "embedded",
   "org.apache.commons" % "commons-compress" % "1.8.1" % "embedded",
   "org.apache.commons" % "commons-lang3" % "3.3.2" % "embedded",
+  //"org.atteo" % "evo-inflector" % "1.2" % "embedded",
   "org.bouncycastle" % "bcprov-jdk15on" % "1.51" % "embedded",
   "org.codehaus.woodstox" % "woodstox-core-asl" % "4.4.0" % "embedded",
   "org.slf4j" % "slf4j-api" % "1.7.5" % "provided",

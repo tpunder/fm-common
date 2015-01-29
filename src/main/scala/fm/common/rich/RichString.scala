@@ -187,4 +187,9 @@ final class RichString(val s: String) extends AnyVal {
   def replaceAll(regex: Regex, replacement: String): String = regex.replaceAllIn(s, replacement)
   
   def replaceFirst(regex: Regex, replacement: String): String = regex.replaceFirstIn(s, replacement)
+  
+//  /**
+//   * The plural form of the string
+//   */
+//  def plural: String = org.atteo.evo.inflector.English.plural(s)
 }
