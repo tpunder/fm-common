@@ -6,10 +6,10 @@ version := "0.2.0-SNAPSHOT"
 
 description := "Common Scala classes that we use at Frugal Mechanic that have no required external dependencies."
 
-scalaVersion := "2.11.2"
+scalaVersion := "2.11.5"
 
-// Note: Use "++ 2.11.0" to select a specific version when building
-crossScalaVersions := Seq("2.10.4", "2.11.2")
+// Note: Use "++ 2.11.5" to select a specific version when building
+crossScalaVersions := Seq("2.10.4", "2.11.5")
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-language:implicitConversions", "-feature", "-Xlint", "-optimise", "-Yinline-warnings")
 
