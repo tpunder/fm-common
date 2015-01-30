@@ -2,7 +2,7 @@ FMPublic
 
 name := "fm-common"
 
-version := "0.2.0"
+version := "0.3.0-SNAPSHOT"
 
 description := "Common Scala classes that we use at Frugal Mechanic that have no required external dependencies."
 
