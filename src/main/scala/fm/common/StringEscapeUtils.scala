@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Frugal Mechanic (http://frugalmechanic.com)
+ * Copyright 2015 Frugal Mechanic (http://frugalmechanic.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,5 +18,11 @@ package fm.common
 import org.apache.commons.lang3.{StringEscapeUtils => Apache}
 
 object StringEscapeUtils {
-  def escapeJSON(s: String): String = Apache.escapeJson(s) 
+  def escapeJSON(s: String): String = Apache.escapeJson(s)
+  
+  def escapeHTML(s: String): String = Apache.escapeHtml4(s)
+  
+  def escapeXML(s: String): String = Apache.escapeXml11(s)
+  
+  def escapeECMAScript(s: String): String = Apache.escapeEcmaScript(s)
 }
