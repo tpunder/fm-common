@@ -15,10 +15,21 @@
  */
 package fm.common
 
-import scala.collection.mutable.{ArrayBuffer,Builder}
 import fm.common.Implicits._
+import org.apache.commons.lang3.StringUtils
+import scala.collection.mutable.{ArrayBuffer,Builder}
 
 object Normalize {
+  /**
+   * org.apache.commons.lang3.StringUtils.stripAccents
+   */
+  def stripAccents(s: String): String = StringUtils.stripAccents(s)
+  
+  /**
+   * org.apache.commons.lang3.StringUtils.normalizeSpace
+   */
+  def normalizeSpace(s: String): String = StringUtils.normalizeSpace(s)
+  
   /**
    * Replaces any non-alphanumeric characters with collapsed spaces
    */
@@ -186,7 +197,10 @@ object Normalize {
   /**
    * Transform the string into something that is URL Friendly.
    */
-  def urlName(s: String): String = {
+  def urlName(raw: String): String = {
+    // 2015-02-19 - This additional step to added to strip accented chars
+    val s: String = stripAccents(raw)
+    
     val sb = new java.lang.StringBuilder(s.length)
     var i: Int = 0
     var lastCharWasSep: Boolean = false

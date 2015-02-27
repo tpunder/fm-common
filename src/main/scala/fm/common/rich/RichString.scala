@@ -188,6 +188,8 @@ final class RichString(val s: String) extends AnyVal {
   
   def replaceFirst(regex: Regex, replacement: String): String = regex.replaceFirstIn(s, replacement)
   
+  def stripAccents: String = Normalize.stripAccents(s)
+  
 //  /**
 //   * The plural form of the string
 //   */
