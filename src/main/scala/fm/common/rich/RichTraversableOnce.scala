@@ -20,6 +20,20 @@ import scala.collection.{immutable, mutable, TraversableOnce}
 
 final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal {
   /**
+   * Like groupBy but returns the count of each key instead of the actual values  
+   */
+  def countBy[K](f: A => K): Map[K,Int] = {
+    var m = immutable.HashMap.empty[K, Int]
+    
+    for(value <- self) {
+      val key: K = f(value)
+      m = m.updated(key, m.getOrElse(key, 0) + 1)
+    }
+    
+    m
+  }
+  
+  /**
    * Collapse records that are next to each other by a key
    * 
    * e.g.: This groups evens and odds together:
