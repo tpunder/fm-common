@@ -25,4 +25,6 @@ object StringEscapeUtils {
   def escapeXML(s: String): String = Apache.escapeXml11(s)
   
   def escapeECMAScript(s: String): String = Apache.escapeEcmaScript(s)
+  
+  def escapeJava(s: String): String = Apache.escapeJava(s)
 }
