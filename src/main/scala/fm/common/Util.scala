@@ -15,6 +15,8 @@
  */
 package fm.common
 
+import java.util.Date
+
 object Util extends Logging {
   @inline def time(f: => Unit): Long = timeOnly(f)
 
@@ -45,5 +47,22 @@ object Util extends Logging {
     val (total,result) = time(f)
     logger.info("[BENCHMARK] "+name+": "+total+"ms")
     result
+  }
+  
+  def logAppStats[T](logger: Logger = logger)(f: => T): T = appStatsImpl(logger.info(_))(f)
+  
+  def printAppStats[T](f: => T): T = appStatsImpl(println)(f)
+  
+  private def appStatsImpl[T](out: String => Unit)(f: => T): T = {
+    val start: Long = System.currentTimeMillis
+    val res: T = f
+    val end: Long = System.currentTimeMillis
+    val totalTimeSecs: Long = (end - start) / 1000
+    
+    out("Started at: "+new Date(start))
+    out("  Ended at: "+new Date(end))
+    out("Total Time: "+totalTimeSecs+" seconds ("+((totalTimeSecs/60d*100).toInt/100d)+" minutes) ("+((totalTimeSecs/3600d*100).toInt/100d)+" hours)")
+    
+    res
   }
 }
