@@ -18,7 +18,9 @@ package fm.common.rich
 import java.util.Locale
 import scala.util.Try
 
-final class RichLocale(private val self: Locale) extends AnyVal {
+final class RichLocale(val self: Locale) extends AnyVal {
+  
+  def languageTag: String = self.toLanguageTag()
   
   def isValidLanguage: Boolean = Try{ self.getISO3Language }.isSuccess
   def isValidCountry: Boolean = Try{ self.getISO3Country }.isSuccess
