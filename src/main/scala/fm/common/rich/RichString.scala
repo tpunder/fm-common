@@ -19,7 +19,10 @@ import fm.common.Normalize
 import fm.common.Implicits.toRichTraversableOnce
 import java.io.File
 import java.math.{BigDecimal, BigInteger}
+import java.text.{DecimalFormat, NumberFormat, ParseException}
+import java.util.Locale
 import org.apache.commons.lang3.text.WordUtils
+import scala.util.{Success, Try}
 import scala.util.matching.Regex
 
 object RichString {
@@ -124,6 +127,15 @@ final class RichString(val s: String) extends AnyVal {
   
   def toBigInteger: BigInteger = toBigIntegerOption.getOrElse{ throw new NumberFormatException(s"RichString.toBigInteger parsing error on value: $s") }
 
+  def parseBigDecimal(implicit locale: Locale): Option[BigDecimal] = if (null == s) None else try {    
+    val bigDecimalFormat: DecimalFormat = NumberFormat.getInstance(locale).asInstanceOf[DecimalFormat]
+    bigDecimalFormat.setParseBigDecimal(true)
+    val res: BigDecimal = bigDecimalFormat.parse(s).asInstanceOf[BigDecimal]
+    Some(res)
+  } catch {
+    case _: ParseException => None
+  }
+  
   /**
    * Unlike toBoolean/toBooleanOption/isBoolean this method will
    * attempt to parse a boolean value from a string.
