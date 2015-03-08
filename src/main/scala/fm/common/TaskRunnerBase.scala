@@ -113,7 +113,7 @@ abstract class TaskRunnerBase(name: String) extends Closeable with Logging {
   final def size: Int = executor.getQueue().size()
 
   protected lazy val shutdownWarning: Boolean = {
-    logger.warn("TaskRunner is shutting down, rejected task submission")
+    logger.warn(s"$name - TaskRunner is shutting down, rejected task submission")
     true
   }
   
