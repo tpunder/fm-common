@@ -18,10 +18,15 @@ package fm.common
 import java.net.{URLDecoder,URLEncoder}
 import scala.collection.SeqLike
 import scala.collection.mutable.Builder
+import scala.util.Try
 import Implicits._
 
 object QueryParams {
   private def defaultCharset: String = "UTF-8"
+  
+  def get(query: String): Option[QueryParams] = Try{ apply(query) }.toOption
+  def get(uri: URI): Option[QueryParams] = Try{ apply(uri) }.toOption
+  def get(url: URL): Option[QueryParams] = Try{ apply(url) }.toOption
   
   /** Create a QueryParams instance given a URL or Query String */
   def apply(queryString: String): QueryParams = apply(queryString, defaultCharset)
@@ -304,6 +309,12 @@ final class QueryParams private (params: Seq[(String, String)] = Nil) extends Se
       URLEncoder.encode(k, charset) + (if (null == v) "" else "="+URLEncoder.encode(v, charset))
     }.mkString("&")
   }
+  
+  def mapKeys(f: String => String): QueryParams = new QueryParams( map{ case (key, value) => (f(key), value) } )
+  def mapValues(f: String => String): QueryParams = new QueryParams( map{ case (key, value) => (key, f(value)) } )
+  
+  def filterKeys(f: String => Boolean): QueryParams = new QueryParams( filter{ case (key, _) => f(key) } )
+  def filterValues(f: String => Boolean): QueryParams = new QueryParams( filter{ case (_, value) => f(value) } )
   
   //
   // SeqLike Implementation:
