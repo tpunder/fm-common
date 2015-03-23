@@ -16,7 +16,7 @@
 package fm.common
 
 import java.lang.annotation.Annotation
-import java.lang.reflect.Modifier
+import java.lang.reflect.{Method, Modifier}
 import java.net.{URLConnection, URLDecoder}
 import java.io.{File, InputStream}
 import java.nio.file.Path
@@ -35,6 +35,20 @@ import Implicits._
  */
 object ClassUtil extends Logging {
 
+  /**
+   * Check if a class is loaded
+   */
+  def isClassLoaded(cls: String, classLoader: ClassLoader = defaultClassLoader): Boolean = {
+    findLoadedClass(cls, classLoader).isDefined
+  }
+  
+  def findLoadedClass(cls: String, classLoader: ClassLoader = defaultClassLoader): Option[Class[_]] = {
+    val findLoadedClass: Method = classOf[ClassLoader].getDeclaredMethod("findLoadedClass", classOf[String])
+    findLoadedClass.setAccessible(true)
+    val res: Object = findLoadedClass.invoke(classLoader, cls)
+    if (null == res) None else Some(res.asInstanceOf[Class[_]])
+  }
+  
   /**
    * Check if a class exists.
    */
