@@ -20,6 +20,30 @@ import scala.collection.{immutable, mutable, TraversableOnce}
 import scala.reflect.ClassTag
 
 final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal {
+
+  /**
+   * Same as mkString except if the TraversableOnce is empty then an empty
+   * string is returned instead of the start and end params.
+   */
+  def mkStringOrBlank(start: String, sep: String, end: String): String = {
+    var sb: java.lang.StringBuilder = null
+    
+    for (x <- self) {
+      if (sb == null) {
+        sb = new java.lang.StringBuilder()
+        sb.append(start)
+      } else {
+        sb.append(sep)
+      }
+      sb.append(x.toString)
+    }
+    
+    if (null != sb) {
+      sb.append(end)
+      sb.toString
+    } else ""
+  }
+  
   /**
    * Like the normal sortBy but will cache the result of calling f on each element
    * (i.e. f is only called once for each element).  This is useful when f is an 
