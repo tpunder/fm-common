@@ -78,4 +78,7 @@ trait Implicits extends OrderingImplicits {
   implicit def toRichInputStream(is: InputStream): RichInputStream = new RichInputStream(is)
   
   implicit def toRichLocale(locale: Locale): RichLocale = new RichLocale(locale)
+  
+  // Starting with TypeWiseBalancedEquality since it is stricter than ViewWiseBalancedEquality
+  implicit def toEqual[L](left: L): TypeWiseBalancedEquality.Equal[L] = new TypeWiseBalancedEquality.Equal[L](left)
 }
