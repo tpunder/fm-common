@@ -20,6 +20,9 @@ import java.nio.{ByteBuffer, MappedByteBuffer}
 import java.nio.channels.FileChannel
 import java.nio.charset.Charset
 import fm.common.Implicits._
+import org.apache.commons.io.ByteOrderMark
+import org.apache.commons.io.input.BOMInputStream
+import scala.util.Try
 
 object InputStreamResource {
   implicit def toInputStreamResource(resource: Resource[InputStream]): InputStreamResource =  resource match {
@@ -121,14 +124,23 @@ final case class InputStreamResource(resource: Resource[InputStream], fileName: 
   /**
    * Create a reader for this InputStream using the given encoding or auto-detect the encoding if the parameter is blank
    */
-  def reader(encoding: String): Resource[Reader] = {
-    if (encoding.isNotBlank) flatMap{ is => SingleUseResource(new InputStreamReader(is, encoding)) } else readerWithDetectedCharset()
-  }
+  def reader(encoding: String): Resource[Reader] = encoding.toBlankOption.flatMap { name: String => Try { Charset.forName(name) }.toOption }.map { charset: Charset => reader(charset) }.getOrElse(readerWithDetectedCharset())
   
+  private val BOMCharsets: Set[Charset] = Set(
+    Charset.forName("UTF-8"),
+    Charset.forName("UTF-16LE"),
+    Charset.forName("UTF-16BE"),
+    Charset.forName("UTF-32LE"),
+    Charset.forName("UTF-32BE")
+  )
   /**
    * Create a reader for this InputStream using the given encoding or auto-detect the encoding if the parameter is blank
    */
-  def reader(charset: Charset): Resource[Reader] = flatMap{ is => SingleUseResource(new InputStreamReader(is, charset)) }
+  def reader(charset: Charset): Resource[Reader] = flatMap { is =>
+    val wrappedInputStream: InputStream = if(BOMCharsets.contains(charset)) new BOMInputStream(is, ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE) else is
+    
+    SingleUseResource(new InputStreamReader(wrappedInputStream, charset))
+  }
   
   def readToString(): String = readToString("")
   
@@ -164,7 +176,6 @@ final case class InputStreamResource(resource: Resource[InputStream], fileName: 
   def buffered(): Resource[BufferedInputStream] = flatMap{ _.toBufferedInputStream }
 
   def readerWithDetectedCharset(): Resource[Reader] = flatMap{ is: InputStream =>
-    
     // Need a mark supported InputStream (e.g. BufferedInputStream) for doing the charset detection
     val markSupportedInputStream: InputStream = if (is.markSupported) is else new BufferedInputStream(is)
     
@@ -173,7 +184,8 @@ final case class InputStreamResource(resource: Resource[InputStream], fileName: 
       if (isMultiUse) use{ IOUtils.detectCharsetName(_, useMarkReset = false) } else None
     }.getOrElse("UTF-8")
     
-    SingleUseResource(new InputStreamReader(markSupportedInputStream, charsetName))
+    // Use org.apache.commons.io.input.BOMInputStream to filter out the BOM bytes if they exist
+    SingleUseResource(new InputStreamReader(new BOMInputStream(markSupportedInputStream, ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE), charsetName))
   }
   
   /** Requires use() to be called so it will consume the Resource */
