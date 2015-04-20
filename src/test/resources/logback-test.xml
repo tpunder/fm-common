@@ -1,0 +1,23 @@
+<configuration>
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
+    <target>System.err</target>
+    <!--<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">-->
+    <encoder class="fm.common.ColorPatternLayoutEncoder">
+      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <root level="${logback.level:-info}">
+    <appender-ref ref="STDERR" />
+  </root>
+  
+  <!-- Silence these messages: 08:22:41.400 [pool-5-thread-2-ScalaTest-running-TestMessageCrypto] WARN  fm.common.Crypto - Key is too long (512 bits).  It is being truncated to 256 -->
+  <logger name="fm.common.Crypto" level="error"/>
+  
+</configuration>

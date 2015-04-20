@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Frugal Mechanic (http://frugalmechanic.com)
+ * Copyright 2015 Frugal Mechanic (http://frugalmechanic.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  */
 package fm.common
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
+import org.scalatest.{FunSuite, Matchers}
 import java.io.{BufferedInputStream, File, Reader}
 
 final class TestInputStreamResource extends FunSuite with Matchers {

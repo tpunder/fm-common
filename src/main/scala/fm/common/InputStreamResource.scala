@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Frugal Mechanic (http://frugalmechanic.com)
+ * Copyright 2015 Frugal Mechanic (http://frugalmechanic.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,13 @@
  */
 package fm.common
 
+import fm.common.Implicits._
 import java.io._
 import java.nio.{ByteBuffer, MappedByteBuffer}
 import java.nio.channels.FileChannel
 import java.nio.charset.Charset
-import fm.common.Implicits._
 import org.apache.commons.io.ByteOrderMark
 import org.apache.commons.io.input.BOMInputStream
-import scala.util.Try
 
 object InputStreamResource {
   implicit def toInputStreamResource(resource: Resource[InputStream]): InputStreamResource =  resource match {
@@ -93,9 +92,16 @@ object InputStreamResource {
     val cl: ClassLoader = Thread.currentThread.getContextClassLoader
     if (null != cl) cl else getClass().getClassLoader()
   }
+  
+  // Note - This cannot be an array since the BOMInputStream class modified it
+  private val BOMs: Vector[ByteOrderMark] = Vector(ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE)
+  
+  private val BOMCharsets: Set[Charset] = BOMs.map{ _.getCharsetName }.map{ Charset.forName }.toIndexedSeq.toUniqueSet
 }
 
 final case class InputStreamResource(resource: Resource[InputStream], fileName: String = "", autoDecompress: Boolean = true, autoBuffer: Boolean = true) extends Resource[InputStream] with Logging {
+  import InputStreamResource.{BOMs, BOMCharsets}
+  
   def isUsable: Boolean = resource.isUsable
   def isMultiUse: Boolean = resource.isMultiUse
   
@@ -124,20 +130,16 @@ final case class InputStreamResource(resource: Resource[InputStream], fileName: 
   /**
    * Create a reader for this InputStream using the given encoding or auto-detect the encoding if the parameter is blank
    */
-  def reader(encoding: String): Resource[Reader] = encoding.toBlankOption.flatMap { name: String => Try { Charset.forName(name) }.toOption }.map { charset: Charset => reader(charset) }.getOrElse(readerWithDetectedCharset())
+  def reader(encoding: String): Resource[Reader] = {
+    if (encoding.isNotBlank) reader(Charset.forName(encoding))
+    else readerWithDetectedCharset()
+  }
   
-  private val BOMCharsets: Set[Charset] = Set(
-    Charset.forName("UTF-8"),
-    Charset.forName("UTF-16LE"),
-    Charset.forName("UTF-16BE"),
-    Charset.forName("UTF-32LE"),
-    Charset.forName("UTF-32BE")
-  )
   /**
    * Create a reader for this InputStream using the given encoding or auto-detect the encoding if the parameter is blank
    */
   def reader(charset: Charset): Resource[Reader] = flatMap { is =>
-    val wrappedInputStream: InputStream = if(BOMCharsets.contains(charset)) new BOMInputStream(is, ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE) else is
+    val wrappedInputStream: InputStream = if (BOMCharsets.contains(charset)) new BOMInputStream(is, BOMs:_*) else is
     
     SingleUseResource(new InputStreamReader(wrappedInputStream, charset))
   }
@@ -145,18 +147,10 @@ final case class InputStreamResource(resource: Resource[InputStream], fileName: 
   def readToString(): String = readToString("")
   
   /** A helper to read the input stream to a string */
-  def readToString(encoding: String): String = reader(encoding).use { reader: Reader =>
-    val writer = new StringWriter()
-    IOUtils.copy(reader, writer)
-    writer.toString
-  }
+  def readToString(encoding: String): String = reader(encoding).use { IOUtils.toString }
   
   /** A helper to read the input stream to a string */
-  def readToString(charset: Charset): String = reader(charset).use { reader: Reader =>
-    val writer = new StringWriter()
-    IOUtils.copy(reader, writer)
-    writer.toString
-  }
+  def readToString(charset: Charset): String = reader(charset).use { IOUtils.toString }
   
   def readBytes(): Array[Byte] = use{ is: InputStream =>
     val os = new fm.common.ByteArrayOutputStream
@@ -185,7 +179,7 @@ final case class InputStreamResource(resource: Resource[InputStream], fileName: 
     }.getOrElse("UTF-8")
     
     // Use org.apache.commons.io.input.BOMInputStream to filter out the BOM bytes if they exist
-    SingleUseResource(new InputStreamReader(new BOMInputStream(markSupportedInputStream, ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE), charsetName))
+    SingleUseResource(new InputStreamReader(new BOMInputStream(markSupportedInputStream, BOMs: _*), charsetName))
   }
   
   /** Requires use() to be called so it will consume the Resource */
