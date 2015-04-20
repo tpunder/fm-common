@@ -68,6 +68,9 @@ trait RichURIBase[T] extends Any {
   def withQueryParams(params: (String, String)*): T = copy(query = QueryParams(params).toString.toBlankOption)
   def withQueryParams(params: QueryParams): T = copy(query = params.toString.toBlankOption)
   
+  def withQueryParam(key: String, value: String): T = withQueryParams(key -> value)
+  def withQueryParam(kv: (String, String)): T = withQueryParams(kv)
+  
   def withHost(host: String): T = copy(host = Some(host))
   
   def copy(
