@@ -93,14 +93,23 @@ object InputStreamResource {
     if (null != cl) cl else getClass().getClassLoader()
   }
   
-  // Note - This cannot be an array since the BOMInputStream class modified it
-  private val BOMs: Vector[ByteOrderMark] = Vector(ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE)
+  // Not using this any more since it doesn't play nicely with Proguard (the ScalaSig references org.apache.commons.io.ByteOrderMark which breaks on 2.10.x)
+  // Note - This cannot be an array since the BOMInputStream class modifies it
+  //private val BOMs: Vector[ByteOrderMark] = Vector(ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE)
   
-  private val BOMCharsets: Set[Charset] = BOMs.map{ _.getCharsetName }.map{ Charset.forName }.toIndexedSeq.toUniqueSet
+  private val BOMCharsets: Set[Charset] = {
+    // Keep this in sync with newBOMInputStream
+    val BOMs: Vector[ByteOrderMark] = Vector(ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE)
+    
+    BOMs.map{ _.getCharsetName }.map{ Charset.forName }.toUniqueSet
+  }
+  
+  // Keep this in sync with BOMCharsets
+  private def newBOMInputStream(is: InputStream): InputStream = new BOMInputStream(is, ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE)
 }
 
 final case class InputStreamResource(resource: Resource[InputStream], fileName: String = "", autoDecompress: Boolean = true, autoBuffer: Boolean = true) extends Resource[InputStream] with Logging {
-  import InputStreamResource.{BOMs, BOMCharsets}
+  import InputStreamResource.{BOMCharsets, newBOMInputStream}
   
   def isUsable: Boolean = resource.isUsable
   def isMultiUse: Boolean = resource.isMultiUse
@@ -139,7 +148,7 @@ final case class InputStreamResource(resource: Resource[InputStream], fileName: 
    * Create a reader for this InputStream using the given encoding or auto-detect the encoding if the parameter is blank
    */
   def reader(charset: Charset): Resource[Reader] = flatMap { is =>
-    val wrappedInputStream: InputStream = if (BOMCharsets.contains(charset)) new BOMInputStream(is, BOMs:_*) else is
+    val wrappedInputStream: InputStream = if (BOMCharsets.contains(charset)) newBOMInputStream(is) else is
     
     SingleUseResource(new InputStreamReader(wrappedInputStream, charset))
   }
@@ -179,7 +188,7 @@ final case class InputStreamResource(resource: Resource[InputStream], fileName: 
     }.getOrElse("UTF-8")
     
     // Use org.apache.commons.io.input.BOMInputStream to filter out the BOM bytes if they exist
-    SingleUseResource(new InputStreamReader(new BOMInputStream(markSupportedInputStream, BOMs: _*), charsetName))
+    SingleUseResource(new InputStreamReader(newBOMInputStream(markSupportedInputStream), charsetName))
   }
   
   /** Requires use() to be called so it will consume the Resource */
