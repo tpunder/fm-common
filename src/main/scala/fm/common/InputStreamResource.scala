@@ -101,7 +101,16 @@ object InputStreamResource {
     // Keep this in sync with newBOMInputStream
     val BOMs: Vector[ByteOrderMark] = Vector(ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE)
     
-    BOMs.map{ _.getCharsetName }.map{ Charset.forName }.toUniqueSet
+    // Avoiding closures so no methods have ByteOrderMark in their signature (so Proguard doesn't complain)
+    val set = Set.newBuilder[Charset]
+    var i = 0
+    
+    while (i < BOMs.length) {
+      set += Charset.forName(BOMs(i).getCharsetName)
+      i += 1
+    }
+    
+    set.result
   }
   
   // Keep this in sync with BOMCharsets
