@@ -115,10 +115,17 @@ object InputStreamResource {
   
   // Keep this in sync with BOMCharsets
   private def newBOMInputStream(is: InputStream): InputStream = new BOMInputStream(is, ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE)
+  
+  // Keep this in sync with BOMCharsets
+  private def newBOMInputStreamReader(is: InputStream): Reader = {
+    val bis: BOMInputStream = new BOMInputStream(is, ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE)
+    val charset: String = if (bis.hasBOM()) bis.getBOMCharsetName else "UTF-8"
+    new InputStreamReader(bis, charset)
+  }
 }
 
 final case class InputStreamResource(resource: Resource[InputStream], fileName: String = "", autoDecompress: Boolean = true, autoBuffer: Boolean = true) extends Resource[InputStream] with Logging {
-  import InputStreamResource.{BOMCharsets, newBOMInputStream}
+  import InputStreamResource.{BOMCharsets, newBOMInputStream, newBOMInputStreamReader}
   
   def isUsable: Boolean = resource.isUsable
   def isMultiUse: Boolean = resource.isMultiUse
@@ -156,11 +163,20 @@ final case class InputStreamResource(resource: Resource[InputStream], fileName: 
   /**
    * Create a reader for this InputStream using the given encoding or auto-detect the encoding if the parameter is blank
    */
-  def reader(charset: Charset): Resource[Reader] = flatMap { is =>
+  def reader(charset: Charset): Resource[Reader] = flatMap { is: InputStream =>
     val wrappedInputStream: InputStream = if (BOMCharsets.contains(charset)) newBOMInputStream(is) else is
     
     SingleUseResource(new InputStreamReader(wrappedInputStream, charset))
   }
+  
+  /**
+   * Creates a UTF-8/16/32 reader based on the BOM encoding with UTF-8 being a default
+   */
+  def utfReader(): Resource[Reader] = flatMap { is: InputStream =>
+    SingleUseResource(newBOMInputStreamReader(is))
+  }
+  
+  def bufferedUTFReader(): Resource[Reader] = utfReader() flatMap { r => Resource(new BufferedReader(r)) }
   
   def readToString(): String = readToString("")
   
