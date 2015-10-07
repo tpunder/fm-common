@@ -28,6 +28,8 @@ object IPSubnet {
     } else if (dashes == 1) {
       val Array(from, to) = subnet.split('-')
       forRangeOrMask(IP(from), IP(to))
+    } else if (IP.isValid(subnet)) {
+      apply(IP(subnet), 32)
     } else throw new IllegalArgumentException("Not sure how to parse subnet: "+subnet)
   }
   
@@ -91,11 +93,26 @@ object IPSubnet {
   private def numberOfTrailingOnes(i: Int): Int = Integer.numberOfTrailingZeros(i ^ 0xffffffff)
 }
 
-final case class IPSubnet(ip: IP, bits: Int) {
+final case class IPSubnet(ip: IP, bits: Int) extends IPOrSubnet {
   require(bits <= 32, "Invalid bits: "+bits)
+
+  private def shift: Int = 32 - bits
+  private def prefix: Int = ip.intValue >>> shift
   
-  private[this] val shift: Int = 32 - bits
-  private[this] val prefix: Int = ip.intValue >>> shift
+  /**
+   * The bitmask for this subnet.
+   * 
+   * For example the mask for 127.0.0.0/8 is 1111111000000000000000000000000 (8 leading bits are 1)
+   */
+  def mask: Int = -1 >>> shift << shift
+  
+  require(ip.intValue >>> shift << shift == ip.intValue, s"Subnet IP has non-zero bits when they should be zero.  IP: $ip  ${Integer.toBinaryString(ip.intValue)}  Mask: ${Integer.toBinaryString(mask)}")
+  
+  // IPOrSubnet implementation
+  def ipAddress: IP = ip
+  
+  // IPOrSubnet implementation
+  def toIPSubnet: IPSubnet = this
 
   /**
    * Does this Subnet contain the IP address?

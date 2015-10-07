@@ -109,9 +109,21 @@ object IP {
 /**
  * Simple Wrapper around an IPv4 Address
  */
-final class IP private(val ip: Int) extends AnyVal with Ordered[IP] {
+final class IP private(val ip: Int) extends AnyVal with Ordered[IP] with IPOrSubnet {
   import IP._
-
+  
+  // IPOrSubnet implementation
+  def start: IP = this
+  
+  // IPOrSubnet implementation
+  def end: IP = this
+  
+  // IPOrSubnet implementation
+  def mask: Int = -1 // all 1's
+  
+  // IPOrSubnet implementation
+  def toIPSubnet: IPSubnet = IPSubnet(this, 32)
+  
   def bytes: Array[Byte] = toBytes(ip)
   def intArray: Array[Int] = toIntArray(ip)
   def inetAddress: InetAddress = InetAddress.getByAddress(bytes)
