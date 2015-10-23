@@ -127,7 +127,7 @@ object Service {
               exceptionHandler: PartialFunction[Exception,Unit] = Service.defaultExceptionHandler, 
               delayBetweenCalls: FiniteDuration = Service.defaultDelayBetweenCalls, // This is a constant delay before making the call (e.g. for rate limiting to external services)
               backOffStrategy: BackOffStrategy = Service.defaultBackOffStrategy,
-              maxRetries: Int = Service.defaultMaxRetries)(f: => X): X = call0(msg, logging, exceptionHandler, delayBetweenCalls, backOffStrategy, maxRetries, f, 0, System.currentTimeMillis())
+              maxRetries: Int = Service.defaultMaxRetries)(f: => X): X = call0(msg, logging, exceptionHandler, delayBetweenCalls, backOffStrategy, maxRetries, f, 0, System.currentTimeMillis(), null)
   
   @tailrec
   private def call0[X](
@@ -139,9 +139,10 @@ object Service {
       maxRetries: Int, 
       f: => X, 
       tryCount: Int,
-      startTime: Long): X = {
+      startTime: Long,
+      lastException: Exception): X = {
     
-    if (tryCount >= maxRetries) throw new Exception(s"Service Failed after $maxRetries retries")
+    if (tryCount >= maxRetries) throw new Exception(s"Service Failed after $maxRetries retries", lastException)
     
     if (delayBetweenCalls > Duration.Zero) delayBetweenCalls.unit.sleep(delayBetweenCalls.length)
   
@@ -152,6 +153,8 @@ object Service {
       logging.calling(msg)
     }
     
+    var caughtException: Exception = null
+    
     val result: Option[X] = try {
       val ret: X = f
       logging.done(msg, System.currentTimeMillis() - startTime)
@@ -161,11 +164,13 @@ object Service {
         if (null != exceptionHandler && exceptionHandler.isDefinedAt(ex)) exceptionHandler(ex)
         else logging.exception(ex)
         
+        caughtException = ex
+        
         None
     }
     
     // Retry if the exception handler doesn't throw an exception
-    if (result.isDefined) result.get else call0(msg, logging, exceptionHandler, delayBetweenCalls, backOffStrategy, maxRetries, f, tryCount + 1, startTime)
+    if (result.isDefined) result.get else call0(msg, logging, exceptionHandler, delayBetweenCalls, backOffStrategy, maxRetries, f, tryCount + 1, startTime, caughtException)
   }
   
   
@@ -175,7 +180,7 @@ object Service {
                    delayBetweenCalls: FiniteDuration = Service.defaultDelayBetweenCalls, // This is a constant delay before making the call (e.g. for rate limiting to external services)
                    backOffStrategy: BackOffStrategy = Service.defaultBackOffStrategy,
                    maxRetries: Int = Service.defaultMaxRetries)(f: => Future[X])(implicit executionContext: ExecutionContext, timer: ScheduledTaskRunner): Future[X] = {
-    callAsync0(msg, logging, exceptionHandler, delayBetweenCalls, backOffStrategy, maxRetries, f, 0)
+    callAsync0(msg, logging, exceptionHandler, delayBetweenCalls, backOffStrategy, maxRetries, f, 0, null)
   }
   
   private def callAsync0[X](
@@ -186,9 +191,10 @@ object Service {
       backOffStrategy: BackOffStrategy, 
       maxRetries: Int, 
       f: => Future[X], 
-      tryCount: Int)(implicit executionContext: ExecutionContext, timer: ScheduledTaskRunner): Future[X] = {
+      tryCount: Int,
+      lastException: Exception)(implicit executionContext: ExecutionContext, timer: ScheduledTaskRunner): Future[X] = {
     
-    if (tryCount >= maxRetries) return Future.failed(new Exception(s"Service Failed after $maxRetries retries"))
+    if (tryCount >= maxRetries) return Future.failed(new Exception(s"Service Failed after $maxRetries retries", lastException))
     
     val sleepMillis: Long = if (tryCount > 0) {
       logging.retrying(msg)
@@ -209,7 +215,7 @@ object Service {
         if (null != exceptionHandler && exceptionHandler.isDefinedAt(ex)) exceptionHandler(ex)
         else logging.exception(ex)
         
-        callAsync0(msg, logging, exceptionHandler, delayBetweenCalls, backOffStrategy, maxRetries, f, tryCount + 1)
+        callAsync0(msg, logging, exceptionHandler, delayBetweenCalls, backOffStrategy, maxRetries, f, tryCount + 1, ex)
     }
   }
 }
