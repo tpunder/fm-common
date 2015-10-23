@@ -206,6 +206,33 @@ final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal 
     m
   }
   
+//  /**
+//   * Same as .toHashMap but ensures there are no duplicate keys BUT will ignore duplicate keys if they have the same values
+//   */
+//  def toUniqueHashMapIgnoreDupes[K, V](implicit ev: A <:< (K, V)): immutable.HashMap[K, V] = toUniqueHashMapImpl(false)
+//  
+//  /**
+//   * Same as .toHashMap but ensures there are no duplicate keys
+//   */
+//  def toUniqueHashMap[K, V](implicit ev: A <:< (K, V)): immutable.HashMap[K, V] = toUniqueHashMapImpl(true)
+//  
+//  /**
+//   * Same as .toHashMap but ensures there are no duplicate keys
+//   */
+//  private def toUniqueHashMapImpl[K, V](strict: Boolean)(implicit ev: A <:< (K, V)): immutable.HashMap[K, V] = {
+//    var m = immutable.HashMap.empty[K, V]
+//    
+//    for (x <- self) {
+//      val key: K = x._1
+//            
+//      if (m.contains(key) && (strict || m(key) != x._2)) throw new IllegalArgumentException(s"RichTraversableOnce.toUniqueHashMap - Map already contains key: $key   Existing Value: ${m(key)}  Trying to add value: ${x._2}")
+//      
+//      m += x
+//    }
+//    
+//    m
+//  }
+  
   /**
    * Alias of uniqueGroupBy
    */
