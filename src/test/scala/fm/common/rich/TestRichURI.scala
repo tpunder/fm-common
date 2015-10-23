@@ -50,7 +50,7 @@ final class TestRichURI extends FunSuite with Matchers {
   }
   
   def check[T](s: String, scheme: Option[String] = None, userInfo: Option[String] = None, host: Option[String] = None, port: Option[Int] = None, path: Option[String] = None, query: Option[String] = None, fragment: Option[String] = None, queryParamsToCheck: Seq[(String,String)] = Nil): Unit = {
-    def checkFields[T](uri: RichURIBase[T]): Unit = {
+    def checkFields[X](uri: RichURIBase[X]): Unit = {
       uri.scheme should equal (scheme)
       uri.userInfo should equal (userInfo)
       uri.host should equal (host)
