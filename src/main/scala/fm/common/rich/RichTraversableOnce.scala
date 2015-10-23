@@ -237,7 +237,7 @@ final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal 
   }
     
   /**
-   * Like .groupBy but gives you an immutable.HashMap[K, IndexedSeq]
+   * Like .groupBy but gives you an immutable.HashMap[K, IndexedSeq[A]]
    */
   def toMultiValuedMapUsing[K](toKey: A => K): immutable.HashMap[K, IndexedSeq[A]] = {
     var m = immutable.HashMap.empty[K, Vector[A]]
@@ -245,6 +245,24 @@ final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal 
     for (value <- self) {
       val key: K = toKey(value)
       
+      val values: Vector[A] = m.get(key) match {
+        case Some(existing) => existing :+ value
+        case None => Vector(value)
+      }
+      
+      m = m.updated(key, values)
+    }
+    
+    m
+  }
+  
+  /**
+   * Like .groupBy but gives you an immutable.HashMap[K, IndexedSeq[A]]
+   */
+  def toMultiValuedMapUsingKeys[K](toKeys: A => TraversableOnce[K]): immutable.HashMap[K, IndexedSeq[A]] = {
+    var m = immutable.HashMap.empty[K, Vector[A]]
+    
+    for (value <- self; key <- toKeys(value)) {      
       val values: Vector[A] = m.get(key) match {
         case Some(existing) => existing :+ value
         case None => Vector(value)
@@ -368,6 +386,21 @@ final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal 
       val builder = immutable.SortedSet.newBuilder[A]
       builder ++= self
       builder.result
+  }
+  
+  def distinctUsing[B](f: A => B)(implicit ord: Ordering[B]): IndexedSeq[A] = {
+    var seen: mutable.HashSet[B] = new mutable.HashSet[B]
+    var res =  Vector.newBuilder[A]
+    
+    self.foreach { v: A =>
+      val key: B = f(v)
+      if (!seen.contains(key)) {
+        res += v
+        seen += key
+      }
+    }
+    
+    res.result
   }
 
   def toUniqueLowerAlphaNumericMap[V](implicit ev: A <:< (String,V)): immutable.HashMap[String, V] = toUniqueHashMapWithKeyTransform(Normalize.lowerAlphanumeric)

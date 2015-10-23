@@ -163,8 +163,8 @@ object IOUtils {
     
     if (useMarkReset) is.mark(bufSize)
     
-    val buf = new Array[Byte](bufSize)
-    val detector = new UniversalDetector(null)
+    val buf: Array[Byte] = new Array[Byte](bufSize)
+    val detector: UniversalDetector = new UniversalDetector(null)
     
     // Bytes read per-read (can be <= bufSize)
     var nread: Int = read(is, buf)
@@ -175,7 +175,7 @@ object IOUtils {
     } else {
       // We can read as much data as we need
       // NOTE!!! Apache IOUtils.read will read as much data as possible and will not return -1 for EOF!!!
-      while(nread > 0) {
+      while (nread > 0) {
         detector.handleData(buf, 0, nread)
         nread = if (detector.isDone) -1 else read(is, buf)
       }

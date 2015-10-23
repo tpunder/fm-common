@@ -34,9 +34,9 @@ final class WeakObjectPool[T] {
   def apply(value: T): T = synchronized {
     val weakRef: WeakReference[T] = map.get(value)
 
-    if(null != weakRef) {
+    if (null != weakRef) {
       val canonical: T = weakRef.get
-      if(null != canonical) return canonical
+      if (null != canonical) return canonical
     }
 
     map.put(value, new WeakReference(value))

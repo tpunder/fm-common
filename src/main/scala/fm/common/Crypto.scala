@@ -67,11 +67,11 @@ object Crypto {
   
   def defaultCipherForRawKey(key: Array[Byte]): Crypto = new Crypto(key, new DefaultCipher)
   
-  def defaultCipherForBase64Key(key: String): Crypto = new Crypto(Base64.decode(key), new DefaultCipher)
+  def defaultCipherForBase64Key(key: String): Crypto = new Crypto(base64Decode(key), new DefaultCipher)
   
   def authenticatedCipherForRawKey(key: Array[Byte]): Crypto = new Crypto(key, new AuthenticatedCipher)
   
-  def authenticatedCipherForBase64Key(key: String): Crypto = new Crypto(Base64.decode(key), new AuthenticatedCipher)
+  def authenticatedCipherForBase64Key(key: String): Crypto = new Crypto(base64Decode(key), new AuthenticatedCipher)
 
   sealed trait Cipher {
     def getBlockSize: Int
@@ -102,6 +102,26 @@ object Crypto {
     def doFinal(out: Array[Byte], outOff: Int): Int = cipher.doFinal(out, outOff)
   }
   
+  // I'm not sure why the base64 decoders don't automatically decode the URL-safe variant...
+  private def base64Decode(s: String): Array[Byte] = {
+    Base64.decode(s, base64DecodeMode(s))
+  }
+  
+  // Detect if we need to pass the URL_SAFE flag
+  private def base64DecodeMode(s: String): Int = {
+    var i: Int = 0
+    while (i < s.length) {
+      (s.charAt(i): @scala.annotation.switch) match {
+        case '-' | '_' => return Base64.URL_SAFE
+        case '+' | '/' => return Base64.NO_OPTIONS
+        case _ =>
+      }
+      i += 1
+    }
+    
+    return Base64.NO_OPTIONS
+  }
+  
 }
 
 /**
@@ -110,11 +130,13 @@ object Crypto {
  * NOTE: Use at your own risk.  We make no claim that any of this Crypto code is correct.
  */
 final class Crypto private (key: Array[Byte], cipher: Crypto.Cipher) extends Logging {
+  import Crypto.base64Decode
+  
   @deprecated("Use the Crypto object factory methods instead of directly calling this constructor.  e.g. Crypto.defaultCipherForRawKey or Crypto.defaultCipherForBase64Key", "")
   def this(key: Array[Byte]) = this(key, new Crypto.DefaultCipher)
   
   @deprecated("Use the Crypto object factory methods instead of directly calling this constructor.  e.g. Crypto.defaultCipherForRawKey or Crypto.defaultCipherForBase64Key", "")
-  def this(base64Key: String) = this(Base64.decode(base64Key), new Crypto.DefaultCipher)
+  def this(base64Key: String) = this(Crypto.base64Decode(base64Key), new Crypto.DefaultCipher)
   
   private[this] val DefaultMac: Mac = new HMac(new SHA1Digest)
   
@@ -138,7 +160,7 @@ final class Crypto private (key: Array[Byte], cipher: Crypto.Cipher) extends Log
     } else {
       logger.warn(s"Key too short (${key.length * 8} bits).  Using sha256 to expand it")
       require(keyLengthBits == 256, s"Can't expand using sha256 since key is not 256 bits.  Key is $keyLengthBits bits.")
-      // NOTE: this be replaced with a proper key derivation function but we first need to figure out if any production code relies on this functionality.
+      // NOTE: this needs to be replaced with a proper key derivation function but we first need to figure out if any production code relies on this functionality.
       //       Some tests in MessageCrypto rely on it but I don't think any production code does.
       sha256(key)
     }
@@ -190,7 +212,7 @@ final class Crypto private (key: Array[Byte], cipher: Crypto.Cipher) extends Log
   /** Decrypt a string encrypted using encryptBase64String() */
   def decryptBase64String(base64IvAndCiphertext: String): String = {
     require(null != base64IvAndCiphertext, "Null base64IvAndCiphertext parameter")
-    val plaintextBytes: Array[Byte] = decrypt(Base64.decode(base64IvAndCiphertext))
+    val plaintextBytes: Array[Byte] = decrypt(base64Decode(base64IvAndCiphertext))
     new String(plaintextBytes, UTF_8)
   }
 
@@ -255,7 +277,7 @@ final class Crypto private (key: Array[Byte], cipher: Crypto.Cipher) extends Log
     val outBytes: Array[Byte] = new Array[Byte](estimatedSize)
     var outLen: Int = cipher.processBytes(data, 0, data.length, outBytes, 0)
     outLen += cipher.doFinal(outBytes, outLen)
-    if(outLen < estimatedSize) {
+    if (outLen < estimatedSize) {
       val tmp: Array[Byte] = new Array[Byte](outLen)
       System.arraycopy(outBytes, 0, tmp, 0, outLen)
       tmp

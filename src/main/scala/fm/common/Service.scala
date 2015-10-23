@@ -190,13 +190,12 @@ object Service {
     
     if (tryCount >= maxRetries) return Future.failed(new Exception(s"Service Failed after $maxRetries retries"))
     
-    var sleepMillis: Long = delayBetweenCalls.toMillis
-    
-    if (tryCount > 0) {
-      sleepMillis += backOffStrategy.millis(tryCount)
+    val sleepMillis: Long = if (tryCount > 0) {
       logging.retrying(msg)
+      delayBetweenCalls.toMillis + backOffStrategy.millis(tryCount)
     } else {
       logging.calling(msg)
+      delayBetweenCalls.toMillis
     }
 
     val res: Future[X] = if (sleepMillis > 0) {
