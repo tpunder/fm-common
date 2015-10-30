@@ -79,6 +79,8 @@ trait Implicits extends OrderingImplicits {
   
   implicit def toRichLocale(locale: Locale): RichLocale = new RichLocale(locale)
   
+  implicit def toRichAnyRef(ref: AnyRef): RichAnyRef = new RichAnyRef(ref)
+  
   // Starting with TypeWiseBalancedEquality since it is stricter than ViewWiseBalancedEquality
   implicit def toEqual[L](left: L): TypeWiseBalancedEquality.Equal[L] = new TypeWiseBalancedEquality.Equal[L](left)
 }
