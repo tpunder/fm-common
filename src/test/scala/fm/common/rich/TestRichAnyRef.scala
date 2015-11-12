@@ -15,9 +15,19 @@
  */
 package fm.common.rich
 
-import scala.reflect.ClassTag
+import org.scalatest.{FunSuite,Matchers}
+import fm.common.Implicits._
 
-final class RichAnyRef[A <: AnyRef](val a: A) extends AnyVal {
-  def tryCast[B <: A](implicit classTag: ClassTag[B]): Option[B] = if (classTag.runtimeClass.isInstance(a)) Some(a.asInstanceOf[B]) else None
-  def tryCast[B <: A](cls: Class[B]): Option[B] = if (cls.isInstance(a)) Some(a.asInstanceOf[B]) else None
+class TestRichAnyRef extends FunSuite with Matchers {
+  
+  test("Basics") {
+    val a: AnyRef = "Foo"
+    
+    require(a.tryCast[String].isDefined)
+    
+    // Compile Error:
+    //val b: String = "asd"
+    //b.tryCast[java.math.BigDecimal]
+  }
+  
 }
