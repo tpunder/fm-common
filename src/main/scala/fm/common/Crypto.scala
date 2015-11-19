@@ -231,6 +231,7 @@ final class Crypto private (key: Array[Byte], cipher: Crypto.Cipher) extends Log
       Some(f)
     } catch {
       case _: IllegalArgumentException => None
+      case _: java.io.IOException => None // fm.common.Base64.decode throws an IOException
       case _: org.bouncycastle.crypto.CryptoException => None
       case _: org.bouncycastle.crypto.RuntimeCryptoException => None
     } 
