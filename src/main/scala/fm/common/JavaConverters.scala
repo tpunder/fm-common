@@ -1,9 +1,30 @@
-package fm.common.rich
+/*
+ * Copyright 2015 Frugal Mechanic (http://frugalmechanic.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package fm.common
 
-import scala.collection.JavaConverters._
 import scala.collection._
+import scala.collection.convert.{DecorateAsJava, DecorateAsScala}
 
-object RichJavaConverters {
+/**
+ * This is the same as scala.collection.JavaConverters with a few additional methods.
+ * 
+ * Specifically you can now call .asScalaNullToEmpty to have null java collections
+ * converted to an empty collection to avoid NullPointerExceptions
+ */
+object JavaConverters extends DecorateAsJava with DecorateAsScala {
   implicit class RichJavaList[A](val l: java.util.List[A]) extends AnyVal {
     def asScalaNullToEmpty(): mutable.Buffer[A] = {
       if (l == null) mutable.ArrayBuffer.empty
