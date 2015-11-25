@@ -111,6 +111,8 @@ abstract class ReloadableResource[T] extends Logging {
 
   private[this] var timerTask: ResourceCheckTimerTask[T] = null
   
+  final def isAutoUpdateCheckEnabled: Boolean = null != timerTask
+  
   /**
    * Enable checking and automatic reload of the resource if the external file is updated
    */
