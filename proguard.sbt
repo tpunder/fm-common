@@ -14,7 +14,8 @@ ProguardKeys.options in Proguard ++= Seq(
   "-dontnote org.apache.commons.lang3.ObjectUtils",
   "-dontnote org.apache.commons.io.LineIterator",
   "-dontnote org.bouncycastle.jcajce.provider.**",
-  "-dontwarn com.ctc.wstx.**"
+  "-dontwarn com.ctc.wstx.**",
+  "-dontwarn com.google.**"
 )
 
 ProguardKeys.defaultInputFilter in Proguard := Some("!META-INF/**,!org/apache/commons/codec/language/bm/*.txt,!javax/**")

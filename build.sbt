@@ -17,6 +17,7 @@ javacOptions ++= Seq("-source", "1.7", "-target", "1.7")
 
 libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic" % "1.1.3" % "provided",
+  "com.google.guava" % "guava" % "19.0" % "embedded",
   "com.googlecode.juniversalchardet" % "juniversalchardet" % "1.0.3" % "embedded",
   "com.sun.mail" % "javax.mail" % "1.5.2" % "provided",
   "commons-codec" % "commons-codec" % "1.10" % "embedded",
