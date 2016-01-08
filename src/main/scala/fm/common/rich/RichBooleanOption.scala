@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package fm.common
+package fm.common.rich
 
 object RichBooleanOption {
   private val TRUE = Some(true)
@@ -22,7 +22,7 @@ object RichBooleanOption {
 
 final class RichBooleanOption(val opt: Option[Boolean]) extends AnyVal {
   /**
-   * Like String.intern but but Option[Boolean]
+   * Like String.intern but for Option[Boolean]
    */
   def intern: Option[Boolean] = if (opt.isEmpty) None else if (opt.get) RichBooleanOption.TRUE else RichBooleanOption.FALSE
 }

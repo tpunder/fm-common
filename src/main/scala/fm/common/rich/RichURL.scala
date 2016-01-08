@@ -15,12 +15,8 @@
  */
 package fm.common.rich
 
-import fm.common.{QueryParams, WeakObjectPool}
+import fm.common.{Intern, QueryParams}
 import java.net.{URI, URL}
-
-object RichURL {
-  private val pool = new WeakObjectPool[URL]()
-}
 
 final class RichURL(val self: URL) extends AnyVal with RichURIBase[URL] {
   def scheme: Option[String] = Option(self.getProtocol)
@@ -36,5 +32,5 @@ final class RichURL(val self: URL) extends AnyVal with RichURIBase[URL] {
   protected def toURI: URI = self.toURI()
   protected def toURL: URL = self
   
-  def intern: URL = RichURL.pool(self)
+  def intern: URL = Intern(self)
 }

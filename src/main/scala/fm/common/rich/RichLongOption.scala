@@ -13,15 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package fm.common
+package fm.common.rich
 
-object RichLongOption {
-  private val pool: WeakObjectPool[Option[Long]] = new WeakObjectPool
-}
+import fm.common.Intern
 
 final class RichLongOption(val opt: Option[Long]) extends AnyVal {
   /**
-   * Like String.intern but but Option[Long]
+   * Like String.intern but for Option[Long]
    */
-  def intern: Option[Long] = if (opt.isEmpty) None else RichLongOption.pool(opt)
+  def intern: Option[Long] = if (opt.isEmpty) None else Intern(opt)
 }

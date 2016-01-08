@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Frugal Mechanic (http://frugalmechanic.com)
+ * Copyright 2015 Frugal Mechanic (http://frugalmechanic.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package fm.common.rich
+package fm.common
 
-import fm.common.Intern
-
-final class RichStringOption(val opt: Option[String]) extends AnyVal {
-  /**
-   * Like String.intern but for Option[String]
-   */
-  def intern: Option[String] = if (opt.isEmpty) None else Intern(opt)
+/**
+ * Mix in this trait to add an intern() method to the class.
+ * 
+ * NOTE: You should have a proper equals and hashCode implementation
+ */
+trait Internable[T <: AnyRef] { self: T =>
+  def intern(): T = Intern(this)
 }

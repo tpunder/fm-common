@@ -19,12 +19,15 @@ import java.lang.ref.WeakReference
 import java.util.WeakHashMap
 
 /**
+ * DEPRECATED - Should use fm.common.Intern instead
+ * 
  * An object pool based on a WeakHashMap (using weak key AND weak values) that can be used to
  * return canonical versions of objects.  Once all references to the object go away the WeakHashMap
  * entry will be GC'd.
  *
  * This is similar to how String.intern() works (although probably not as efficient)
  */
+@Deprecated
 final class WeakObjectPool[T] {
   private[this] val map: WeakHashMap[T,WeakReference[T]] = new WeakHashMap[T,WeakReference[T]]
 
