@@ -115,36 +115,35 @@ object Cache {
    * @param softValues Specifies that each value (not key) stored in the cache should be wrapped in a SoftReference (by default, strong references are used).
    * @param removalListener Specifies a listener instance that caches should notify each time an entry is removed for any reason.
    */
-//  def apply[K,V](
-//    initialCapacity: Int = -1,
-//    maxSize: Long = -1L,
-//    concurrencyLevel: Int = -1,
-//    expireAfterAccess: Duration = Duration.Inf,
-//    expireAfterWrite: Duration = Duration.Inf,
-//    refreshAfterWrite: Duration = Duration.Inf,
-//    recordStats: Boolean = false,
-//    weakKeys: Boolean = false,
-//    weakValues: Boolean = false,
-//    softValues: Boolean = false,
-//    removalListener: Cache.RemovalNotification[K,V] => Unit = null,
-//    loader: Cache.CacheLoader[K,V] = null
-//  ): Cache[K,V] = {
-//    val b: GoogleCacheBuilder[Object,Object] = makeBuilder(
-//      initialCapacity = initialCapacity,
-//      maxSize = maxSize,
-//      concurrencyLevel = concurrencyLevel,
-//      expireAfterAccess = expireAfterAccess,
-//      expireAfterWrite = expireAfterWrite,
-//      refreshAfterWrite = refreshAfterWrite,
-//      recordStats = recordStats,
-//      weakKeys = weakKeys,
-//      weakValues = weakValues,
-//      softValues = softValues,
-//      removalListener = removalListener
-//    )
-//    
-//    new Cache(b.build().asInstanceOf[GoogleCache[K,V]])
-//  }
+  def apply[K,V](
+    initialCapacity: Int = -1,
+    maxSize: Long = -1L,
+    concurrencyLevel: Int = -1,
+    expireAfterAccess: Duration = Duration.Inf,
+    expireAfterWrite: Duration = Duration.Inf,
+    refreshAfterWrite: Duration = Duration.Inf,
+    recordStats: Boolean = false,
+    weakKeys: Boolean = false,
+    weakValues: Boolean = false,
+    softValues: Boolean = false,
+    removalListener: Cache.RemovalNotification[K,V] => Unit = null
+  ): Cache[K,V] = {
+    val b: GoogleCacheBuilder[Object,Object] = makeBuilder(
+      initialCapacity = initialCapacity,
+      maxSize = maxSize,
+      concurrencyLevel = concurrencyLevel,
+      expireAfterAccess = expireAfterAccess,
+      expireAfterWrite = expireAfterWrite,
+      refreshAfterWrite = refreshAfterWrite,
+      recordStats = recordStats,
+      weakKeys = weakKeys,
+      weakValues = weakValues,
+      softValues = softValues,
+      removalListener = removalListener
+    )
+    
+    new Cache(b.build().asInstanceOf[GoogleCache[K,V]])
+  }
   
   private[common] def makeBuilder[K,V](
     initialCapacity: Int,
