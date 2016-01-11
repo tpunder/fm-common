@@ -282,6 +282,13 @@ object LoadingCache {
     }
   }
   
+  final class InvalidCacheLoadException(msg: String, cause: Throwable, stackTrace: Array[StackTraceElement]) extends RuntimeException(msg, cause) {
+    override def fillInStackTrace: Throwable = {
+      setStackTrace(stackTrace)
+      this
+    }
+  }
+  
   /** Mirrors com.google.common.cache.CacheLoader */
   abstract class CacheLoader[K,V] {
     def load(key: K): V
@@ -303,6 +310,10 @@ object LoadingCache {
     def isCancelled(): Boolean = false
     def isDone(): Boolean = future.isCompleted
   }
+  
+  private val exceptionHandler: PartialFunction[Throwable,Nothing] = {
+    case ex: GoogleCacheLoader.InvalidCacheLoadException => throw new InvalidCacheLoadException(ex.getMessage, ex.getCause, ex.getStackTrace)
+  }
 }
 
 /**
@@ -311,7 +322,7 @@ object LoadingCache {
 final class LoadingCache[K,V](cache: GoogleLoadingCache[K,V]) extends Cache(cache) {
   
   /** Returns the value associated with key in this cache, first loading that value if necessary. */
-  def get(key: K): V = cache.get(key)
+  def get(key: K): V = try { cache.get(key) } catch LoadingCache.exceptionHandler
   
   /** Returns a map of the values associated with keys, creating or retrieving those values if necessary. */
   def getAll(keys: Iterable[K]): Map[K,V] = cache.getAll(keys.asJava).asScala.toMap
