@@ -20,6 +20,7 @@ package fm.common
  * 
  * NOTE: You should have a proper equals and hashCode implementation
  */
+@Deprecated
 trait Internable[T <: AnyRef] { self: T =>
   def intern(): T = Intern(this)
 }

@@ -15,11 +15,15 @@
  */
 package fm.common.rich
 
-import fm.common.Intern
+import fm.common.Interner
+
+object RichStringOption {
+  private val interner: Interner[Option[String]] = Interner()
+}
 
 final class RichStringOption(val opt: Option[String]) extends AnyVal {
   /**
    * Like String.intern but for Option[String]
    */
-  def intern: Option[String] = if (opt.isEmpty) None else Intern(opt)
+  def intern: Option[String] = if (opt.isEmpty) None else RichStringOption.interner(opt)
 }

@@ -15,22 +15,18 @@
  */
 package fm.common
 
-@Deprecated
-object Intern {
+import com.google.common.collect.{Interner => GoogleInterner, Interners => GoogleInterners}
 
-  @Deprecated
-  def apply[T <: AnyRef](value: T): T = value
-  
-  /**
-   * Importing this will enable the intern() method on any Object
-   * 
-   * NOTE: You should have a proper equals and hashCode implementation
-   */
-  @Deprecated
-  object Implicits {
-    @Deprecated
-    implicit class RichIntern[T <: AnyRef](private val value: T) extends AnyVal {
-      def intern(): T = Intern(value)
-    }
-  }
+/**
+ * Wraper around Guava's Interner class.
+ * 
+ * Originally I had a generic Intern object that had a map of Class[_] to Guava Interner
+ * but that relies on a correct implementation of equals which can make it error
+ * prone.  For Example an Option[Char] can == an Option[Int].  So instead you have
+ * to be explicit about creating an Interner.
+ */
+final case class Interner[T <: AnyRef]() {
+  private[this] val interner: GoogleInterner[T] = GoogleInterners.newWeakInterner()
+
+  def apply(value: T): T = interner.intern(value)
 }
