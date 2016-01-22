@@ -121,7 +121,19 @@ object UUID {
    * A non-scientific super simple performance tester
    */
   def main(args: Array[String]): Unit = Util.printAppStats{
-    (0 until 1000000).foreach{ i => UUID() }
+    val doPrettyString: Boolean = args.headOption.flatMap{ _.parseBoolean }.getOrElse{ false }
+    
+    {
+      var i: Int = 0
+      var tmp: Int = 0
+      while (i < 1000000) {
+        val uuid: UUID = UUID()
+        tmp += uuid.counter
+        if (doPrettyString) tmp += uuid.toPrettyString().length
+        i += 1
+      }
+      println("Warming Complete: "+tmp)
+    }
     
     import java.util.concurrent.CountDownLatch
     
@@ -137,7 +149,9 @@ object UUID {
           var sum: Int = 0
           var i: Int = 0
           while(i < iterationsPerThread) {
-            sum += UUID().counter
+            val uuid: UUID = UUID()
+            sum += uuid.counter
+            if (doPrettyString) sum += uuid.toPrettyString().length
             i += 1
           }
           latch.countDown()
