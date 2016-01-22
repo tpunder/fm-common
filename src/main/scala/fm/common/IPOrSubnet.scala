@@ -21,4 +21,6 @@ trait IPOrSubnet extends Any {
   def mask: Int
   
   def toIPSubnet: IPSubnet
+  
+  def contains(other: IP): Boolean
 }

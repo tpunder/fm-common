@@ -150,4 +150,6 @@ final class IP private(val ip: Int) extends AnyVal with Ordered[IP] with IPOrSub
 
   // Ordered[IP] Implementation
   def compare(that: IP): Int = longValue.compare(that.longValue)
+  
+  def contains(other: IP): Boolean = ip == other.ip
 }
