@@ -26,7 +26,7 @@ libraryDependencies ++= Seq(
   "org.apache.commons" % "commons-compress" % "1.10" % "embedded",
   "org.apache.commons" % "commons-lang3" % "3.4" % "embedded",
   //"org.atteo" % "evo-inflector" % "1.2" % "embedded",
-  "org.bouncycastle" % "bcprov-jdk15on" % "1.53" % "embedded",
+  "org.bouncycastle" % "bcprov-jdk15on" % "1.54" % "embedded",
   "org.codehaus.woodstox" % "woodstox-core-asl" % "4.4.1" % "embedded",
   "org.slf4j" % "slf4j-api" % "1.7.13" % "provided",
   "org.tukaani" % "xz" % "1.5" % "embedded",  // Used by commons-compress and should be synced up with whatever version commons-compress requires
