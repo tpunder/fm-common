@@ -23,6 +23,7 @@ import org.bouncycastle.crypto.{BufferedBlockCipher, CipherParameters, Digest, M
 import org.bouncycastle.crypto.macs.HMac
 import org.bouncycastle.crypto.digests.{SHA1Digest, SHA256Digest}
 import org.bouncycastle.crypto.engines.AESFastEngine
+import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator
 import org.bouncycastle.crypto.modes.{CBCBlockCipher, GCMBlockCipher}
 import org.bouncycastle.crypto.paddings.{PaddedBufferedBlockCipher, PKCS7Padding}
 import org.bouncycastle.crypto.params.{KeyParameter, ParametersWithIV}
@@ -34,6 +35,19 @@ import org.bouncycastle.crypto.params.{KeyParameter, ParametersWithIV}
  */
 object Crypto {
   private val DefaultKeyLengthBits: Int = 256
+  
+  object PBDKF2 {
+    /** PBKDF2-HMAC-SHA256 */
+    def sha256(salt: Array[Byte], password: String, iterationCount: Int): Array[Byte] = sha256(salt, password.getBytes(UTF_8), iterationCount)
+    
+    /** PBKDF2-HMAC-SHA256 */
+    def sha256(salt: Array[Byte], password: Array[Byte], iterationCount: Int): Array[Byte] = {
+      val gen: PKCS5S2ParametersGenerator = new PKCS5S2ParametersGenerator(new SHA256Digest())
+      gen.init(password, salt, iterationCount)
+      val dk: Array[Byte] = gen.generateDerivedParameters(256).asInstanceOf[KeyParameter].getKey()
+      dk
+    }
+  }
   
   def makeRandomKeyBase64(): String = makeRandomKeyBase64(DefaultKeyLengthBits, urlSafe = false)
   
