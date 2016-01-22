@@ -189,7 +189,7 @@ final case class InputStreamResource(resource: Resource[InputStream], fileName: 
   def readBytes(): Array[Byte] = use{ is: InputStream =>
     val os = new fm.common.ByteArrayOutputStream
     IOUtils.copy(is, os)
-    os.toByteArray()    
+    os.toByteArray()
   }
   
   def md5: Array[Byte]  = use{ DigestUtils.md5     }

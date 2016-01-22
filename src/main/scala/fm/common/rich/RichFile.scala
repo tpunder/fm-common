@@ -71,7 +71,10 @@ final class RichFile(val f: File) extends AnyVal {
   
   /**
    * Find all files under this directory (directories are not included in the result)
+   * 
+   * Deprecated due to ambiguity.  Prefer the fm.lazyseq.Implicits.RichLazySeqFile implementation
    */
+  @Deprecated
   def findFiles(recursive: Boolean = true): Vector[File] = {
     val builder: Builder[File, Vector[File]] = Vector.newBuilder[File]
     findFiles0(f, recursive, builder)
