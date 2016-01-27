@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Frugal Mechanic (http://frugalmechanic.com)
+ * Copyright 2016 Frugal Mechanic (http://frugalmechanic.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,21 +15,19 @@
  */
 package fm.common
 
-import org.apache.commons.codec.binary.{Hex => Apache}
-
 /**
- * Wrappers around org.apache.commons.codec.binary.Hex
+ * Deprecated.  Prefer the fm.common.Base16 object
  */
 object Hex {
   /** Converts an array of characters representing hexadecimal values into an array of bytes of those same values. */
-  def decodeHex(data: Array[Char]): Array[Byte] = Apache.decodeHex(data)
+  def decodeHex(data: Array[Char]): Array[Byte] = Base16.decode(data)
   
   /** Converts an array of bytes into an array of characters representing the hexadecimal values of each byte in order. */
-  def encodeHex(data: Array[Byte]): Array[Char] = Apache.encodeHex(data)
+  def encodeHex(data: Array[Byte]): Array[Char] = Base16.encode(data).toCharArray
   
   /** Converts an array of bytes into an array of characters representing the hexadecimal values of each byte in order.*/
-  def encodeHex(data: Array[Byte], toLowerCase: Boolean): Array[Char] = Apache.encodeHex(data, toLowerCase)
+  def encodeHex(data: Array[Byte], toLowerCase: Boolean): Array[Char] = if (toLowerCase) Base16.encode(data).toCharArray else Base16.encodeUpper(data).toCharArray
   
   /** Converts an array of bytes into a String representing the hexadecimal values of each byte in order. */
-  def encodeHexString(data: Array[Byte]): String = Apache.encodeHexString(data)
+  def encodeHexString(data: Array[Byte]): String = Base16.encode(data)
 }

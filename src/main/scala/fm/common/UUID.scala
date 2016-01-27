@@ -1,6 +1,5 @@
 package fm.common
 
-import com.google.common.io.BaseEncoding
 import java.lang.StringBuilder
 import java.math.BigInteger
 import java.nio.ByteBuffer
@@ -18,11 +17,6 @@ object UUID {
   private[this] val UnsignedShortMax: Int = 65535 // Short.MaxValue - Short.MinValue
   
   private[this] val SignedShortMax: Int = 32768
-  
-  private val Base16: BaseEncoding = BaseEncoding.base16().lowerCase()
-  private val Base32: BaseEncoding = BaseEncoding.base32().lowerCase()
-  private val Base64: BaseEncoding = BaseEncoding.base64()
-  private val Base64URL: BaseEncoding = BaseEncoding.base64Url()
   
   private[this] val counter = new java.util.concurrent.atomic.AtomicInteger(ThreadLocalRandom.current().nextInt)
   
@@ -78,8 +72,7 @@ object UUID {
     uuid.length match {
       // Base 64: AVJHfgdafGqJBjASSLG0GQ==, AVJHfgdafGqJBjASSLG0GQ=, AVJHfgdafGqJBjASSLG0GQ
       case 22 | 23 | 24 =>
-        val urlSafe: Boolean = uuid.contains('-') || uuid.contains('_')
-        apply(if (urlSafe) Base64URL.decode(uuid) else Base64.decode(uuid))
+        apply(Base64.decode(uuid))
       
       // Hex: 0152477e075a7c6a8906301248b1b419
       case 32 =>
@@ -183,8 +176,6 @@ object UUID {
  * Example: 015247f01787-9740-85e0-3e9672a8dfa2
  */
 final case class UUID(timeAndCounter: Long, nodeIdAndRandom: Long) extends Ordered[UUID] {
-  import UUID.{Base16, Base32, Base64, Base64URL}
-  
   /** Between 0 and 281474976710655 (both inclusive) which is a 6-byte unsigned int */
   def epochMilli: Long = timeAndCounter >>> 16
   
@@ -220,7 +211,7 @@ final case class UUID(timeAndCounter: Long, nodeIdAndRandom: Long) extends Order
   
   def toBase64(): String = toBase64(false)
   def toBase64URLSafe(): String = toBase64(true)
-  def toBase64(urlSafe: Boolean): String = if (urlSafe) Base64URL.encode(toByteArray) else Base64.encode(toByteArray) //Base64.encode(toByteArray, if (urlSafe) Base64.URL_SAFE else 0)
+  def toBase64(urlSafe: Boolean): String = if (urlSafe) Base64URL.encode(toByteArray) else Base64Strict.encode(toByteArray)
   
   /** {6-byte millis since epoch}-{2-byte-counter}-{2-byte-optional-node-id}-{4-byte-random} */
   def toPrettyString(): String = {
