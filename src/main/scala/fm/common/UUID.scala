@@ -216,17 +216,20 @@ final case class UUID(timeAndCounter: Long, nodeIdAndRandom: Long) extends Order
   def toBase64URLNoPadding(): String = Base64URL.encodeNoPadding(toByteArray)
   
   /** {6-byte millis since epoch}-{2-byte-counter}-{2-byte-optional-node-id}-{4-byte-random} */
-  def toPrettyString(): String = {
+  def toPrettyString(): String = toPrettyString('-')
+  
+  /** {6-byte millis since epoch}{sep}{2-byte-counter}{sep}{2-byte-optional-node-id}{sep}{4-byte-random} */
+  def toPrettyString(sep: Char): String = {
     val bytes: Array[Byte] = toByteArray()
     
     val sb: StringBuilder = new StringBuilder(35)
     
     sb.append(Base16.encode(bytes, 0, 6))
-    sb.append("-")
+    sb.append(sep)
     sb.append(Base16.encode(bytes, 6, 2))
-    sb.append("-")
+    sb.append(sep)
     sb.append(Base16.encode(bytes, 8, 2))
-    sb.append("-")
+    sb.append(sep)
     sb.append(Base16.encode(bytes, 10, 6))
     
     sb.toString()
