@@ -208,10 +208,12 @@ final case class UUID(timeAndCounter: Long, nodeIdAndRandom: Long) extends Order
   def toBigInt: BigInt = new BigInt(toBigInteger)
   
   def toHex(): String = Base16.encode(toByteArray)
+  def toBase16(): String = Base16.encode(toByteArray)
   
-  def toBase64(): String = toBase64(false)
-  def toBase64URLSafe(): String = toBase64(true)
-  def toBase64(urlSafe: Boolean): String = if (urlSafe) Base64URL.encode(toByteArray) else Base64Strict.encode(toByteArray)
+  def toBase64(): String = Base64Strict.encode(toByteArray)
+  def toBase64NoPadding(): String = Base64Strict.encodeNoPadding(toByteArray)
+  def toBase64URL(): String = Base64URL.encode(toByteArray)
+  def toBase64URLNoPadding(): String = Base64URL.encodeNoPadding(toByteArray)
   
   /** {6-byte millis since epoch}-{2-byte-counter}-{2-byte-optional-node-id}-{4-byte-random} */
   def toPrettyString(): String = {

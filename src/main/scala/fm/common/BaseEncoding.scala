@@ -24,6 +24,60 @@ object Base16 extends BaseEncoding {
 }
 
 /**
+ * Base32 encoding/decoding
+ * 
+ * Note: encodes to lowercase by default but will decode both lower/upper case Base32.
+ */
+object Base32 extends BaseEncoding {
+  private[this] val base32Lower: GuavaBaseEncoding = GuavaBaseEncoding.base32().lowerCase()
+  private[this] val base32LowerNoPadding: GuavaBaseEncoding = base32Lower.omitPadding()
+  private[this] val base32Upper: GuavaBaseEncoding = GuavaBaseEncoding.base32()
+  private[this] val base32UpperNoPadding: GuavaBaseEncoding = base32Upper.omitPadding()
+  
+  def decode(data: Array[Char]): Array[Byte] = try { if (isLower(data)) base32Lower.decode(data) else base32Upper.decode(data) } catch exceptionHandler
+  def decode(data: CharSequence): Array[Byte] = try { if (isLower(data)) base32Lower.decode(data) else base32Upper.decode(data) } catch exceptionHandler
+
+  def encode(bytes: Array[Byte]): String = base32Lower.encode(bytes)
+  def encode(bytes: Array[Byte], offset: Int, length: Int): String = base32Lower.encode(bytes, offset, length)
+  
+  def encodeNoPadding(bytes: Array[Byte]): String = base32LowerNoPadding.encode(bytes)
+  def encodeNoPadding(bytes: Array[Byte], offset: Int, length: Int): String = base32LowerNoPadding.encode(bytes, offset, length)
+  
+  def encodeUpper(bytes: Array[Byte]): String = base32Upper.encode(bytes)
+  def encodeUpper(bytes: Array[Byte], offset: Int, length: Int): String = base32Upper.encode(bytes, offset, length)
+  
+  def encodeUpperNoPadding(bytes: Array[Byte]): String = base32UpperNoPadding.encode(bytes)
+  def encodeUpperNoPadding(bytes: Array[Byte], offset: Int, length: Int): String = base32UpperNoPadding.encode(bytes, offset, length)
+}
+
+/**
+ * Base32Hex encoding/decoding
+ * 
+ * Note: encodes to lowercase by default but will decode both lower/upper case Base32.
+ */
+object Base32Hex extends BaseEncoding {
+  private[this] val base32Lower: GuavaBaseEncoding = GuavaBaseEncoding.base32Hex().lowerCase()
+  private[this] val base32LowerNoPadding: GuavaBaseEncoding = base32Lower.omitPadding()
+  private[this] val base32Upper: GuavaBaseEncoding = GuavaBaseEncoding.base32Hex()
+  private[this] val base32UpperNoPadding: GuavaBaseEncoding = base32Upper.omitPadding()
+  
+  def decode(data: Array[Char]): Array[Byte] = try { if (isLower(data)) base32Lower.decode(data) else base32Upper.decode(data) } catch exceptionHandler
+  def decode(data: CharSequence): Array[Byte] = try { if (isLower(data)) base32Lower.decode(data) else base32Upper.decode(data) } catch exceptionHandler
+
+  def encode(bytes: Array[Byte]): String = base32Lower.encode(bytes)
+  def encode(bytes: Array[Byte], offset: Int, length: Int): String = base32Lower.encode(bytes, offset, length)
+  
+  def encodeNoPadding(bytes: Array[Byte]): String = base32LowerNoPadding.encode(bytes)
+  def encodeNoPadding(bytes: Array[Byte], offset: Int, length: Int): String = base32LowerNoPadding.encode(bytes, offset, length)
+  
+  def encodeUpper(bytes: Array[Byte]): String = base32Upper.encode(bytes)
+  def encodeUpper(bytes: Array[Byte], offset: Int, length: Int): String = base32Upper.encode(bytes, offset, length)
+  
+  def encodeUpperNoPadding(bytes: Array[Byte]): String = base32UpperNoPadding.encode(bytes)
+  def encodeUpperNoPadding(bytes: Array[Byte], offset: Int, length: Int): String = base32UpperNoPadding.encode(bytes, offset, length)
+}
+
+/**
  * Base64 encoding/decoding methods.
  * 
  * Note: This will decode normal Base64 and the modified Base64 for URL variant.  If you don't

@@ -73,7 +73,9 @@ final class TestUUID extends FunSuite with Matchers {
     check(epochMilli, counter, nodeId, random, uuid)
     check(epochMilli, counter, nodeId, random, UUID(uuid.toHex))
     check(epochMilli, counter, nodeId, random, UUID(uuid.toBase64))
-    check(epochMilli, counter, nodeId, random, UUID(uuid.toBase64URLSafe))
+    check(epochMilli, counter, nodeId, random, UUID(uuid.toBase64NoPadding))
+    check(epochMilli, counter, nodeId, random, UUID(uuid.toBase64URL))
+    check(epochMilli, counter, nodeId, random, UUID(uuid.toBase64URLNoPadding))
     check(epochMilli, counter, nodeId, random, UUID(uuid.toPrettyString))
     check(epochMilli, counter, nodeId, random, UUID(uuid.toString))
   }
