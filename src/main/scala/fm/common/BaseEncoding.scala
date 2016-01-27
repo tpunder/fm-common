@@ -227,6 +227,9 @@ sealed trait BaseEncoding {
   
   def decode(data: Array[Char]): Array[Byte]
   def decode(data: CharSequence): Array[Byte]
+  
+  final def tryDecode(data: Array[Char]): Option[Array[Byte]] = try { Option(decode(data)) } catch { case ex: Exception => None }
+  final def tryDecode(data: CharSequence): Option[Array[Byte]] = try { Option(decode(data)) } catch { case ex: Exception => None }
 
   def encode(bytes: Array[Byte]): String
   def encode(bytes: Array[Byte], offset: Int, length: Int): String
