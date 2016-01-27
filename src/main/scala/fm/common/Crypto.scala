@@ -36,7 +36,7 @@ import org.bouncycastle.crypto.params.{KeyParameter, ParametersWithIV}
 object Crypto {
   private val DefaultKeyLengthBits: Int = 256
   
-  object PBDKF2 {
+  object PBKDF2 {
     /** PBKDF2-HMAC-SHA256 */
     def sha256(salt: Array[Byte], password: String, iterationCount: Int): Array[Byte] = sha256(salt, password.getBytes(UTF_8), iterationCount)
     
@@ -47,6 +47,12 @@ object Crypto {
       val dk: Array[Byte] = gen.generateDerivedParameters(256).asInstanceOf[KeyParameter].getKey()
       dk
     }
+    
+    /** PBKDF2-HMAC-SHA256 with the result encoded as a HEX string */
+    def sha256Hex(salt: Array[Byte], password: Array[Byte], iterationCount: Int): String = Hex.encodeHexString(sha256(salt, password, iterationCount))
+    
+    /** PBKDF2-HMAC-SHA256 with the result encoded as a HEX string */
+    def sha256Hex(salt: Array[Byte], password: String, iterationCount: Int): String = Hex.encodeHexString(sha256(salt, password, iterationCount))
   }
   
   def makeRandomKeyBase64(): String = makeRandomKeyBase64(DefaultKeyLengthBits, urlSafe = false)

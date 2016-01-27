@@ -313,6 +313,7 @@ object LoadingCache {
   
   private val exceptionHandler: PartialFunction[Throwable,Nothing] = {
     case ex: GoogleCacheLoader.InvalidCacheLoadException => throw new InvalidCacheLoadException(ex.getMessage, ex.getCause, ex.getStackTrace)
+    case other => throw other
   }
 }
 

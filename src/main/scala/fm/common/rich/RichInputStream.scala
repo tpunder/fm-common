@@ -15,14 +15,12 @@
  */
 package fm.common.rich
 
+import fm.common.{IOUtils, Snappy}
 import java.io.{BufferedInputStream, File, InputStream}
 import java.util.zip.GZIPInputStream
-
 import org.apache.commons.compress.archivers.{ArchiveEntry, ArchiveInputStream, ArchiveStreamFactory}
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
 import org.apache.commons.compress.compressors.xz.XZCompressorInputStream
-
-import fm.common.Snappy
 
 /**
  * Rich wrapper for an InputStream
@@ -30,6 +28,8 @@ import fm.common.Snappy
  * Note:  This class has an optional dependency on Snappy Java (https://github.com/xerial/snappy-java)
  */
 final class RichInputStream(val is: InputStream) extends AnyVal {
+  
+  def toByteArray: Array[Byte] = IOUtils.toByteArray(is)
   
   def toBufferedInputStream: BufferedInputStream = is match {
     case buffered: BufferedInputStream => buffered
