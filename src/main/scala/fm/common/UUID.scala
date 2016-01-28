@@ -90,6 +90,8 @@ object UUID {
     }
   }
   
+  def unapply(uuid: String): Option[UUID] = get(uuid)
+  
   def get(uuid: String): Option[UUID] = Try{ apply(uuid) }.toOption
   
   def get(bytes: Array[Byte]): Option[UUID] = {

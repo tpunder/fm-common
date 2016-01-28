@@ -37,6 +37,8 @@ object IP {
   
   def findAllIPsIn(ips: String): IndexedSeq[IP] = if(null == ips) Vector.empty else ipv4Pattern.findAllIn(ips).matchData.map{_.group(2)}.map{apply}.toIndexedSeq
   
+  def unapply(ip: String): Option[IP] = get(ip)
+  
   def get(ip: String): Option[IP] = try{ Some(apply(ip)) } catch{ case _: InvalidIPException => None }
   
   def apply(ip: String): IP = {
