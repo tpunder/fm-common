@@ -90,7 +90,14 @@ object UUID {
     }
   }
   
-  def unapply(uuid: String): Option[UUID] = get(uuid)
+  /**
+   * Can use this in an extractor:
+   * val Array(UUID.parse(first), UUID.parse(second)) = s.split(':')
+   */
+  object parse {
+    def apply(uuid: String): Option[UUID] = get(uuid)
+    def unapply(uuid: String): Option[UUID] = get(uuid)
+  }
   
   def get(uuid: String): Option[UUID] = Try{ apply(uuid) }.toOption
   
