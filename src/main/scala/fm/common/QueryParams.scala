@@ -85,7 +85,7 @@ object QueryParams {
   /** An empty instance of QueryParams */
   val empty: QueryParams = new QueryParams()
   
-  def newBuilder: Builder[(String, String), QueryParams] = new QueryParamsBuilder
+  def newBuilder: QueryParamsBuilder = new QueryParamsBuilder
 }
 
 final class QueryParamsBuilder extends Builder[(String, String), QueryParams] {
