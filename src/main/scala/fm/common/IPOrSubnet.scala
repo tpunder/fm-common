@@ -15,6 +15,12 @@
  */
 package fm.common
 
+object IPOrSubnet {
+  def get(ip: String): Option[IPOrSubnet] = IP.get(ip) orElse IPSubnet.get(ip)
+  
+  def apply(ip: String): IPOrSubnet = get(ip).getOrElse{ throw new InvalidIPException(ip) }
+}
+
 trait IPOrSubnet extends Any {
   def start: IP
   def end: IP

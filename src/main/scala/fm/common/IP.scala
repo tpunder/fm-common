@@ -18,7 +18,7 @@ package fm.common
 import java.net.InetAddress
 import scala.util.matching.Regex
 
-final case class InvalidIPException(msg: String) extends Exception(msg)
+final case class InvalidIPException(msg: String) extends IllegalArgumentException(msg)
 
 /**
  * Helpers for parsing and working with IPv4 addresses

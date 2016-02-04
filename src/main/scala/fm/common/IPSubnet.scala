@@ -18,7 +18,11 @@ package fm.common
 object IPSubnet {
   val Localhost: IPSubnet = parse("127.0.0.0/8")
   
-  def parse(subnet: String): IPSubnet = {
+  def parse(subnet: String): IPSubnet = apply(subnet)
+  
+  def get(ip: String): Option[IPSubnet] = try{ Some(apply(ip)) } catch{ case _: InvalidIPException => None }
+  
+  def apply(subnet: String): IPSubnet = {
     val slashes: Int = subnet.countOccurrences('/')
     val dashes: Int = subnet.countOccurrences('-')
     
@@ -30,7 +34,7 @@ object IPSubnet {
       forRangeOrMask(IP(from), IP(to))
     } else if (IP.isValid(subnet)) {
       apply(IP(subnet), 32)
-    } else throw new IllegalArgumentException("Not sure how to parse subnet: "+subnet)
+    } else throw new InvalidIPException("Not sure how to parse subnet: "+subnet)
   }
   
   def forRangeOrMask(from: IP, toOrMask: IP): IPSubnet = {
@@ -42,7 +46,7 @@ object IPSubnet {
     
     if (validMask) forMask(from, toOrMask)
     else if (validRange) forRange(from, toOrMask)
-    else throw new Exception("Invalid Condition")
+    else throw new InvalidIPException("Invalid Condition")
   }
   
   def forMask(ip: IP, mask: IP): IPSubnet = {
