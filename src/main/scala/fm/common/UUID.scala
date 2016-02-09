@@ -22,6 +22,8 @@ object UUID {
   
   private def nextCounter(epochMilli: Long): Int = counter.getAndIncrement() & 0xffff
   
+  implicit object ordering extends Ordering[UUID] { def compare(a: UUID, b: UUID): Int = a.compare(b) }
+  
   def apply(): UUID = {
     // No Node Id Specified so we use a random negative Short
     
