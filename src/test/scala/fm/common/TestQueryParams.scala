@@ -67,12 +67,23 @@ final class TestQueryParams extends FunSuite with Matchers {
     QueryParams("foo=bar").updated("foo").toString should equal ("foo")
   }
   
-  test("Contains") {
+  test("Contains Key") {
     QueryParams("foo=bar").contains("foo") should equal (true)
     QueryParams("foo=bar").contains("bar") should equal (false)
     QueryParams("foo=one&bar=asd&foo=two").contains("foo") should equal (true)
     QueryParams("foo=one&bar=asd&foo=two").contains("bar") should equal (true)
     QueryParams("foo=one&bar=asd&foo=two").contains("asd") should equal (false)
+  }
+  
+  test("Contains Key/Value") {
+    QueryParams("foo=bar").contains("foo","bar") should equal (true)
+    QueryParams("foo=bar").contains("foo","foo") should equal (false)
+    QueryParams("foo=bar").contains("bar","foo") should equal (false)
+    QueryParams("foo=one&bar=asd&foo=two").contains("foo","two") should equal (true)
+    QueryParams("foo=one&bar=asd&foo=two").contains("bar","asd") should equal (true)
+    QueryParams("foo=one&bar=asd&foo=two").contains("foo","") should equal (false)
+    QueryParams("foo=one&bar=asd&foo=two").contains("foo","three") should equal (false)
+    QueryParams("foo=one&bar=asd&foo=two").contains("asd","bar") should equal (false)
   }
   
   test("Replace") {

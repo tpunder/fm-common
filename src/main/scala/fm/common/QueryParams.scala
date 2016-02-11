@@ -168,7 +168,12 @@ final class QueryParams private (params: Seq[(String, String)] = Nil) extends Se
   /**
    * Check for key/value pair existence
    */
-  def contains(elem: (String, String)): Boolean = exists (_ == elem)
+  def contains(key: String, value: String): Boolean = contains((key, value))
+  
+  /**
+   * Check for key/value pair existence
+   */
+  def contains(elem: (String, String)): Boolean = exists { _ == elem }
   
   /**
    * Returns true if there is a matching key (which doesn't need to have a value)
