@@ -232,4 +232,24 @@ object Normalize {
     
     sb.toString
   }
+  
+  /**
+   * Converts an ASCII Character to it's Unicode Full Width equivalent
+   *  
+   * scala> val a = (33 to 126).map{ _.toChar }
+   * a: scala.collection.immutable.IndexedSeq[Char] = Vector(!, ", #, $, %, &, ', (, ), *, +, ,, -, ., /, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, :, ;, <, =, >, ?, @, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, [, \, ], ^, _, `, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, {, |, }, ~)
+   * 
+   * scala> val b = (65281 to 65374).map{ _.toChar }
+   * b: scala.collection.immutable.IndexedSeq[Char] = Vector(！, ＂, ＃, ＄, ％, ＆, ＇, （, ）, ＊, ＋, ，, －, ．, ／, ０, １, ２, ３, ４, ５, ６, ７, ８, ９, ：, ；, ＜, ＝, ＞, ？, ＠, Ａ, Ｂ, Ｃ, Ｄ, Ｅ, Ｆ, Ｇ, Ｈ, Ｉ, Ｊ, Ｋ, Ｌ, Ｍ, Ｎ, Ｏ, Ｐ, Ｑ, Ｒ, Ｓ, Ｔ, Ｕ, Ｖ, Ｗ, Ｘ, Ｙ, Ｚ, ［, ＼, ］, ＾, ＿, ｀, ａ, ｂ, ｃ, ｄ, ｅ, ｆ, ｇ, ｈ, ｉ, ｊ, ｋ, ｌ, ｍ, ｎ, ｏ, ｐ, ｑ, ｒ, ｓ, ｔ, ｕ, ｖ, ｗ, ｘ, ｙ, ｚ, ｛, ｜, ｝, ～)
+   * 
+   * scala> (a zip b)
+   * res44: scala.collection.immutable.IndexedSeq[(Char, Char)] = Vector((!,！), (",＂), (#,＃), ($,＄), (%,％), (&,＆), (',＇), ((,（), (),）), (*,＊), (+,＋), (,,，), (-,－), (.,．), (/,／), (0,０), (1,１), (2,２), (3,３), (4,４), (5,５), (6,６), (7,７), (8,８), (9,９), (:,：), (;,；), (<,＜), (=,＝), (>,＞), (?,？), (@,＠), (A,Ａ), (B,Ｂ), (C,Ｃ), (D,Ｄ), (E,Ｅ), (F,Ｆ), (G,Ｇ), (H,Ｈ), (I,Ｉ), (J,Ｊ), (K,Ｋ), (L,Ｌ), (M,Ｍ), (N,Ｎ), (O,Ｏ), (P,Ｐ), (Q,Ｑ), (R,Ｒ), (S,Ｓ), (T,Ｔ), (U,Ｕ), (V,Ｖ), (W,Ｗ), (X,Ｘ), (Y,Ｙ), (Z,Ｚ), ([,［), (\,＼), (],］), (^,＾), (_,＿), (`,｀), (a,ａ), (b,ｂ), (c,ｃ), (d,ｄ), (e,ｅ), (f,ｆ), (g,ｇ), (h,ｈ), (i,ｉ), (j,ｊ), (k,ｋ), (l,ｌ), (m,ｍ), (n,ｎ), (o,ｏ), (p,ｐ), (q,ｑ), (r,ｒ), (s,ｓ), (t,ｔ), (u,ｕ), (v,ｖ), (w,ｗ), (x,ｘ), (y,ｙ), (z,ｚ), ({,｛), (|,｜), (},｝), (~,～))
+   * 
+   */
+  def toFullWidth(ch: Char): Char = if (ch >= 33 && ch <= 126) (ch+65248).toChar else ch
+  
+  /**
+   * Converts ASCII Characters in a String to their Unicode Full Width equivalent
+   */
+  def toFullWidth(s: String): String = s.map{ toFullWidth }
 }
