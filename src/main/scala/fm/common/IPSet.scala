@@ -24,6 +24,7 @@ object IPSet {
   val empty: IPSetImmutable = IPSetImmutable.empty
   
   def apply(ips: String*): IPSetImmutable = IPSetImmutable(ips:_*)
+  def apply(ips: TraversableOnce[IPOrSubnet]): IPSetImmutable = IPSetImmutable(ips)
 }
 
 sealed trait IPSet {
@@ -97,6 +98,12 @@ final class IPSetMutable extends IPSet with Builder[IPOrSubnet, IPSetImmutable] 
 
 object IPSetImmutable {
   def apply(ips: String*): IPSetImmutable = {
+    val builder: IPSetMutable = IPSet.newBuilder
+    ips.foreach{ builder += _ }
+    builder.result
+  }
+  
+  def apply(ips: TraversableOnce[IPOrSubnet]): IPSetImmutable = {
     val builder: IPSetMutable = IPSet.newBuilder
     ips.foreach{ builder += _ }
     builder.result
