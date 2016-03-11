@@ -266,19 +266,17 @@ object LoadingCache {
   
   def apply[K <: AnyRef,V <: AnyRef](loader: K => V): LoadingCache[K,V] = apply()(loader)
   
+  def apply[K <: AnyRef,V <: AnyRef](loader: (K, Option[V]) => V): LoadingCache[K,V] = apply()(loader)
+  
   def apply[K <: AnyRef,V <: AnyRef](loader: CacheLoader[K,V]): LoadingCache[K,V] = apply()(loader)
   
   final class CacheLoaderBuilder(builder: GoogleCacheBuilder[Object,Object]) {
     def apply[K <: AnyRef,V <: AnyRef](loader: K => V): LoadingCache[K,V] = apply(CacheLoader(loader))
     
+    def apply[K <: AnyRef,V <: AnyRef](loader: (K, Option[V]) => V): LoadingCache[K,V] = apply(CacheLoader(loader))
+    
     def apply[K <: AnyRef,V <: AnyRef](loader: CacheLoader[K,V]): LoadingCache[K,V] = {
       new LoadingCache(builder.build(new GoogleCacheLoaderAdapter(loader)).asInstanceOf[GoogleLoadingCache[K,V]])
-    }
-  }
-  
-  object CacheLoader {
-    def apply[K,V](loader: K => V): CacheLoader[K,V] = new CacheLoader[K,V] {
-      def load(key: K): V = loader(key)
     }
   }
   
@@ -289,10 +287,24 @@ object LoadingCache {
     }
   }
   
+  object CacheLoader {
+    def apply[K,V](loader: K => V): CacheLoader[K,V] = new CacheLoader[K,V] {
+      def load(key: K): V = loader(key)
+    }
+    
+    /**
+     * Includes synchronous reload with old value
+     */
+    def apply[K,V](loader: (K, Option[V]) => V): CacheLoader[K,V] = new CacheLoader[K,V] {
+      def load(key: K): V = loader(key, None)
+      override def reload(key: K, oldValue: V): Future[V] = Future.successful(loader(key, Option(oldValue)))
+    } 
+  }
+  
   /** Mirrors com.google.common.cache.CacheLoader */
   abstract class CacheLoader[K,V] {
     def load(key: K): V
-    def loadAll(keys: Iterable[K]): Map[K,V] = ???
+    def loadAll(keys: Iterable[K]): Map[K,V] = ??? // This is intentional to trigger the default GoogleCacheLoader behavior if this method is not overridden
     def reload(key: K, oldValue: V): Future[V] = Future.successful(load(key))
   }
   
