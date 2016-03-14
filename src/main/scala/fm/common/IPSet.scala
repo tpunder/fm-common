@@ -47,7 +47,17 @@ sealed trait IPSet {
     false
   }
   
+  /**
+   * Does this IPSet exactly contain the given subnet
+   */
+  final def containsExact(subnet: IPOrSubnet): Boolean = {
+    ipsWithMask.contains(makeIPWithMask(subnet.start.intValue, subnet.mask))
+  }
+  
   final def isEmpty: Boolean = ipsWithMask.isEmpty()
+  
+  final def hasDefaultRoute: Boolean = containsExact(IPSubnet.DefaultRoute)
+  final def hasQuadZero: Boolean = containsExact(IPSubnet.QuadZero)
   
   // [UPPER 32 BITS IS IP ADDRESS][LOWER 32 BITS IS THE BITMASK]
   protected def makeIPWithMask(ip: Int, mask: Int): Long = BitUtils.makeLong(ip, mask)

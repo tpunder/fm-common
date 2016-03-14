@@ -76,5 +76,24 @@ final class TestIPSet extends FunSuite with Matchers {
     no(set, "0.1.0.0")
     no(set, "0.123.0.0")
     no(set, "0.255.0.0")
+    
+    set.hasDefaultRoute should equal (false)
+    set.hasQuadZero should equal (false)
+    
+    set += "0.0.0.0/0"
+    
+    set.hasDefaultRoute should equal (true)
+    set.hasQuadZero should equal (true)
+    
+    yes(set, "0.0.0.0")
+    yes(set, "0.1.0.0")
+    yes(set, "0.123.0.0")
+    yes(set, "0.255.0.0")
+    yes(set, "0.0.0.1")
+    yes(set, "0.1.2.3")
+    yes(set, "1.2.3.4")
+    yes(set, "128.128.128.128")
+    yes(set, "255.0.0.0")
+    yes(set, "255.255.255.255")
   }
 }

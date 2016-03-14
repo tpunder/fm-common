@@ -29,4 +29,7 @@ final case class IPSubnets(subnets: Vector[IPSubnet]) {
   def this(nets: Seq[String]) = this(nets.map{IPSubnet.parse(_)}.toVector)
   
   def contains(ip: IP): Boolean = subnets.exists{ _.contains(ip) }
+  
+  def hasDefaultRoute: Boolean = subnets.exists{ _.isDefaultRoute }
+  def hasQuadZero: Boolean = subnets.exists{ _.isQuadZero }
 }

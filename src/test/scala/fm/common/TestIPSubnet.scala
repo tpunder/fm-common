@@ -86,6 +86,9 @@ final class TestIPSubnet extends FunSuite with Matchers {
     
     val net = IPSubnet.parse("192.168.0.0/24")
     
+    net.isQuadZero should equal(false)
+    net.isDefaultRoute should equal(false)
+    
     net.contains(IP("192.168.0.0")) should equal(true)
     net.contains(IP("192.168.0.1")) should equal(true)
     net.contains(IP("192.168.0.254")) should equal(true)
@@ -96,5 +99,17 @@ final class TestIPSubnet extends FunSuite with Matchers {
     net.contains(IP("192.168.255.0")) should equal(false)
     net.contains(IP("191.168.0.0")) should equal(false)
     net.contains(IP("193.168.0.0")) should equal(false)
+  }
+  
+  test("0.0.0.0/0") {
+    val net = IPSubnet.parse("0.0.0.0/0")
+    
+    net.isQuadZero should equal(true)
+    net.isDefaultRoute should equal(true)
+    
+    net.contains(IP("0.0.0.0")) should equal(true)
+    net.contains(IP("1.2.3.4")) should equal(true)
+    net.contains(IP("128.128.128.128")) should equal(true)
+    net.contains(IP("255.255.255.255")) should equal(true)
   }
 }

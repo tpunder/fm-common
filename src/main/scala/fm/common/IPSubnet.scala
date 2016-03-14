@@ -17,6 +17,8 @@ package fm.common
 
 object IPSubnet {
   val Localhost: IPSubnet = parse("127.0.0.0/8")
+  val DefaultRoute: IPSubnet = parse("0.0.0.0/0")
+  def QuadZero: IPSubnet = DefaultRoute
   
   def parse(subnet: String): IPSubnet = apply(subnet)
   
@@ -114,7 +116,7 @@ final case class IPSubnet(ip: IP, bits: Int) extends IPOrSubnet {
    * 
    * For example the mask for 127.0.0.0/8 is 1111111000000000000000000000000 (8 leading bits are 1)
    */
-  def mask: Int = -1 >>> shift << shift
+  def mask: Int = if (32 === shift) 0 else -1 >>> shift << shift
   
   require(ip.intValue >>> shift << shift == ip.intValue, s"Subnet IP has non-zero bits when they should be zero.  IP: $ip  ${Integer.toBinaryString(ip.intValue).lPad(32, '0')}  Mask: ${Integer.toBinaryString(mask).lPad(32, '0')}")
   
