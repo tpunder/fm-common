@@ -20,6 +20,10 @@ import org.scalatest.Matchers
 
 class TestIP extends FunSuite with Matchers {
 
+  test("get") {
+    IP.get("") should equal(None)
+  }
+  
   test("New IP") {
     val str = "255.255.255.255"
 
@@ -51,6 +55,7 @@ class TestIP extends FunSuite with Matchers {
   test("isValid") {
     def check(ip: String, valid: Boolean): Unit = TestHelpers.withCallerInfo{ IP.isValid(ip) should equal(valid) }
 
+    check("", false)
     check("1", false)  // Might work in the apply method but isValid only checks for xxx.xxx.xxx.xxx notation
     
     check("1.2", false)

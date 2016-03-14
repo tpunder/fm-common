@@ -45,12 +45,14 @@ object IP {
   def get(ip: String): Option[IP] = try{ Some(apply(ip)) } catch{ case _: InvalidIPException => None }
   
   def apply(ip: String): IP = {
+    if (ip.isBlank) throw new InvalidIPException("IP Address cannot be empty")
+    
     val dotCount: Int = ip.count{_ == '.'}
     
     try {
       // Allow 1.2.3.4 and 1.2.3.4. (trailing dot)
-      if(dotCount == 3 || dotCount == 4) apply(toInt(ip))
-      else if(ip.forall{Character.isDigit(_)}) apply(ip.toLong)
+      if (dotCount == 3 || dotCount == 4) apply(toInt(ip))
+      else if (ip.forall{Character.isDigit(_)}) apply(ip.toLong)
       else throw new InvalidIPException("Not sure how to parse: "+ip)
     } catch {
       case ex: NumberFormatException => try { apply(InetAddress.getByName(ip)) } catch { case _: NoSuchElementException => throw new InvalidIPException("Not sure how to parse: "+ip) }
