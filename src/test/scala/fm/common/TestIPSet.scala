@@ -20,8 +20,8 @@ import org.scalatest.Matchers
 
 final class TestIPSet extends FunSuite with Matchers {
 
-  private def yes(set: IPSetMutable, ip: String): Unit = check(set, ip, true)
-  private def no(set: IPSetMutable, ip: String): Unit = check(set, ip, false)
+  private def yes(set: IPSetMutable, ip: String): Unit = TestHelpers.withCallerInfo{ check(set, ip, true) }
+  private def no(set: IPSetMutable, ip: String): Unit = TestHelpers.withCallerInfo{ check(set, ip, false) }
   
   private def check(set: IPSetMutable, ip: String, res: Boolean): Unit = {
     set.contains(ip) should equal (res)
@@ -47,20 +47,34 @@ final class TestIPSet extends FunSuite with Matchers {
       yes(set, "127.0.0.123")
       
       no(set, "126.0.0.0")
+      no(set, "126.1.2.3")
       no(set, "126.255.255.255")
       no(set, "128.0.0.0")
+      no(set, "128.1.2.3")
+      no(set, "128.255.255.255")
     }
     
     check192()
     
     set += "127.0.0.0/8"
 
-    check127()    
+    check127()
     check192()
     
     set += "127.0.0.123"
     
-    check127()    
+    check127()
     check192()
+    
+    set += "0.0.0.0/16"
+    
+    yes(set, "0.0.0.0")
+    yes(set, "0.0.1.2")
+    yes(set, "0.0.123.123")
+    yes(set, "0.0.255.255")
+    
+    no(set, "0.1.0.0")
+    no(set, "0.123.0.0")
+    no(set, "0.255.0.0")
   }
 }

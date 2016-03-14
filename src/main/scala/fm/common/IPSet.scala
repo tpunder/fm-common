@@ -15,7 +15,8 @@
  */
 package fm.common
 
-import it.unimi.dsi.fastutil.ints.{IntAVLTreeSet, IntIterator, IntOpenHashSet}
+import it.unimi.dsi.fastutil.ints.{IntAVLTreeSet, IntIterator}
+import it.unimi.dsi.fastutil.longs.{LongIterator, LongOpenHashSet}
 import scala.collection.mutable.Builder
 
 object IPSet {
@@ -28,7 +29,7 @@ object IPSet {
 }
 
 sealed trait IPSet {
-  private[common] def ips: IntOpenHashSet
+  private[common] def ipsWithMask: LongOpenHashSet
   private[common] def masks: IntAVLTreeSet
   
   def toImmutable: IPSetImmutable
@@ -40,13 +41,16 @@ sealed trait IPSet {
     val it: IntIterator = masks.iterator()
     while (it.hasNext) {
       val mask: Int = it.nextInt
-      if (ips.contains(ip.intValue & mask)) return true
+      if (ipsWithMask.contains(makeIPWithMask(ip.intValue & mask, mask))) return true
     }
     
     false
   }
   
-  final def isEmpty: Boolean = ips.isEmpty()
+  final def isEmpty: Boolean = ipsWithMask.isEmpty()
+  
+  // [UPPER 32 BITS IS IP ADDRESS][LOWER 32 BITS IS THE BITMASK]
+  protected def makeIPWithMask(ip: Int, mask: Int): Long = BitUtils.makeLong(ip, mask)
 }
 
 object IPSetMutable {
@@ -54,7 +58,7 @@ object IPSetMutable {
 }
 
 final class IPSetMutable extends IPSet with Builder[IPOrSubnet, IPSetImmutable] {
-  private[common] val ips: IntOpenHashSet = new IntOpenHashSet()
+  private[common] val ipsWithMask: LongOpenHashSet = new LongOpenHashSet()
   private[common] val masks: IntAVLTreeSet = new IntAVLTreeSet()
   
   def toImmutable: IPSetImmutable = result
@@ -63,7 +67,7 @@ final class IPSetMutable extends IPSet with Builder[IPOrSubnet, IPSetImmutable] 
   def +=(ip: String): this.type = +=(IPSubnet.parse(ip))
   
   def +=(ip: IPOrSubnet): this.type = {
-    ips.add(ip.start.intValue)
+    ipsWithMask.add(makeIPWithMask(ip.start.intValue, ip.mask))
     masks.add(ip.mask)
     this
   }
@@ -74,9 +78,9 @@ final class IPSetMutable extends IPSet with Builder[IPOrSubnet, IPSetImmutable] 
   }
   
   def ++=(other: IPSet): this.type = {
-    val ipIT: IntIterator = ips.iterator()
+    val ipIT: LongIterator = ipsWithMask.iterator()
     while (ipIT.hasNext) {
-      ips.add(ipIT.nextInt)
+      ipsWithMask.add(ipIT.nextLong)
     }
     
     val maskIT: IntIterator = masks.iterator()
@@ -89,7 +93,7 @@ final class IPSetMutable extends IPSet with Builder[IPOrSubnet, IPSetImmutable] 
   }
   
   def clear(): Unit = {
-    ips.clear()
+    ipsWithMask.clear()
     masks.clear()
   }
   
@@ -113,7 +117,7 @@ object IPSetImmutable {
 }
 
 final class IPSetImmutable(set: IPSetMutable) extends IPSet {
-  private[common] val ips: IntOpenHashSet = new IntOpenHashSet(set.ips)
+  private[common] val ipsWithMask: LongOpenHashSet = new LongOpenHashSet(set.ipsWithMask)
   private[common] val masks: IntAVLTreeSet = new IntAVLTreeSet(set.masks)
  
   def toImmutable: IPSetImmutable = this

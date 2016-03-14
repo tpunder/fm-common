@@ -103,6 +103,12 @@ final case class IPSubnet(ip: IP, bits: Int) extends IPOrSubnet {
   private def shift: Int = 32 - bits
   private def prefix: Int = ip.intValue >>> shift
   
+  // Is this 0.0.0.0/0?
+  def isDefaultRoute: Boolean = ip.intValue === 0 && bits === 0
+  
+  // Alias of isDefaultRoute
+  def isQuadZero: Boolean = isDefaultRoute
+  
   /**
    * The bitmask for this subnet.
    * 
@@ -110,7 +116,7 @@ final case class IPSubnet(ip: IP, bits: Int) extends IPOrSubnet {
    */
   def mask: Int = -1 >>> shift << shift
   
-  require(ip.intValue >>> shift << shift == ip.intValue, s"Subnet IP has non-zero bits when they should be zero.  IP: $ip  ${Integer.toBinaryString(ip.intValue)}  Mask: ${Integer.toBinaryString(mask)}")
+  require(ip.intValue >>> shift << shift == ip.intValue, s"Subnet IP has non-zero bits when they should be zero.  IP: $ip  ${Integer.toBinaryString(ip.intValue).lPad(32, '0')}  Mask: ${Integer.toBinaryString(mask).lPad(32, '0')}")
   
   // IPOrSubnet implementation
   def ipAddress: IP = ip
