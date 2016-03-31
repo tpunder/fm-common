@@ -129,7 +129,7 @@ object ClassUtil extends Logging {
   
   /** A helper for the above methods */
   private def withClasspathURL[T](file: File, classLoader: ClassLoader)(f: URL => T): Option[T] = {
-    val path: String = file.toString.stripLeading("/")
+    val path: String = file.toResourcePath.stripLeading("/")
     val urls: Vector[URL] = classLoader.getResources(path).asScala.toVector
     
     urls.headOption.map{ url: URL => f(url) }

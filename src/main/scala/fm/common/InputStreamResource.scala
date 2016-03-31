@@ -44,7 +44,7 @@ object InputStreamResource {
   
   def forFileOrResource(file: File, originalFileName: String = "", autoDecompress: Boolean = true, autoBuffer: Boolean = true, classLoader: ClassLoader = defaultClassLoader): InputStreamResource = {
     val resource: Resource[InputStream] = MultiUseResource{
-      if (file.isFile && file.canRead) new FileInputStream(file) else classLoader.getResourceAsStream(file.toString())
+      if (file.isFile && file.canRead) new FileInputStream(file) else classLoader.getResourceAsStream(file.toResourcePath)
     }.map{ is: InputStream =>
       if (null == is) throw new IOException("Missing File or Classpath Resource: "+file)
       is
@@ -76,7 +76,7 @@ object InputStreamResource {
   }
   
   def forResource(file: File, originalFileName: String = "", autoDecompress: Boolean = true, autoBuffer: Boolean = true, classLoader: ClassLoader = defaultClassLoader): InputStreamResource = {
-    val resource: Resource[InputStream] = MultiUseResource{ classLoader.getResourceAsStream(file.toString()) }.map{ is: InputStream =>
+    val resource: Resource[InputStream] = MultiUseResource{ classLoader.getResourceAsStream(file.toResourcePath) }.map{ is: InputStream =>
       if (null == is) throw new IOException("Missing Classpath Resource: "+file)
       is
     }
