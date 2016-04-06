@@ -80,7 +80,13 @@ final class TestUUID extends FunSuite with Matchers {
     check(epochMilli, counter, nodeId, random, UUID(uuid.toPrettyString('_')))
     check(epochMilli, counter, nodeId, random, UUID(uuid.toPrettyString(':')))
     check(epochMilli, counter, nodeId, random, UUID(uuid.toPrettyString('?')))
+    check(epochMilli, counter, nodeId, random, UUID(uuid.toStandardString))
+    check(epochMilli, counter, nodeId, random, UUID(uuid.toStandardString('_')))
+    check(epochMilli, counter, nodeId, random, UUID(uuid.toStandardString(':')))
+    check(epochMilli, counter, nodeId, random, UUID(uuid.toStandardString('?')))
     check(epochMilli, counter, nodeId, random, UUID(uuid.toString))
+    check(epochMilli, counter, nodeId, random, UUID(uuid.toJavaUUID))
+    check(epochMilli, counter, nodeId, random, UUID(uuid.toJavaUUID.toString))
   }
   
   private def check(epochMilli: Long, counter: Int, nodeId: Int, random: Long, uuid: UUID): Unit = TestHelpers.withCallerInfo {

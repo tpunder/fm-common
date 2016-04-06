@@ -68,6 +68,8 @@ object UUID {
     UUID(buf.getLong, buf.getLong)
   }
   
+  def apply(uuid: java.util.UUID): UUID = apply(uuid.getMostSignificantBits, uuid.getLeastSignificantBits)
+  
   def apply(uuid: BigInteger): UUID = apply(uuid.toByteArray)
   
   def apply(uuid: String): UUID = {
@@ -81,11 +83,23 @@ object UUID {
         apply(Base16.decode(uuid))
       
       // "Pretty" Hex: 0152477e075a-7c6a-8906-301248b1b419
-      case 35 => 
+      case 35 =>
+        Seq(12, 17, 22).foreach{ idx: Int => require(!Character.isLetterOrDigit(uuid(idx)), s"Not a valid UUID: $uuid") }
+        
         val epochMillis: Long = java.lang.Long.parseLong(uuid.substring(0, 12), 16)
         val counter: Int = Integer.parseInt(uuid.substring(13, 17), 16)
         val nodeId: Int = Integer.parseInt(uuid.substring(18, 22), 16) << 16 >> 16 // Some shifting to restore the original sign
         val random: Long = java.lang.Long.parseLong(uuid.substring(23, 35), 16)
+        apply(epochMillis, counter, nodeId, random)
+      
+      // "Standard" formatted UUID: 0152477e-075a-7c6a-8906-301248b1b419
+      case 36 =>
+        Seq(8, 13, 18, 23).foreach{ idx: Int => require(!Character.isLetterOrDigit(uuid(idx)), s"Not a valid UUID: $uuid") }
+        
+        val epochMillis: Long = java.lang.Long.parseLong(uuid.substring(0, 8)+uuid.substring(9, 13), 16)
+        val counter: Int = Integer.parseInt(uuid.substring(14, 18), 16)
+        val nodeId: Int = Integer.parseInt(uuid.substring(19, 23), 16) << 16 >> 16 // Some shifting to restore the original sign
+        val random: Long = java.lang.Long.parseLong(uuid.substring(24, 36), 16)
         apply(epochMillis, counter, nodeId, random)
         
       case _ => throw new IllegalArgumentException("Invalid UUID")
@@ -246,10 +260,34 @@ final case class UUID(timeAndCounter: Long, nodeIdAndRandom: Long) extends Order
     sb.toString()
   }
   
+  /** {upper 4-bytes of 6-byte millis since epoch}-{lower 2-bytes of 6-byte millis since epoch}-{2-byte-counter}-{2-byte-optional-node-id}-{4-byte-random} */
+  def toStandardString(): String = toStandardString('-')
+  
+  /** {upper 4-bytes of 6-byte millis since epoch}{sep}{lower 2-bytes of 6-byte millis since epoch}{sep}{2-byte-counter}{sep}{2-byte-optional-node-id}{sep}{4-byte-random} */
+  def toStandardString(sep: Char): String = {
+    val bytes: Array[Byte] = toByteArray()
+    
+    val sb: StringBuilder = new StringBuilder(36)
+    
+    sb.append(Base16.encode(bytes, 0, 4))
+    sb.append(sep)
+    sb.append(Base16.encode(bytes, 4, 2))
+    sb.append(sep)
+    sb.append(Base16.encode(bytes, 6, 2))
+    sb.append(sep)
+    sb.append(Base16.encode(bytes, 8, 2))
+    sb.append(sep)
+    sb.append(Base16.encode(bytes, 10, 6))
+    
+    sb.toString()
+  }
+  
   override def toString(): String = toPrettyString()
   
   def compare(that: UUID): Int = {
     val res: Int = java.lang.Long.compare(this.timeAndCounter, that.timeAndCounter)
     if (res == 0) java.lang.Long.compare(this.nodeIdAndRandom, that.nodeIdAndRandom) else res
   }
+  
+  def toJavaUUID: java.util.UUID = new java.util.UUID(timeAndCounter, nodeIdAndRandom)
 }
