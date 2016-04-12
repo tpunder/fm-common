@@ -188,6 +188,14 @@ final class QueryParams private (params: Seq[(String, String)] = Nil) extends Se
   def hasKeyWithValue(key: String): Boolean = keysWithValues.contains(key)
   
   /**
+   * Returns true if there is a matching key which has the given value
+   * 
+   * Note: This is an alias for contains() but seems like a more natural name
+   *       to use in code.
+   */
+  def hasKeyWithValue(key: String, value: String): Boolean = contains(key, value)
+  
+  /**
    * Returns true if there is a matching key (which also has a non-blank value)
    */
   def hasKeyWithNonBlankValue(key: String): Boolean = keysWithNonBlankValues.contains(key)
