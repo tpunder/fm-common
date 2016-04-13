@@ -22,6 +22,9 @@ import scala.collection.mutable.Builder
 
 final class RichFile(val f: File) extends AnyVal {
 
+  // getResource[...](path) always uses "/" for separator - https://docs.oracle.com/javase/8/docs/api/java/lang/ClassLoader.html#getResource(java.lang.String)
+  def toResourcePath: String = f.toString.replace(File.separatorChar, '/')
+
   def isClasspathFile: Boolean = ClassUtil.classpathFileExists(f)
   def isClasspathFile(cl: ClassLoader): Boolean = ClassUtil.classpathFileExists(f, cl)
   
