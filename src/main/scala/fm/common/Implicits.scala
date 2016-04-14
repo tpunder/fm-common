@@ -19,6 +19,7 @@ import fm.common.rich._
 import java.io.{File, InputStream}
 import java.nio.file.Path
 import java.math.{BigDecimal => JavaBigDecimal, BigInteger => JavaBigInteger}
+import java.time.Instant
 import java.util.Locale
 import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
 import scala.concurrent.{Await, Future}
@@ -83,4 +84,6 @@ trait Implicits extends OrderingImplicits {
   
   // Starting with TypeWiseBalancedEquality since it is stricter than ViewWiseBalancedEquality
   implicit def toEqual[L](left: L): TypeWiseBalancedEquality.Equal[L] = new TypeWiseBalancedEquality.Equal[L](left)
+  
+  implicit def toRichInstant(instant: Instant): RichInstant = new RichInstant(instant)
 }
