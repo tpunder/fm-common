@@ -15,6 +15,8 @@
  */
 package fm.common.rich
 
+import fm.common.{ImmutableArray, ImmutableArrayBuilder}
+
 /**
  * Provides additional functionality for java.lang.CharSequence
  */
@@ -28,7 +30,7 @@ final class RichCharSequence(val s: CharSequence) extends AnyVal {
     
     var i: Int = 0
     val len: Int = s.length()
-    while (i < len ) {
+    while (i < len) {
       if (!Character.isWhitespace(s.charAt(i))) return false 
       i += 1
     }
@@ -76,4 +78,26 @@ final class RichCharSequence(val s: CharSequence) extends AnyVal {
     
     count
   }
+  
+  def indexesOf(target: CharSequence, withOverlaps: Boolean): IndexedSeq[Int] = indexesOf(target, 0, withOverlaps)
+  
+  def indexesOf(target: CharSequence, fromIdx: Int, withOverlaps: Boolean): IndexedSeq[Int] = {
+    if (target == null) return ImmutableArray.empty[Int]
+    
+    val builder = new ImmutableArrayBuilder[Int](0)
+    
+    var i: Int = fromIdx
+    
+    while (i < s.length) {
+      if (nextCharsMatch(target, i)) {
+        builder += i
+        i += (if (withOverlaps) 1 else target.length)
+      } else {
+        i += 1
+      }
+    }
+   
+    builder.result
+  }
+  
 }
