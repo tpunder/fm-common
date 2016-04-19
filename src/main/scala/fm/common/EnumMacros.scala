@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  * 
- * Copyright (c) 2015 by Lloyd Chan
+ * Copyright (c) 2016 by Lloyd Chan
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,35 +25,37 @@
  */
 package fm.common
 
-import scala.reflect.macros.Context
 import scala.util.control.NonFatal
 
-// TODO switch to blackbox.Context when dropping support for 2.10.x
-
 object EnumMacros {
-
+  type Context = scala.reflect.macros.blackbox.Context
+  
+  object ContextUtils {
+    /**
+     * Returns a TermName
+     */
+    def termName(c: Context)(name: String): c.universe.TermName = {
+      c.universe.TermName(name)
+    }
+  }
+  
+  /**
+   * Finds any [A] in the current scope and returns an expression for a list of them
+   */
   def findValuesImpl[A: c.WeakTypeTag](c: Context): c.Expr[IndexedSeq[A]] = {
     import c.universe._
-    val resultType = implicitly[c.WeakTypeTag[A]].tpe
     val typeSymbol = weakTypeOf[A].typeSymbol
     validateType(c)(typeSymbol)
     val subclassSymbols = enclosedSubClasses(c)(typeSymbol)
-    if (subclassSymbols.isEmpty) {
-      c.Expr[IndexedSeq[A]](reify(IndexedSeq.empty[A]).tree)
-    } else {
-      c.Expr[IndexedSeq[A]](
-        Apply(
-          TypeApply(
-            Select(reify(IndexedSeq).tree, newTermName("apply")),
-            List(TypeTree(resultType))
-          ),
-          subclassSymbols.map(Ident(_)).toList
-        )
-      )
-    }
+    buildSeqExpr[A](c)(subclassSymbols)
   }
 
-  private[this] def validateType(c: Context)(typeSymbol: c.universe.Symbol): Unit = {
+  /**
+   * Makes sure that we can work with the given type as an enum:
+   *
+   * Aborts if the type is not sealed
+   */
+  private[common] def validateType(c: Context)(typeSymbol: c.universe.Symbol): Unit = {
     if (!typeSymbol.asClass.isSealed)
       c.abort(
         c.enclosingPosition,
@@ -61,19 +63,27 @@ object EnumMacros {
       )
   }
 
-  private[this] def enclosedSubClasses(c: Context)(typeSymbol: c.universe.Symbol): Seq[c.universe.Symbol] = {
+  /**
+   * Finds the actual trees in the current scope that implement objects of the given type
+   *
+   * aborts compilation if:
+   *
+   * - the implementations are not all objects
+   * - the current scope is not an object
+   */
+  private[common] def enclosedSubClassTrees(c: Context)(typeSymbol: c.universe.Symbol): Seq[c.universe.Tree] = {
     import c.universe._
-    val enclosingBodySubclasses: List[Symbol] = try {
+    val enclosingBodySubClassTrees: List[Tree] = try {
       /*
-        When moving beyond 2.11, we should use this instead, because enclosingClass will be deprecated.
+          When moving beyond 2.11, we should use this instead, because enclosingClass will be deprecated.
 
-        val enclosingModuleMembers = c.internal.enclosingOwner.owner.typeSignature.decls.toList
-        enclosingModuleMembers.filter { x =>
-          try (x.asModule.moduleClass.asClass.baseClasses.contains(typeSymbol)) catch { case _: Throwable => false }
-        }
+          val enclosingModuleMembers = c.internal.enclosingOwner.owner.typeSignature.decls.toList
+          enclosingModuleMembers.filter { x =>
+            try (x.asModule.moduleClass.asClass.baseClasses.contains(typeSymbol)) catch { case _: Throwable => false }
+          }
 
-        Unfortunately, 2.10.x does not support .enclosingOwner :P
-      */
+          Unfortunately, 2.10.x does not support .enclosingOwner :P
+        */
       val enclosingModule = c.enclosingClass match {
         case md @ ModuleDef(_, _, _) => md
         case _ => c.abort(
@@ -92,11 +102,38 @@ object EnumMacros {
             c.warning(c.enclosingPosition, s"Got an exception, indicating a possible bug in Enumeratum. Message: ${e.getMessage}")
             false
         }
-      }.map(_.symbol)
+      }
     } catch { case NonFatal(e) => c.abort(c.enclosingPosition, s"Unexpected error: ${e.getMessage}") }
-    if (!enclosingBodySubclasses.forall(x => x.isModule))
+    if (!enclosingBodySubClassTrees.forall(x => x.symbol.isModule))
       c.abort(c.enclosingPosition, "All subclasses must be objects.")
-    else enclosingBodySubclasses
+    else enclosingBodySubClassTrees
   }
 
+  /**
+   * Returns a sequence of symbols for objects that implement the given type
+   */
+  private[common] def enclosedSubClasses(c: Context)(typeSymbol: c.universe.Symbol): Seq[c.universe.Symbol] = {
+    enclosedSubClassTrees(c)(typeSymbol).map(_.symbol)
+  }
+
+  /**
+   * Builds and returns an expression for an IndexedSeq containing the given symbols
+   */
+  private[common] def buildSeqExpr[A: c.WeakTypeTag](c: Context)(subclassSymbols: Seq[c.universe.Symbol]) = {
+    import c.universe._
+    val resultType = implicitly[c.WeakTypeTag[A]].tpe
+    if (subclassSymbols.isEmpty) {
+      c.Expr[IndexedSeq[A]](reify(IndexedSeq.empty[A]).tree)
+    } else {
+      c.Expr[IndexedSeq[A]](
+        Apply(
+          TypeApply(
+            Select(reify(IndexedSeq).tree, ContextUtils.termName(c)("apply")),
+            List(TypeTree(resultType))
+          ),
+          subclassSymbols.map(Ident(_)).toList
+        )
+      )
+    }
+  }
 }
