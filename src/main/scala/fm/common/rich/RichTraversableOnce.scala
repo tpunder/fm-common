@@ -17,6 +17,7 @@ package fm.common.rich
 
 import fm.common.Normalize
 import scala.collection.{immutable, mutable, TraversableOnce}
+import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
 
 final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal {
@@ -157,13 +158,25 @@ final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal 
    * A combination of map + find that returns the first Some that is found
    * after applying the map operation.
    */
-  @inline def findMapped[B](f: A => Option[B]): Option[B] = {
+  def findMapped[B](f: A => Option[B]): Option[B] = {
     self.foreach{ a: A =>
       val b: Option[B] = f(a)
       if(b.isDefined) return b
     }
     
     None
+  }
+  
+  /**
+   * Like findMapped except works with Futures.  Executes the futures one at a time
+   * until one with a defined result is found.
+   */
+  def findMappedFuture[B](f: A => Future[Option[B]])(implicit ec: ExecutionContext): Future[Option[B]] = {
+    self.foldLeft[Future[Option[B]]](Future.successful(None)){ (prev: Future[Option[B]], next: A) =>
+      prev.flatMap{ res: Option[B] =>
+        if (res.isDefined) Future.successful(res) else f(next)
+      }
+    }
   }
   
   /**
