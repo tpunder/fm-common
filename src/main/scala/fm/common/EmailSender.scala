@@ -5,6 +5,18 @@ import java.util.Properties
 import javax.mail.{Message, Session, Transport}
 import javax.mail.internet.{AddressException, InternetAddress, MimeMessage}
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.matching.Regex
+
+object EmailSender {
+  // RegEx From: https://www.w3.org/TR/html5/forms.html#valid-e-mail-address
+  //   Modified to require at least one .<tld> at the end, so root@localhost isn't valid (changed *$""") => +$""")
+  private val emailRegex: Regex = """^[a-zA-Z0-9\.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$""".r
+
+  /*
+   * Simple reg-ex based email address validation
+   */
+  def isValidEmail(email: String): Boolean = email.toBlankOption.map{ emailRegex.findFirstMatchIn(_).isDefined }.getOrElse(false)
+}
 
 final case class EmailSender (user: String, pass: String, host: String) {
   def send(to: String, from: String, bcc: Seq[String] = Nil, replyTo: String, subject: String, body: String): Unit = {
