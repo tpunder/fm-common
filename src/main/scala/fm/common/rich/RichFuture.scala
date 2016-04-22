@@ -15,8 +15,8 @@
  */
 package fm.common.rich
 
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
+import scala.concurrent.{ExecutionContext, Future, Promise}
+import scala.util.{Failure, Success, Try}
 
 object RichFuture {
   def apply[V](f: Future[V]): RichFuture[V] = if(f.isInstanceOf[RichFuture[_]]) f.asInstanceOf[RichFuture[V]] else new RichFuture(f)
@@ -34,7 +34,25 @@ object RichFuture {
 }
 
 // TODO: Figure out why I am forcing everything through the RichFuture.apply method...
-final class RichFuture[V] private (val self: Future[V]) extends AnyVal {
+final class RichFuture[A] private (val self: Future[A]) extends AnyVal {
+  
+  /**
+   * Alias for .mapValue
+   */
+  def mapTry[B](f: Try[A] => B)(implicit ec: ExecutionContext): Future[B] = mapValue(f)
+  
+  /**
+   * Like .map but allows you to map the Try[A] value instead of only a successful result
+   */
+  def mapValue[B](f: Try[A] => B)(implicit ec: ExecutionContext): Future[B] = {
+    val p: Promise[B] = Promise()
+    
+    self.onComplete{ res: Try[A] =>
+      p.complete(Try{ f(res) })
+    }
+    
+    p.future
+  }
   
   /**
    * Returns whether the future has been completed with a Success
