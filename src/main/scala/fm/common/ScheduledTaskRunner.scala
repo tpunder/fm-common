@@ -16,6 +16,7 @@
 package fm.common
 
 import java.util.concurrent.{Callable, ScheduledFuture => JavaScheduledFuture, ScheduledThreadPoolExecutor, TimeUnit}
+import scala.annotation.implicitNotFound
 import scala.concurrent.Promise
 import scala.concurrent.duration.FiniteDuration
 
@@ -23,8 +24,25 @@ object ScheduledTaskRunner {
   final class RunnableWrapper[U](f: => U) extends Runnable {
     def run(): Unit = f
   }
+  
+  object Implicits {
+    /**
+     * The implicit global `ScheduledTaskRunner`. Import `global` when you want to provide the global
+     * `ScheduledTaskRunner` implicitly.
+     */
+    implicit lazy val global: ScheduledTaskRunner = ScheduledTaskRunner("ScheduledTaskRunner.global")
+  }
+  
+  /**
+   * The explicit global `ExecutionContext`. Invoke `global` when you want to provide the global
+   * `ExecutionContext` explicitly.
+   */
+  def global: ScheduledTaskRunner = Implicits.global
 }
 
+@implicitNotFound("""Cannot find an implicit ScheduledTaskRunner. You might pass
+an (implicit st: ScheduledTaskRunner) parameter to your method
+or import fm.common.ScheduledTaskRunner.Implicits.global.""")
 final case class ScheduledTaskRunner(name: String, threads: Int = Runtime.getRuntime().availableProcessors()) extends TaskRunnerBase(name) {
   import ScheduledTaskRunner.RunnableWrapper
   import TaskRunnerBase.{ClearingBlockRunnable, ClearingBlockRunnableWithResult}

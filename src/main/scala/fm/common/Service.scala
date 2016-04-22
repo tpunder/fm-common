@@ -179,7 +179,7 @@ object Service {
                    exceptionHandler: PartialFunction[Exception,Unit] = Service.defaultExceptionHandler, 
                    delayBetweenCalls: FiniteDuration = Service.defaultDelayBetweenCalls, // This is a constant delay before making the call (e.g. for rate limiting to external services)
                    backOffStrategy: BackOffStrategy = Service.defaultBackOffStrategy,
-                   maxRetries: Int = Service.defaultMaxRetries)(f: => Future[X])(implicit executionContext: ExecutionContext, timer: ScheduledTaskRunner): Future[X] = {
+                   maxRetries: Int = Service.defaultMaxRetries)(f: => Future[X])(implicit executionContext: ExecutionContext = ExecutionContext.global, timer: ScheduledTaskRunner = ScheduledTaskRunner.global): Future[X] = {
     callAsync0(msg, logging, exceptionHandler, delayBetweenCalls, backOffStrategy, maxRetries, f, 0, null)
   }
   
