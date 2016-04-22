@@ -22,6 +22,16 @@ import scala.reflect.ClassTag
 
 final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal {
 
+  def minOption[B >: A](implicit cmp: Ordering[B]): Option[A] = {
+    if (self.isEmpty) None
+    else Some(self.min[B])
+  }
+  
+  def maxOption[B >: A](implicit cmp: Ordering[B]): Option[A] = {
+    if (self.isEmpty) None
+    else Some(self.max[B])
+  }
+  
   /**
    * Same as mkString except if the TraversableOnce is empty then an empty
    * string is returned instead of the start and end params.

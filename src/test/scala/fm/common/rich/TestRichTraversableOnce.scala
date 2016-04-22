@@ -23,6 +23,18 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class TestRichTraversableOnce extends FunSuite with Matchers {
   
+  test("minOption") {
+    Vector.empty[Int].minOption should equal (None)
+    Vector(1,2,3).minOption should equal (Some(1))
+    Vector(3,2,1).minOption should equal (Some(1))
+  }
+  
+  test("maxOption") {
+    Vector.empty[Int].maxOption should equal (None)
+    Vector(1,2,3).maxOption should equal (Some(3))
+    Vector(3,2,1).maxOption should equal (Some(3))
+  }
+  
   test("mkStringOrBlank") {
     Vector().mkStringOrBlank("[start]", "[sep]", "[end]") should equal ("")
     Vector("foo").mkStringOrBlank("[start]", "[sep]", "[end]") should equal ("[start]foo[end]")
