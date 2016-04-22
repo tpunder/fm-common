@@ -39,7 +39,7 @@ object Implicits extends Implicits {
   implicit class ToImmutableArrayAnyRef[T <: AnyRef](val col: TraversableOnce[T]) extends AnyVal { def toImmutableArray: ImmutableArray[T] = ImmutableArray.copy[AnyRef](col).asInstanceOf[ImmutableArray[T]] }
 }
 
-trait Implicits extends OrderingImplicits {  
+trait Implicits extends OrderingImplicits {
   implicit def toRichCharSequence(s: CharSequence): RichCharSequence = new RichCharSequence(s)
   implicit def toRichString(s: String): RichString = new RichString(s)
   
