@@ -19,7 +19,7 @@ libraryDependencies ++= Seq(
   "com.sun.mail" % "javax.mail" % "1.5.2" % "provided",
   "commons-codec" % "commons-codec" % "1.10" % "embedded",
   "commons-io" % "commons-io" % "2.4" % "embedded",
-  "it.unimi.dsi" % "fastutil" % "7.0.8" % "embedded",
+  "it.unimi.dsi" % "fastutil" % "7.0.12" % "embedded",
   "org.apache.commons" % "commons-compress" % "1.10" % "embedded",
   "org.apache.commons" % "commons-lang3" % "3.4" % "embedded",
   //"org.atteo" % "evo-inflector" % "1.2" % "embedded",
