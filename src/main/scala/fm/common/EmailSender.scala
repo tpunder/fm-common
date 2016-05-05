@@ -57,8 +57,8 @@ final case class EmailSender (user: String, pass: String, host: String) {
     }
 
     message.setSentDate(new java.util.Date)
-    message.setSubject(subject)
-    message.setText(body)
+    message.setSubject(subject, "utf-8")
+    message.setText(body, "utf-8")
     
     // Not AutoCloseable
     val transport: Transport = session.getTransport("smtp")
