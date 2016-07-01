@@ -6,6 +6,7 @@ import java.nio.ByteBuffer
 import java.time.Instant
 import java.util.Date
 import java.util.concurrent.ThreadLocalRandom
+import java.util.concurrent.atomic.AtomicInteger
 import scala.math.Ordering
 import scala.util.Try
 
@@ -18,7 +19,7 @@ object UUID {
   
   private[this] val SignedShortMax: Int = 32768
   
-  private[this] val counter = new java.util.concurrent.atomic.AtomicInteger(ThreadLocalRandom.current().nextInt)
+  private[this] val counter = new AtomicInteger(ThreadLocalRandom.current().nextInt)
   
   private def nextCounter(epochMilli: Long): Int = counter.getAndIncrement() & 0xffff
   
