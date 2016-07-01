@@ -2,6 +2,8 @@
 // Note: fm-common is setup to cross build with Scala.js
 //
 
+//scalaVersion in ThisBuild := "2.11.8"
+
 lazy val root = project.in(file(".")).
   aggregate(fmCommonJS, fmCommonJVM).
   settings(
@@ -12,7 +14,7 @@ lazy val root = project.in(file(".")).
 lazy val `fm-common-` = crossProject.in(file(".")).
   settings((FMPublic ++ FMProguardSettings ++ Seq(
     name := "fm-common",
-    version := "0.5.0-SNAPSHOT",
+    version := "0.6.0-SNAPSHOT",
     description := "Common Scala classes that we use at Frugal Mechanic that have no required external dependencies.",
     scalaVersion := "2.11.8",
     scalacOptions := Seq("-unchecked", "-deprecation", "-language:implicitConversions", "-feature", "-Xlint", "-optimise", "-Yinline-warnings"),
@@ -43,7 +45,7 @@ lazy val `fm-common-` = crossProject.in(file(".")).
   ).
   jsSettings(
     // Add JS-specific settings here
-    //    name in eclipse := "fm-common-js"
+    libraryDependencies += "org.scala-js" %%% "scalajs-java-time" % "0.2.0"
   )
 
 lazy val fmCommonJVM = `fm-common-`.jvm
