@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Frugal Mechanic (http://frugalmechanic.com)
+ * Copyright 2016 Frugal Mechanic (http://frugalmechanic.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package fm.common
+package fm.common.rich
 
-/**
- * Mix in this trait to add an intern() method to the class.
- * 
- * NOTE: You should have a proper equals and hashCode implementation
- */
-@Deprecated
-trait Internable[T <: AnyRef] { self: T =>
-  def intern(): T = Intern(this)
+import fm.common.{ImmutableArray, Interner, LoadingCache}
+
+object RichImmutableArray {
+  private val interners: LoadingCache[Class[_], Interner[ImmutableArray[_]]] = LoadingCache(){ cls: Class[_] => Interner() }
+}
+
+final class RichImmutableArray[A](val arr: ImmutableArray[A]) extends AnyVal {
+  def intern: ImmutableArray[A] = RichImmutableArray.interners.get(arr.getClass)(arr).asInstanceOf[ImmutableArray[A]]
 }

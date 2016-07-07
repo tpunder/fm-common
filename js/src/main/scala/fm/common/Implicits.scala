@@ -15,15 +15,6 @@
  */
 package fm.common
 
-import fm.common.rich._
-import java.io.{File, InputStream}
-import java.nio.file.Path
-import java.util.Locale
-
-import scala.concurrent.{Await, Future}
-
-import scala.util.Try
-
 object Implicits extends Implicits {
   // Duplicated in both the JVM and JS version of Implicits.scala
   implicit class ToImmutableArrayByte   (val col: TraversableOnce[Byte])    extends AnyVal { def toImmutableArray: ImmutableArray[Byte]    = ImmutableArray.copy(col) }
@@ -39,18 +30,5 @@ object Implicits extends Implicits {
 }
 
 trait Implicits extends ImplicitsBase {
-  implicit def toRichTry[T](t: Try[T]): RichTry[T] = new RichTry(t)
-  implicit def toRichFuture[V](f: Future[V]): RichFuture[V] = RichFuture(f)
-  implicit def toRichAwait[V](await: Await.type): RichAwait = new RichAwait(await)
   
-  implicit def toRichFile(f: File): RichFile = new RichFile(f)
-  implicit def toRichPath(p: Path): RichPath = new RichPath(p)
-  implicit def toRichInputStream(is: InputStream): RichInputStream = new RichInputStream(is)
-  
-  implicit def toRichLocale(locale: Locale): RichLocale = new RichLocale(locale)
-  
-  implicit def toRichURI(uri: URI): RichURI = new RichURI(uri)
-  implicit def toRichURI(url: URL): RichURL = new RichURL(url)
-  
-  implicit def toRichQueryParamsObject(obj: QueryParams.type): RichQueryParams.type = RichQueryParams
 }

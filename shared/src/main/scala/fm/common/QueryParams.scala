@@ -15,43 +15,23 @@
  */
 package fm.common
 
-import java.net.{URLDecoder,URLEncoder}
 import scala.collection.SeqLike
 import scala.collection.mutable.Builder
 import scala.util.Try
 import Implicits._
 
 object QueryParams {
-  private def defaultCharset: String = "UTF-8"
-  
   def get(query: String): Option[QueryParams] = Try{ apply(query) }.toOption
-  def get(uri: URI): Option[QueryParams] = Try{ apply(uri) }.toOption
-  def get(url: URL): Option[QueryParams] = Try{ apply(url) }.toOption
   
-  /** Create a QueryParams instance given a URL or Query String */
-  def apply(queryString: String): QueryParams = apply(queryString, defaultCharset)
-  
-  /** Create Query Params form a URI */
-  def apply(uri: URI): QueryParams = apply(uri, defaultCharset)
-  
-  /** Create Query Params form a URL */
-  def apply(url: URL): QueryParams = apply(url, defaultCharset)
-  
-  /** Create Query Params form a URI */
-  def apply(uri: URI, charset: String): QueryParams = apply(uri.getRawQuery(), charset)
-  
-  /** Create Query Params form a URL */
-  def apply(url: URL, charset: String): QueryParams = apply(url.getQuery(), charset)
-
   /**
    * Create a QueryParams instance given a URL or Query String
    * 
    * @param queryString the URI/URL or Query String to extract Query Parameters from
    */
-  def apply(queryString: String, charset: String): QueryParams = {
+  def apply(queryString: String): QueryParams = {
     if (queryString.isBlank) return empty
 
-    val questionIdx: Int = queryString.indexOf('?')   
+    val questionIdx: Int = queryString.indexOf('?')
     val hashIdx: Int = queryString.indexOf('#')
     
     // Ignore anything before the "?" and after the "#"
@@ -67,9 +47,9 @@ object QueryParams {
     val params: Seq[(String, String)] = rawParams.map { param: String =>
       val idx: Int = param.indexOf('=')
       if (idx < 0) {
-        (URLDecoder.decode(param, charset), null)
+        (StringEscapeUtils.decodeURIComponent(param), null)
       } else {
-        (URLDecoder.decode(param.substring(0, idx), charset), URLDecoder.decode(param.substring(idx + 1), charset))
+        (StringEscapeUtils.decodeURIComponent(param.substring(0, idx)), StringEscapeUtils.decodeURIComponent(param.substring(idx + 1)))
       }
     }
     
@@ -303,23 +283,17 @@ final class QueryParams private (params: Seq[(String, String)] = Nil) extends Se
     }.mkString(", ")+"}"
   }
   
-  /** An alias for toQueryString("UTF-8") */
-  override def toString(): String = toString(QueryParams.defaultCharset)
-  
   /** An alias for toQueryString */
-  def toString(charset: String): String = toQueryString(charset)
-  
-  /** An alias for toQueryString("UTF-8") */
-  def toQueryString(): String = toQueryString(QueryParams.defaultCharset)
+  override def toString(): String = toQueryString()
   
   /**
    * Create a valid query string using the current parameters (everything after the ?).
    * 
    * e.g.: foo=bar&hello=world
    */
-  def toQueryString(charset: String): String = {
+  def toQueryString(): String = {
     params.map{ case (k, v) =>
-      URLEncoder.encode(k, charset) + (if (null == v) "" else "="+URLEncoder.encode(v, charset))
+      StringEscapeUtils.encodeURIComponent(k) + (if (null == v) "" else "="+StringEscapeUtils.encodeURIComponent(v))
     }.mkString("&")
   }
   

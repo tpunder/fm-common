@@ -15,21 +15,17 @@
  */
 package fm.common
 
-import java.net.{URLDecoder,URLEncoder}
-import org.apache.commons.lang3.{StringEscapeUtils => Apache}
+import scala.scalajs.js.URIUtils
 
 object StringEscapeUtils extends StringEscapeUtilsBase {
-  def escapeJSON(s: String): String = Apache.escapeJson(s)
   
-  def escapeHTML(s: String): String = Apache.escapeHtml4(s)
+  // JavaScript's encodeURIComponent doesn't convert the same chars as the JVMs URLEncoder so 
+  // we convert those ourselves.  See notes on https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
+  def encodeURIComponent(s: String): String = URIUtils.encodeURIComponent(s).replace("%20","+").flatMap{
+    case ch @ ('!' | '\'' | '(' | ')' | '*') => "%"+ch.toInt.toHexString
+    case ch => ch.toString
+  }
   
-  def escapeXML(s: String): String = Apache.escapeXml11(s)
-  
-  def escapeECMAScript(s: String): String = Apache.escapeEcmaScript(s)
-  
-  def escapeJava(s: String): String = Apache.escapeJava(s)
-  
-  def encodeURIComponent(s: String): String = URLEncoder.encode(s, "UTF-8")
-  
-  def decodeURIComponent(s: String): String = URLDecoder.decode(s, "UTF-8")
+  // Convert + back into %20
+  def decodeURIComponent(s: String): String = URIUtils.decodeURIComponent(s.replace("+","%20"))
 }

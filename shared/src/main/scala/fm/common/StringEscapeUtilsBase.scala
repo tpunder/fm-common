@@ -15,21 +15,9 @@
  */
 package fm.common
 
-import java.net.{URLDecoder,URLEncoder}
-import org.apache.commons.lang3.{StringEscapeUtils => Apache}
-
-object StringEscapeUtils extends StringEscapeUtilsBase {
-  def escapeJSON(s: String): String = Apache.escapeJson(s)
+protected trait StringEscapeUtilsBase {
   
-  def escapeHTML(s: String): String = Apache.escapeHtml4(s)
+  def encodeURIComponent(s: String): String
   
-  def escapeXML(s: String): String = Apache.escapeXml11(s)
-  
-  def escapeECMAScript(s: String): String = Apache.escapeEcmaScript(s)
-  
-  def escapeJava(s: String): String = Apache.escapeJava(s)
-  
-  def encodeURIComponent(s: String): String = URLEncoder.encode(s, "UTF-8")
-  
-  def decodeURIComponent(s: String): String = URLDecoder.decode(s, "UTF-8")
+  def decodeURIComponent(s: String): String
 }

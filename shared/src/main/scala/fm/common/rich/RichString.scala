@@ -21,7 +21,6 @@ import java.io.File
 import java.math.{BigDecimal, BigInteger}
 import java.text.{DecimalFormat, NumberFormat, ParseException}
 import java.util.Locale
-import org.apache.commons.lang3.text.WordUtils
 import scala.util.{Success, Try}
 import scala.util.matching.Regex
 
@@ -167,16 +166,51 @@ final class RichString(val s: String) extends AnyVal {
   def urlName: String = Normalize.urlName(s)
   
   /** See org.apache.commons.lang3.text.WordUtils.capitalize */
-  def capitalizeWords: String = WordUtils.capitalize(s)
+  def capitalizeWords: String = capitalizeWords(null:_*)
   
   /** See org.apache.commons.lang3.text.WordUtils.capitalize */
-  def capitalizeWords(delimiters: Char*): String = WordUtils.capitalize(s, delimiters:_*)
+  def capitalizeWords(delimiters: Char*): String = {
+    val delimLen: Int = if (delimiters == null) -1 else delimiters.length
+    
+    if (s == null || s.length == 0 || delimLen == 0) return s
+    
+    val buffer: Array[Char] = s.toCharArray()
+    var capitalizeNext: Boolean = true
+    
+    var i: Int = 0
+    while (i < buffer.length) {
+      val ch: Char = buffer(i)
+      if (isDelimiter(ch, delimiters)) {
+        capitalizeNext = true
+      } else if (capitalizeNext) {
+        buffer(i) = ch.toUpper //Character.toTitleCase(ch)
+        capitalizeNext = false
+      }
+      
+      i += 1
+    }
+    
+    new String(buffer)
+  }
   
   /** See org.apache.commons.lang3.text.WordUtils.capitalizeFully */
-  def capitalizeFully: String = WordUtils.capitalizeFully(s)
+  def capitalizeFully: String = capitalizeFully(null:_*)
   
   /** See org.apache.commons.lang3.text.WordUtils.capitalizeFully */
-  def capitalizeFully(delimiters: Char*): String = WordUtils.capitalizeFully(s, delimiters:_*)
+  def capitalizeFully(delimiters: Char*): String = {
+    val delimLen: Int = if (delimiters == null) -1 else delimiters.length
+
+    if (s == null || s.length() == 0 || delimLen == 0) return s
+
+    val lower: String = s.toLowerCase()
+    new RichString(lower).capitalizeWords(delimiters:_*)
+  }
+  
+  /** See org.apache.commons.lang3.text.WordUtils.isDelimiter */
+  private def isDelimiter(ch: Char, delimiters: Seq[Char]): Boolean = {
+    if (delimiters == null) Character.isWhitespace(ch)
+    else delimiters.exists{ delim: Char => delim == ch }
+  }
   
   def pad(length: Int, c: Char = ' '): String = rPad(length, c)
 

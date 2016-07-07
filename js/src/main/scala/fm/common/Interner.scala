@@ -15,22 +15,9 @@
  */
 package fm.common
 
-@Deprecated
-object Intern {
-
-  @Deprecated
-  def apply[T <: AnyRef](value: T): T = value
-  
-  /**
-   * Importing this will enable the intern() method on any Object
-   * 
-   * NOTE: You should have a proper equals and hashCode implementation
-   */
-  @Deprecated
-  object Implicits {
-    @Deprecated
-    implicit class RichIntern[T <: AnyRef](private val value: T) extends AnyVal {
-      def intern(): T = Intern(value)
-    }
-  }
+/**
+ * Javascript Stub that does nothing
+ */
+final case class Interner[T <: AnyRef]() {
+  def apply(value: T): T = value
 }

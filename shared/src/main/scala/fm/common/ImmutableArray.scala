@@ -81,16 +81,12 @@ object ImmutableArray {
   def builderForAnyRef: ImmutableArrayBuilder[AnyRef] = new ImmutableArrayBuilder[AnyRef](0)
   
   private val _empty: ImmutableArray[Nothing] = new ImmutableArray(new Array[AnyRef](0)).asInstanceOf[ImmutableArray[Nothing]]
-  
-  private val interners: LoadingCache[Class[_], Interner[ImmutableArray[_]]] = LoadingCache(){ cls: Class[_] => Interner() }
 }
 
 final class ImmutableArray[@specialized +A: ClassTag] (arr: Array[A]) extends IndexedSeq[A] with IndexedSeqOptimized[A, ImmutableArray[A]] {
   def apply(idx: Int): A = arr(idx)
   def length: Int = arr.length
   override def newBuilder: ImmutableArrayBuilder[A @uncheckedVariance] = new ImmutableArrayBuilder[A](0)
-  
-  def intern: ImmutableArray[A] = ImmutableArray.interners.get(getClass)(this).asInstanceOf[ImmutableArray[A]]
 }
 
 final class ImmutableArrayBuilder[@specialized A: ClassTag] (initialSize: Int) extends Builder[A, ImmutableArray[A]] {
