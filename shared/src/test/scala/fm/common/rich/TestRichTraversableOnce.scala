@@ -55,7 +55,7 @@ class TestRichTraversableOnce extends FunSuite with Matchers with ScalaFutures {
     Vector(1,2,3,4).findMapped{ i: Int => if (i == 123) Some("foo") else None } should equal (None)
   }
 
-  // Failing in Scala.JS
+  // Failing in Scala.JS due to the usage of Futures:
 //  test("findMappedFuture") {
 //    Vector(1,2,3,4).findMappedFuture{ i: Int => if (i == 2) Future.successful(Some("foo")) else Future.successful(None) }.futureValue should equal (Some("foo"))
 //    Vector(1,2,3).findMappedFuture{ i: Int => if (i == 123) Future.successful(Some("foo")) else Future.successful(None) }.futureValue should equal (None)

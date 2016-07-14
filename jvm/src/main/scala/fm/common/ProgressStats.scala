@@ -80,7 +80,7 @@ final case class ProgressStats(dotPer: Long = 1000L, statsPer: Long = 25000L, lo
     printTime("Time", sectionStartTime)
   }
   
-  def finalTime(): Unit = {    
+  def finalTime(): Unit = {
     printTime("Total Time", startTimeMillis)
   }
   

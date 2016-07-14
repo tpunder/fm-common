@@ -149,7 +149,7 @@ object FileUtil extends Logging {
 
   def rm_rf(dir: File, keepDirectory: Boolean = false): Boolean = {
     logger.warn("rm -rf " + dir.getAbsolutePath)
-    if(dir.isDirectory) {
+    if (dir.isDirectory) {
       val children = dir.list
       children.foreach { child =>
         if(!rm_rf(new File(dir, child))) return false
