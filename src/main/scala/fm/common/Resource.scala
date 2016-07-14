@@ -58,7 +58,7 @@ object Resource {
   //
   // Generated using:
   //
-  //  (2 to 21).map{ i: Int =>
+  //  (1 to 21).map{ i: Int =>
   //    val letters = ('a' to ('a'+i).toChar).toVector
   //    val tpeParams: String = letters.map{ _.toUpper+" <% AutoCloseable" }.mkString(", ")
   //    val params: String = letters.map{ ch: Char => s"$ch: ${ch.toUpper}" }.mkString(", ")
@@ -66,6 +66,7 @@ object Resource {
   //    val useParams: String = letters.map{ ch: Char => s"SingleUseResource($ch)" }.mkString(", ")
   //    s"def using[RES, $tpeParams]($params)(fun: ($funParams) => RES): RES = use($useParams)(fun)"
   //  }.foreach{ println }
+  def using[RES, A <% AutoCloseable, B <% AutoCloseable](a: A, b: B)(fun: (A, B) => RES): RES = use(SingleUseResource(a), SingleUseResource(b))(fun)
   def using[RES, A <% AutoCloseable, B <% AutoCloseable, C <% AutoCloseable](a: A, b: B, c: C)(fun: (A, B, C) => RES): RES = use(SingleUseResource(a), SingleUseResource(b), SingleUseResource(c))(fun)
   def using[RES, A <% AutoCloseable, B <% AutoCloseable, C <% AutoCloseable, D <% AutoCloseable](a: A, b: B, c: C, d: D)(fun: (A, B, C, D) => RES): RES = use(SingleUseResource(a), SingleUseResource(b), SingleUseResource(c), SingleUseResource(d))(fun)
   def using[RES, A <% AutoCloseable, B <% AutoCloseable, C <% AutoCloseable, D <% AutoCloseable, E <% AutoCloseable](a: A, b: B, c: C, d: D, e: E)(fun: (A, B, C, D, E) => RES): RES = use(SingleUseResource(a), SingleUseResource(b), SingleUseResource(c), SingleUseResource(d), SingleUseResource(e))(fun)
