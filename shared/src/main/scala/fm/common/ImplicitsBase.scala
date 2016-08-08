@@ -59,5 +59,7 @@ protected trait ImplicitsBase extends OrderingImplicits {
   
   implicit def toRichMap[A,B,This <: scala.collection.MapLike[A,B,This] with scala.collection.Map[A,B]](m: scala.collection.MapLike[A,B,This]) = new RichMap(m)
   implicit def toRichConcurrentMap[K,V](m: java.util.concurrent.ConcurrentMap[K,V]): RichConcurrentMap[K,V] = new RichConcurrentMap(m)
-
+  
+  implicit def toRichPattern(pattern: java.util.regex.Pattern): RichPattern = new RichPattern(pattern)
+  implicit def toRichPattern(regex: scala.util.matching.Regex): RichRegex = new RichRegex(regex)
 }

@@ -100,4 +100,6 @@ final class RichCharSequence(val s: CharSequence) extends AnyVal {
     builder.result
   }
   
+  def matches(pattern: java.util.regex.Pattern): Boolean = pattern.matcher(s).matches()
+  def matches(regex: scala.util.matching.Regex): Boolean = regex.pattern.matcher(s).matches()
 }
