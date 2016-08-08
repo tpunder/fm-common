@@ -53,4 +53,6 @@ trait Implicits extends ImplicitsBase {
   implicit def toRichURI(url: URL): RichURL = new RichURL(url)
   
   implicit def toRichQueryParamsObject(obj: QueryParams.type): RichQueryParams.type = RichQueryParams
+  
+  implicit def toRichImmutableArray[A](arr: ImmutableArray[A]): RichImmutableArray[A] = new RichImmutableArray(arr)
 }
