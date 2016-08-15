@@ -8,7 +8,9 @@ lazy val root = project.in(file(".")).
   aggregate(fmCommonJS, fmCommonJVM).
   settings(
     publish := {},
-    publishLocal := {}
+    publishLocal := {},
+    publishArtifact := false,
+    publishTo := Some(Resolver.file("Unused transient repository", file("target/unusedrepo"))) // http://stackoverflow.com/a/18522706
   )
 
 lazy val `fm-common-` = crossProject.in(file(".")).
