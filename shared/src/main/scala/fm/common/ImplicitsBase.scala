@@ -62,4 +62,6 @@ protected trait ImplicitsBase extends OrderingImplicits {
   
   implicit def toRichPattern(pattern: java.util.regex.Pattern): RichPattern = new RichPattern(pattern)
   implicit def toRichPattern(regex: scala.util.matching.Regex): RichRegex = new RichRegex(regex)
+  
+  implicit def toRichURI(uri: URI): RichURI = new RichURI(uri)
 }

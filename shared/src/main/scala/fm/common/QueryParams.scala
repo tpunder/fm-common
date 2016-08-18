@@ -21,6 +21,11 @@ import scala.util.Try
 import Implicits._
 
 object QueryParams {
+  def get(uri: URI): Option[QueryParams] = Try{ apply(uri) }.toOption
+  
+  /** Create Query Params form a URI */
+  def apply(uri: URI): QueryParams = apply(uri.getRawQuery)
+  
   def get(query: String): Option[QueryParams] = Try{ apply(query) }.toOption
   
   /**
@@ -224,6 +229,13 @@ final class QueryParams private (params: Seq[(String, String)] = Nil) extends Se
    * @return A new QueryParams instance with the added key/value pair
    */
   def add(kvPairs: (String, String)*): QueryParams = new QueryParams(params ++ kvPairs)
+  
+  /**
+   * Add multiple key/value pairs
+   * 
+   * @return A new QueryParams instance with the added key/value pair
+   */
+  def add(other: QueryParams): QueryParams = new QueryParams(params ++ other)
   
   /**
    * Remove any params with blank values

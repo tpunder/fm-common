@@ -15,10 +15,9 @@
  */
 package fm.common.rich
 
-import fm.common.QueryParams
+import fm.common.{QueryParams, URI, URL}
 import fm.common.Implicits._
 import java.io.File
-import java.net.{URI, URL}
 
 trait RichURIBase[T] extends Any {
   def scheme: Option[String]
@@ -34,7 +33,7 @@ trait RichURIBase[T] extends Any {
   protected def make(s: String): T
   
   protected def toURI: URI
-  protected def toURL: URL
+//  protected def toURL: URL
   
   /**
    * Is this a file:// URI/URL?
@@ -61,6 +60,7 @@ trait RichURIBase[T] extends Any {
   
   def addQueryParam(key: String, value: String): T = withQueryParams(queryParams.add(key, value))
   def addQueryParams(kvPairs: (String, String)*): T = withQueryParams(queryParams.add(kvPairs: _*))
+  def addQueryParams(other: QueryParams): T = withQueryParams(queryParams.add(other))
   
   def removeQueryParam(key: String): T = withQueryParams(queryParams.remove(key))
   def removeQueryParams(keys: String*): T = withQueryParams(queryParams.remove(keys:_*))

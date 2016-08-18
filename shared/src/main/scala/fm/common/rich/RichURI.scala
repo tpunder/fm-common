@@ -15,8 +15,7 @@
  */
 package fm.common.rich
 
-import fm.common.{Interner, QueryParams}
-import java.net.{URI, URL}
+import fm.common.{Interner, QueryParams, URI, URL}
 
 object RichURI {
   private val interner: Interner[URI] = Interner()
@@ -34,7 +33,7 @@ final class RichURI(val self: URI) extends AnyVal with RichURIBase[URI] {
   protected def make(s: String): URI = new URI(s)
   
   protected def toURI: URI = self
-  protected def toURL: URL = self.toURL()
+//  protected def toURL: URL = self.toURL()
   
   def intern: URI = RichURI.interner(self)
 }

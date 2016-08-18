@@ -15,18 +15,14 @@
  */
 package fm.common.rich
 
-import fm.common.{QueryParams, URI, URL}
+import fm.common.{QueryParams, URL}
 import scala.util.Try
 
 /**
  * Adds JVM specific helpers for creating QueryParams from URI/URL instances
  */
 object RichQueryParams {
-  def get(uri: URI): Option[QueryParams] = Try{ apply(uri) }.toOption
   def get(url: URL): Option[QueryParams] = Try{ apply(url) }.toOption
-  
-  /** Create Query Params form a URI */
-  def apply(uri: URI): QueryParams = QueryParams(uri.getRawQuery)
   
   /** Create Query Params form a URL */
   def apply(url: URL): QueryParams = QueryParams(url.getQuery)
