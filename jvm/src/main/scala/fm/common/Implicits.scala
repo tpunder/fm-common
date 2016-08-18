@@ -44,6 +44,7 @@ trait Implicits extends ImplicitsBase {
   implicit def toRichAwait[V](await: Await.type): RichAwait = new RichAwait(await)
   
   implicit def toRichFile(f: File): RichFile = new RichFile(f)
+  implicit def toRichJVMString(s: String): RichJVMString = new RichJVMString(s)
   implicit def toRichPath(p: Path): RichPath = new RichPath(p)
   implicit def toRichInputStream(is: InputStream): RichInputStream = new RichInputStream(is)
   
