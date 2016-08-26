@@ -15,10 +15,14 @@
  */
 package fm.common
 
-protected trait StringEscapeUtilsBase {
-  def escapeHTML(s: String): String
-  def escapeXML(s: String): String
-  def escapeECMAScript(s: String): String
-  def encodeURIComponent(s: String): String
-  def decodeURIComponent(s: String): String
+import org.scalatest.{FunSuite, Matchers}
+
+final class TestStringEscapeUtils extends FunSuite with Matchers {
+  
+  test("escapeHTML") {
+    h("<foo>") should equal ("&lt;foo&gt;")
+    h("<<<") should equal ("&lt;&lt;&lt;")
+  }
+  
+  private def h(s: String): String = StringEscapeUtils.escapeHTML(s)
 }

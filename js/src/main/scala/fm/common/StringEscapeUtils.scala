@@ -19,6 +19,28 @@ import scala.scalajs.js.URIUtils
 
 object StringEscapeUtils extends StringEscapeUtilsBase {
   
+  def escapeHTML(s: String): String = {
+    // Using advice from http://benv.ca/2012/10/02/you-are-probably-misusing-DOM-text-methods/
+    
+    // Note this might not be the most efficient since Scala.js compiled this to a bunch of .split and .join calls
+    s.replace("&", "&amp;")
+     .replace("<", "&lt;")
+     .replace(">", "&gt;")
+     .replace("\"", "&quot;")
+     .replace("'", "&#039;")
+     .replace("/", "&#x2F;")
+    
+    // Was trying to use this but document isn't always available and it's wrong according to the above website
+//    val div: Div = document.createElement(ElementType.Div)
+//    div.appendChild(document.createTextNode(s))
+//    div.innerHTML
+  }
+  
+  // XML escaping is close to HTML escaping so lets just use HTML escaping for now
+  def escapeXML(s: String): String = escapeHTML(s)
+  
+  def escapeECMAScript(s: String): String = ??? // TODO: still need an implementation for this
+  
   // JavaScript's encodeURIComponent doesn't convert the same chars as the JVMs URLEncoder so 
   // we convert those ourselves.  See notes on https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
   def encodeURIComponent(s: String): String = URIUtils.encodeURIComponent(s).replace("%20","+").flatMap{
