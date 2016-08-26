@@ -31,8 +31,8 @@ protected trait ImplicitsBase extends OrderingImplicits {
   implicit def toRichString(s: String): RichString = new RichString(s)
   
   implicit def toRichTraversableOnce[T](t: scala.collection.TraversableOnce[T]) = new RichTraversableOnce(t)
-
-    
+  implicit def toRichIndexedSeq[T](t: scala.collection.IndexedSeq[T]) = new RichIndexedSeq(t)
+  
   implicit def toRichStringOption(opt: Option[String]): RichStringOption = new RichStringOption(opt)
   implicit def toRichIntOption(opt: Option[Int]): RichIntOption = new RichIntOption(opt)
   implicit def toRichLongOption(opt: Option[Long]): RichLongOption = new RichLongOption(opt)
