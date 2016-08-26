@@ -22,7 +22,7 @@ lazy val `fm-common-` = crossProject.in(file(".")).
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     EclipseKeys.useProjectId := true,
 
-    libraryDependencies += "org.scalatest" %%% "scalatest" % "3.0.0-RC3" % "provided,test"
+    libraryDependencies += "org.scalatest" %%% "scalatest" % "3.0.0" % "provided,test"
   
   )):_*).
   jvmSettings((FMProguardSettings ++ Seq(
