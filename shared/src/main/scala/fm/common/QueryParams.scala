@@ -196,7 +196,7 @@ final class QueryParams private (params: Seq[(String, String)] = Nil) extends Se
    */
   def updated(key: String, value: String): QueryParams = {
     var found: Boolean = false
-    val newParams: Seq[(String, String)] = params.flatMap{ case (k,v) =>      
+    val newParams: Seq[(String, String)] = params.flatMap{ case (k,v) =>
       if (key == k) {
         if (!found) {
           found = true
@@ -206,6 +206,11 @@ final class QueryParams private (params: Seq[(String, String)] = Nil) extends Se
     }
     if (!found) new QueryParams(newParams :+ (key -> value)) else new QueryParams(newParams)
   }
+  
+  /**
+   * Update multiple key/value pairs
+   */
+  def updated(other: QueryParams): QueryParams = updated(other:_*)
   
   /**
    * Update multiple key/value pairs

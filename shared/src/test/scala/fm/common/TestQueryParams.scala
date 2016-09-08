@@ -24,6 +24,7 @@ final class TestQueryParams extends FunSuite with Matchers {
     ident("foo=bar&foo+bar=asd+qwe")
     ident("foo=one&bar=asd&foo=two")
     ident("first=this+is+a+field&second=was+it+clear+%28already%29%3F")
+    ident("param=foo%3Dbar%26asd%3Dq%20w%20e")
   }
   
   test("getFirst") {
@@ -147,24 +148,26 @@ final class TestQueryParams extends FunSuite with Matchers {
     QueryParams("foo=bar&foo=two&a=b&c").keysWithoutValues should equal (Set("c"))
   }
   
-//  test("URL") {
-//    val url: URL = URL("http://www.gopjn.com/t/1-1539-47154-1539?url=http%3A%2F%2Fwww.trailerhitches.com%2Fcarriers%2Fcargo-carriers%2Fthulesportrackfrontierroofracka21003s.cfm%3FTID%3DTGP058")
-//    QueryParams(url).toString should equal ("url=http%3A%2F%2Fwww.trailerhitches.com%2Fcarriers%2Fcargo-carriers%2Fthulesportrackfrontierroofracka21003s.cfm%3FTID%3DTGP058")
-//    url.query.get should equal("url=http%3A%2F%2Fwww.trailerhitches.com%2Fcarriers%2Fcargo-carriers%2Fthulesportrackfrontierroofracka21003s.cfm%3FTID%3DTGP058")
-//    url.updateQueryParam("url", "foo & bar").query.get should equal("url=foo+%26+bar")
-//    url.updateQueryParam("url", " Hello & World! ").toString should equal("http://www.gopjn.com/t/1-1539-47154-1539?url=+Hello+%26+World%21+")
-//  }
-//  
-//  test("URI") {
-//    val uri: URI = URI("http://www.gopjn.com/t/1-1539-47154-1539?url=http%3A%2F%2Fwww.trailerhitches.com%2Fcarriers%2Fcargo-carriers%2Fthulesportrackfrontierroofracka21003s.cfm%3FTID%3DTGP058")
-//    QueryParams(uri).toString should equal ("url=http%3A%2F%2Fwww.trailerhitches.com%2Fcarriers%2Fcargo-carriers%2Fthulesportrackfrontierroofracka21003s.cfm%3FTID%3DTGP058")
-//    uri.query.get should equal("url=http%3A%2F%2Fwww.trailerhitches.com%2Fcarriers%2Fcargo-carriers%2Fthulesportrackfrontierroofracka21003s.cfm%3FTID%3DTGP058")
-//    uri.updateQueryParam("url", "foo & bar").query.get should equal("url=foo+%26+bar")
-//    uri.updateQueryParam("url", " Hello & World! ").toString should equal("http://www.gopjn.com/t/1-1539-47154-1539?url=+Hello+%26+World%21+")
-//  }
+  test("URL") {
+    val url: URL = URL("http://www.gopjn.com/t/1-1539-47154-1539?url=http%3A%2F%2Fwww.trailerhitches.com%2Fcarriers%2Fcargo-carriers%2Fthulesportrackfrontierroofracka21003s.cfm%3FTID%3DTGP058")
+    QueryParams(url).toString should equal ("url=http%3A%2F%2Fwww.trailerhitches.com%2Fcarriers%2Fcargo-carriers%2Fthulesportrackfrontierroofracka21003s.cfm%3FTID%3DTGP058")
+    url.query.get should equal("url=http%3A%2F%2Fwww.trailerhitches.com%2Fcarriers%2Fcargo-carriers%2Fthulesportrackfrontierroofracka21003s.cfm%3FTID%3DTGP058")
+    url.updateQueryParam("url", "foo & bar").query.get should equal("url=foo+%26+bar")
+    url.updateQueryParam("url", " Hello & World! ").toString should equal("http://www.gopjn.com/t/1-1539-47154-1539?url=+Hello+%26+World%21+")
+  }
+  
+  test("URI") {
+    val uri: URI = URI("http://www.gopjn.com/t/1-1539-47154-1539?url=http%3A%2F%2Fwww.trailerhitches.com%2Fcarriers%2Fcargo-carriers%2Fthulesportrackfrontierroofracka21003s.cfm%3FTID%3DTGP058")
+    QueryParams(uri).toString should equal ("url=http%3A%2F%2Fwww.trailerhitches.com%2Fcarriers%2Fcargo-carriers%2Fthulesportrackfrontierroofracka21003s.cfm%3FTID%3DTGP058")
+    uri.query.get should equal("url=http%3A%2F%2Fwww.trailerhitches.com%2Fcarriers%2Fcargo-carriers%2Fthulesportrackfrontierroofracka21003s.cfm%3FTID%3DTGP058")
+    uri.updateQueryParam("url", "foo & bar").query.get should equal("url=foo+%26+bar")
+    uri.updateQueryParam("url", " Hello & World! ").toString should equal("http://www.gopjn.com/t/1-1539-47154-1539?url=+Hello+%26+World%21+")
+  }
   
   private def ident(queryString: String) {
-    QueryParams(queryString).toString should equal (queryString)
+    // Note: QueryParams always encodes spaces as pluses ('+') so in order to match we need to
+    //       replace '%20' with '+' in case the original queryString used %20 instead of pluses
+    QueryParams(queryString).toString should equal (queryString.replace("%20","+"))
   }
   
   private def check(queryString: String, expectedQueryString: String) {

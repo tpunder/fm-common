@@ -65,11 +65,39 @@ trait RichURIBase[T] extends Any {
   def removeQueryParam(key: String): T = withQueryParams(queryParams.remove(key))
   def removeQueryParams(keys: String*): T = withQueryParams(queryParams.remove(keys:_*))
   
-  def withQueryParams(params: (String, String)*): T = copy(query = QueryParams(params).toString.toBlankOption)
-  def withQueryParams(params: QueryParams): T = copy(query = params.toString.toBlankOption)
+  /**
+   * Calls QueryParams.updated
+   * 
+   * If the key doesn't exist then add it, otherwise replace the first occurance
+   * of the key with the new value and remove any other values.
+   */
+  def withQueryParams(params: (String, String)*): T = copy(query = queryParams.updated(params:_*).toString.toBlankOption)
   
+  /**
+   * Calls QueryParams.updated
+   * 
+   * If the key doesn't exist then add it, otherwise replace the first occurance
+   * of the key with the new value and remove any other values.
+   */
+  def withQueryParams(params: QueryParams): T = copy(query = queryParams.updated(params).toString.toBlankOption)
+  
+  /**
+   * Calls QueryParams.updated
+   * 
+   * If the key doesn't exist then add it, otherwise replace the first occurance
+   * of the key with the new value and remove any other values.
+   */
   def withQueryParam(key: String, value: String): T = withQueryParams(key -> value)
+  
+  /**
+   * Calls QueryParams.updated
+   * 
+   * If the key doesn't exist then add it, otherwise replace the first occurance
+   * of the key with the new value and remove any other values.
+   */
   def withQueryParam(kv: (String, String)): T = withQueryParams(kv)
+  
+  def withoutQueryParams: T = copy(query = None)
   
   def withHost(host: String): T = copy(host = Some(host))
   

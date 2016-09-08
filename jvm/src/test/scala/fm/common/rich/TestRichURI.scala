@@ -66,9 +66,9 @@ final class TestRichURI extends FunSuite with Matchers {
       }
     }
     
-    def checkCopy(uri: RichURIBase[T]): Unit = {
+    def checkCopy[X](uri: RichURIBase[X]): Unit = {
       uri.port should equal (Some(999))
-      uri.path should equal ("new-path")
+      uri.path should equal (Some("/new-path"))
     }
 
     val richURI: RichURI = new RichURI(URI(s))
@@ -77,11 +77,11 @@ final class TestRichURI extends FunSuite with Matchers {
     val richURL: RichURL = new RichURL(URL(s))
     checkFields(richURL)
     
-    richURI.copy(path = Some("/new-path"), port = Some(999))
-    richURL.copy(path = Some("/new-path"), port = Some(999))
+    checkCopy(new RichURI(richURI.copy(path = Some("/new-path"), port = Some(999))))
+    checkCopy(new RichURL(richURL.copy(path = Some("/new-path"), port = Some(999))))
     
-    richURI.withQueryParams("var" -> "new & param").query should equal(Some("var=new+%26+param"))
-    richURL.withQueryParams("var" -> "new & param").query should equal(Some("var=new+%26+param"))
+    richURI.withQueryParams("var" -> "new & param").query should equal(Some(richURI.queryParams.toString.toBlankOption.map{ _+"&" }.getOrElse("")+"var=new+%26+param"))
+    richURL.withQueryParams("var" -> "new & param").query should equal(Some(richURL.queryParams.toString.toBlankOption.map{ _+"&" }.getOrElse("")+"var=new+%26+param"))
     
   }
 }
