@@ -91,11 +91,11 @@ trait RichURIBase[T] extends Any {
    * of the key with the new value and remove any other values.
    */
   def withQueryParam(kv: (String, String)): T = withQueryParams(kv)
-  
   def withoutQueryParams: T = copy(query = None)
   
   private def copyQueryParams(params: QueryParams): T = copy(query = params.toString.toBlankOption)
-  
+
+  def withScheme(scheme: String): T = copy(scheme = Some(scheme))
   def withHost(host: String): T = copy(host = Some(host))
   
   def copy(
