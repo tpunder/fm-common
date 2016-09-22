@@ -41,8 +41,7 @@ protected trait ImplicitsBase extends OrderingImplicits {
 
   implicit def toRichOption[T](opt: Option[T]): RichOption[T] = new RichOption[T](opt)
   
-  // Defaulting to TypeWiseBalancedEquality since it is stricter than ViewWiseBalancedEquality
-  implicit def toEqual[L](left: L): TypeWiseBalancedEquality.Equal[L] = new TypeWiseBalancedEquality.Equal[L](left)
+  implicit def toTypeSafeEquals[L](left: L): TypeSafeEquals[L] = new TypeSafeEquals(left)
   
   implicit def bigIntegerOrdering: Ordering[JavaBigInteger] = RichBigInteger
   implicit def toRichBigInteger(i: JavaBigInteger): RichBigInteger = new RichBigInteger(i)

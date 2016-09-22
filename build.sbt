@@ -12,18 +12,29 @@ lazy val root = project.in(file(".")).
     publishArtifact := false,
     publishTo := Some(Resolver.file("Unused transient repository", file("target/unusedrepo"))) // http://stackoverflow.com/a/18522706
   )
+  
+lazy val macros = project.in(file("macro")).settings(
+  publish := {},
+  publishLocal := {},
+  publishArtifact := false,
+  publishTo := Some(Resolver.file("Unused transient repository", file("target/unusedrepo"))), // http://stackoverflow.com/a/18522706
+  libraryDependencies <+= scalaVersion("org.scala-lang" % "scala-compiler" % _)
+)
 
 lazy val `fm-common-` = crossProject.in(file(".")).
   settings((FMPublic ++ Seq(
     name := "fm-common",
-    version := "0.6.0-SNAPSHOT",
+    version := "0.7.0-SNAPSHOT",
     description := "Common Scala classes that we use at Frugal Mechanic that have no required external dependencies.",
     scalacOptions := Seq("-unchecked", "-deprecation", "-language:implicitConversions", "-feature", "-Xlint", "-optimise", "-Yinline-warnings"),
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     EclipseKeys.useProjectId := true,
-
+    // include the macro classes and resources in the main jar
+    mappings in (Compile, packageBin) <++= mappings in (macros, Compile, packageBin),
+    // include the macro sources in the main source jar
+    mappings in (Compile, packageSrc) <++= mappings in (macros, Compile, packageSrc),
+    
     libraryDependencies += "org.scalatest" %%% "scalatest" % "3.0.0" % "provided,test"
-  
   )):_*).
   jvmSettings((FMProguardSettings ++ Seq(
     // Add JVM-specific settings here
@@ -74,6 +85,6 @@ lazy val `fm-common-` = crossProject.in(file(".")).
     libraryDependencies += "org.scala-js" %%% "scalajs-java-time" % "0.2.0"
   )
 
-lazy val fmCommonJVM = `fm-common-`.jvm
-lazy val fmCommonJS = `fm-common-`.js
+lazy val fmCommonJVM = `fm-common-`.jvm.dependsOn(macros % "compile-internal, test-internal")
+lazy val fmCommonJS = `fm-common-`.js.dependsOn(macros % "compile-internal, test-internal")
 
