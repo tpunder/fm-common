@@ -72,6 +72,7 @@ object TypeSafeEquals {
 final class TypeSafeEquals[L](val left: L) extends AnyVal {
   def ===[R](right: R): Boolean = macro TypeSafeEquals.tripleEqualsMacro[R]
   def !==[R](right: R): Boolean = macro TypeSafeEquals.notTripleEqualsMacro[R]
+  def =!=[R](right: R): Boolean = macro TypeSafeEquals.notTripleEqualsMacro[R]
   
   // Using these for testing since ScalaTest defines it's own === method
   def ≡[R](right: R): Boolean = macro TypeSafeEquals.tripleEqualsMacro[R]
