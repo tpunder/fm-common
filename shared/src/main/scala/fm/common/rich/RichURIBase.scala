@@ -34,7 +34,7 @@ trait RichURIBase[T] extends Any {
   
   protected def toURI: URI
 //  protected def toURL: URL
-  
+
   /**
    * Is this a file:// URI/URL?
    */
@@ -97,6 +97,10 @@ trait RichURIBase[T] extends Any {
 
   def withScheme(scheme: String): T = copy(scheme = Some(scheme))
   def withHost(host: String): T = copy(host = Some(host))
+
+  // Strip schema/host/port/etc for creating HTML-friendly absolute URI paths agnostic of protocol/host/etc
+  final def pathQueryAndFragmentURI: URI = toURI.copy(scheme = None, host = None, userInfo = None, port = None)
+  final def pathAndQueryURI: URI = toURI.copy(scheme = None, host = None, userInfo = None, port = None, fragment = None)
   
   def copy(
     scheme: Option[String] = scheme,
