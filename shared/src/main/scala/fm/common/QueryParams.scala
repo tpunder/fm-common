@@ -61,15 +61,17 @@ object QueryParams {
     apply(params)
   }
   
-  def apply(params: Map[String, Seq[String]]): QueryParams = apply(params.toSeq.flatMap{ case (k, vals) => vals.map{ v => (k, v) } })
+  def apply(params: Map[String, Seq[String]]): QueryParams = {
+    apply(withoutNullPairsOrKeys(params.toSeq).flatMap{ case (k, vals) => vals.map{ v => (k, v) } })
+  }
   
   def apply(head: (String, String), rest: (String,String)*): QueryParams = apply(head +: rest)
   
   // Note: all creation of QueryParams should go through this to filter out nulls
   def apply(params: Seq[(String, String)]): QueryParams = new QueryParams(withoutNullPairsOrKeys(params))
   
-  private def withoutNullPairsOrKeys(params: Seq[(String,String)]): Seq[(String,String)] = {
-    params.filterNot{ pair: (String,String) => null == pair || null == pair._1 }
+  private def withoutNullPairsOrKeys[T](params: Seq[(String,T)]): Seq[(String,T)] = {
+    params.filterNot{ pair: (String,T) => null == pair || null == pair._1 }
   }
   
   /** An empty instance of QueryParams */
@@ -223,8 +225,8 @@ final class QueryParams private (params: Seq[(String, String)] = Nil) extends Se
    * Update multiple key/value pairs
    */
   def updated(kvPairs: (String, String)*): QueryParams = {
-    var tmp = this
-    kvPairs.foreach{ case (k,v) => tmp = tmp.updated(k, v) }
+    var tmp: QueryParams = this
+    QueryParams.withoutNullPairsOrKeys(kvPairs).foreach{ case (k,v) => tmp = tmp.updated(k, v) }
     tmp
   }
   

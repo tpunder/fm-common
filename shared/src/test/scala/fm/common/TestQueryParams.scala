@@ -157,6 +157,9 @@ final class TestQueryParams extends FunSuite with Matchers {
     
     QueryParams(nullKeyValue).toString should equal ("")
     QueryParams(nullKeyValue) should equal (QueryParams.empty)
+    
+    QueryParams.empty.updated(nullPair) should equal (QueryParams.empty)
+    QueryParams.empty.updated(nullKeyValue) should equal (QueryParams.empty)
   }
   
   test("URL") {
