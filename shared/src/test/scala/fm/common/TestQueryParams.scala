@@ -148,6 +148,17 @@ final class TestQueryParams extends FunSuite with Matchers {
     QueryParams("foo=bar&foo=two&a=b&c").keysWithoutValues should equal (Set("c"))
   }
   
+  test("nulls") {
+    val nullPair: (String,String) = null
+    val nullKeyValue: (String,String) = (null,null)
+    
+    QueryParams(nullPair).toString should equal ("")
+    QueryParams(nullPair) should equal (QueryParams.empty)
+    
+    QueryParams(nullKeyValue).toString should equal ("")
+    QueryParams(nullKeyValue) should equal (QueryParams.empty)
+  }
+  
   test("URL") {
     val url: URL = URL("http://www.gopjn.com/t/1-1539-47154-1539?url=http%3A%2F%2Fwww.trailerhitches.com%2Fcarriers%2Fcargo-carriers%2Fthulesportrackfrontierroofracka21003s.cfm%3FTID%3DTGP058")
     QueryParams(url).toString should equal ("url=http%3A%2F%2Fwww.trailerhitches.com%2Fcarriers%2Fcargo-carriers%2Fthulesportrackfrontierroofracka21003s.cfm%3FTID%3DTGP058")
