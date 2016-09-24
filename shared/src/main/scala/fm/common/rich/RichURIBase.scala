@@ -95,8 +95,9 @@ trait RichURIBase[T] extends Any {
   
   private def copyQueryParams(params: QueryParams): T = copy(query = params.toString.toBlankOption)
 
-  def withScheme(scheme: String): T = copy(scheme = Some(scheme))
-  def withHost(host: String): T = copy(host = Some(host))
+  def withScheme(scheme: String): T = copy(scheme = Option(scheme))
+  def withHost(host: String): T = copy(host = Option(host))
+  def withPath(path: String): T = copy(path = Option(path))
 
   // Strip schema/host/port/etc for creating HTML-friendly absolute URI paths agnostic of protocol/host/etc
   final def pathQueryAndFragmentURI: URI = toURI.copy(scheme = None, host = None, userInfo = None, port = None)
