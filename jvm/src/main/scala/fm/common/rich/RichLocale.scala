@@ -32,6 +32,18 @@ object RichLocale {
   private val stringOptionOrderingCache: LoadingCache[Locale, Ordering[Option[String]]] = LoadingCache(){ locale: Locale =>
     Ordering.Option(stringOrderingCache.get(locale))
   }
+  
+  private val reversedComparatorCache: LoadingCache[Locale, Comparator[String]] = LoadingCache(){ locale: Locale =>
+    comparatorCache.get(locale).reversed()
+  }
+  
+  private val reversedStringOrderingCache: LoadingCache[Locale, Ordering[String]] = LoadingCache(){ locale: Locale =>
+    Ordering.comparatorToOrdering(reversedComparatorCache.get(locale))
+  }
+  
+  private val reversedStringOptionOrderingCache: LoadingCache[Locale, Ordering[Option[String]]] = LoadingCache(){ locale: Locale =>
+    Ordering.Option(reversedStringOrderingCache.get(locale))
+  }
 }
 
 final class RichLocale(val self: Locale) extends AnyVal {
@@ -52,4 +64,8 @@ final class RichLocale(val self: Locale) extends AnyVal {
   def stringComparator: Comparator[String] = RichLocale.comparatorCache.get(self)
   def stringOrdering: Ordering[String] = RichLocale.stringOrderingCache.get(self)
   def stringOptionOrdering: Ordering[Option[String]] = RichLocale.stringOptionOrderingCache.get(self)
+  
+  def reversedStringComparator: Comparator[String] = RichLocale.reversedComparatorCache.get(self)
+  def reversedStringOrdering: Ordering[String] = RichLocale.reversedStringOrderingCache.get(self)
+  def reversedStringOptionOrdering: Ordering[Option[String]] = RichLocale.reversedStringOptionOrderingCache.get(self)
 }
