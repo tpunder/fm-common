@@ -15,8 +15,24 @@
  */
 package fm.common.rich
 
-import java.util.Locale
+import fm.common.LoadingCache
+import java.text.Collator
+import java.util.{Comparator, Locale}
 import scala.util.Try
+
+object RichLocale {
+  private val comparatorCache: LoadingCache[Locale, Comparator[String]] = LoadingCache(){ locale: Locale =>
+    Option(Collator.getInstance(locale)).map{ c => c.setStrength(Collator.PRIMARY); c.setDecomposition(Collator.CANONICAL_DECOMPOSITION); c }.map{ _.asInstanceOf[Comparator[String]] } getOrElse String.CASE_INSENSITIVE_ORDER
+  }
+  
+  private val stringOrderingCache: LoadingCache[Locale, Ordering[String]] = LoadingCache(){ locale: Locale =>
+    Ordering.comparatorToOrdering(comparatorCache.get(locale))
+  }
+  
+  private val stringOptionOrderingCache: LoadingCache[Locale, Ordering[Option[String]]] = LoadingCache(){ locale: Locale =>
+    Ordering.Option(stringOrderingCache.get(locale))
+  }
+}
 
 final class RichLocale(val self: Locale) extends AnyVal {
   
@@ -32,4 +48,8 @@ final class RichLocale(val self: Locale) extends AnyVal {
   def displayLanguage(implicit locale: Locale): String = self.getDisplayLanguage(locale)
   def displayScript(implicit locale: Locale): String = self.getDisplayScript(locale)
   def displayVariant(implicit locale: Locale): String = self.getDisplayVariant(locale)
+  
+  def stringComparator: Comparator[String] = RichLocale.comparatorCache.get(self)
+  def stringOrdering: Ordering[String] = RichLocale.stringOrderingCache.get(self)
+  def stringOptionOrdering: Ordering[Option[String]] = RichLocale.stringOptionOrderingCache.get(self)
 }
