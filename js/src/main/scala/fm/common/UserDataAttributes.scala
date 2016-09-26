@@ -27,8 +27,8 @@ final class UserDataAttributes(val elem: Element) extends AnyVal {
   def get(key: String): Option[String] = elem.getAttribute(makeKey(key)).toBlankOption
   def getOrElse(key: String, orElse: => String): String = get(key).getOrElse(orElse)
   
-  def update(key: String, value: String): Unit = elem.setAttribute(key, value)
-  def update(key: String, value: Option[String]): Unit = elem.setAttribute(key, value.getOrElse(""))
+  def update(key: String, value: String): Unit = elem.setAttribute(makeKey(key), value)
+  def update(key: String, value: Option[String]): Unit = elem.setAttribute(makeKey(key), value.getOrElse(""))
 
   def remove(key: String): Unit = elem.removeAttribute(makeKey(key))
   

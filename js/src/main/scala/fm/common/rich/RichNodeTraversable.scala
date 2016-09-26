@@ -15,18 +15,13 @@
  */
 package fm.common.rich
 
-import fm.common.ElementType
-import org.scalajs.dom.raw.{Document, Element}
+import fm.common.Implicits._
+import org.scalajs.dom.raw.Node
 
-final class RichDocument(val document: Document) extends AnyVal {
+final class RichNodeTraversable(val elems: Traversable[Node]) extends AnyVal {
+  def textContent: IndexedSeq[String] = elems.map{ _.textContent }.toVector
   
-  /**
-   * val option: Option = document.createElement(ElementType.Option)
-   */
-  def createElement[T <: Element](tpe: ElementType[T]): T = document.createElement(tpe.name).asInstanceOf[T]
+  def textContent_=(value: String): Unit = elems.foreach{ _.textContent = value }
   
-  /**
-   * val option: Option = document.newElement[Option]
-   */
-  def newElement[T <: Element](implicit tpe: ElementType[T]): T = document.createElement(tpe.name).asInstanceOf[T]
+  def remove(): Unit = elems.foreach{ _.remove() }
 }

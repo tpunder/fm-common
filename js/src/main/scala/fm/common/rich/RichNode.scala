@@ -38,4 +38,16 @@ final class RichNode[T <: Node](val self: T) extends AnyVal {
     else if (node.hasParent) closestImpl[A](node.parentNode)
     else throw new NoSuchElementException(s"No Matching Parent for ${classTag[A]}")
   }
+  
+  /** Like appendChild but add to the beginning */
+  def prependChild(node: Node): Node = self.insertBefore(node, self.firstChild)
+  
+  /** Like insertBefore but insert after the passed in node */
+  def insertAfter(node: Node, refChild: Node): Node = refChild.parentNode.insertBefore(node, refChild.nextSibling)
+  
+  /** Insert the passed in node before the current node */
+  def insertBefore(node: Node): Node = self.parentNode.insertBefore(node, self)
+  
+  /** Insert the passed in node after the current node */
+  def insertAfter(node: Node): Node = self.parentNode.insertBefore(node, self.nextSibling)
 }

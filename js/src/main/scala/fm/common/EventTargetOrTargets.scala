@@ -17,12 +17,31 @@ package fm.common
 
 import org.scalajs.dom.raw.{Event, EventTarget}
 import org.scalajs.jquery.{JQuery, JQueryEventObject}
+import scala.scalajs.js
+
+trait JQueryEventAttachments {
+  def apply(f: JQueryEventObject => Unit): Unit
+  def apply(f: (JQueryEventObject, js.Any) => Unit): Unit
+}
 
 trait EventTargetOrTargets extends Any {
   protected def jQueryElements: JQuery
   
-  final def onJQueryEvent(tpe: String)(f: JQueryEventObject => Unit): Unit = jQueryElements.on(tpe, f)
-  final def oneJQueryEvent(tpe: String)(f: JQueryEventObject => Unit): Unit = jQueryElements.one(tpe, f)
+  final def onJQueryEvent(tpe: String) = new JQueryEventAttachments {
+    def apply(f: JQueryEventObject => Unit): Unit = jQueryElements.on(tpe, f)
+    def apply(f: (JQueryEventObject, js.Any) => Unit): Unit = jQueryElements.on(tpe, f)
+  }
+  
+  final def oneJQueryEvent(tpe: String) = new JQueryEventAttachments {
+    def apply(f: JQueryEventObject => Unit): Unit = jQueryElements.one(tpe, f)
+    def apply(f: (JQueryEventObject, js.Any) => Unit): Unit = jQueryElements.one(tpe, f)
+  }
+  
+//  final def onJQueryEvent(tpe: String)(f: JQueryEventObject => Unit): Unit = jQueryElements.on(tpe, f)
+//  final def onJQueryEvent(tpe: String)(f: (JQueryEventObject, js.Any) => Unit): Unit = jQueryElements.on(tpe, f)
+//  
+//  final def oneJQueryEvent(tpe: String)(f: JQueryEventObject => Unit): Unit = jQueryElements.one(tpe, f)
+//  final def oneJQueryEvent(tpe: String)(f: (JQueryEventObject, js.Any) => Unit): Unit = jQueryElements.one(tpe, f)
   
   def addEventListener[T <: Event](tpe: String)(f: T => Unit): Unit
   def removeEventListener[T <: Event](tpe: String)(f: T => Unit): Unit

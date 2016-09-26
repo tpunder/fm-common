@@ -22,6 +22,13 @@ sealed abstract class ElementType[+T <: Element](val name: String)
 object ElementType {
   import Implicits._
   
-  case object IFrame extends ElementType[HTMLIFrameElement]("iframe")
-  case object Div extends ElementType[HTMLDivElement]("div")
+  implicit case object Anchor extends ElementType[HTMLAnchorElement]("a")
+  implicit case object Div extends ElementType[HTMLDivElement]("div")
+  implicit case object IFrame extends ElementType[HTMLIFrameElement]("iframe")
+  implicit case object Option extends ElementType[HTMLOptionElement]("option")
+  implicit case object Span extends ElementType[HTMLSpanElement]("span")
+//  implicit case object TH extends ElementType[HTMLTableHeaderCellElement]("th")
+  implicit case object TD extends ElementType[HTMLTableCellElement]("td")
+  implicit case object TR extends ElementType[HTMLTableRowElement]("tr")
+  
 }
