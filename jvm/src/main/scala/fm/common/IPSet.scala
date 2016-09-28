@@ -88,12 +88,12 @@ final class IPSetMutable extends IPSet with Builder[IPOrSubnet, IPSetImmutable] 
   }
   
   def ++=(other: IPSet): this.type = {
-    val ipIT: LongIterator = ipsWithMask.iterator()
+    val ipIT: LongIterator = other.ipsWithMask.iterator()
     while (ipIT.hasNext) {
       ipsWithMask.add(ipIT.nextLong)
     }
     
-    val maskIT: IntIterator = masks.iterator()
+    val maskIT: IntIterator = other.masks.iterator()
     
     while (maskIT.hasNext) {
       masks.add(maskIT.nextInt)
