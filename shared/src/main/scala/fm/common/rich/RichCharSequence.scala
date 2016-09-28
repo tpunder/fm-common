@@ -47,7 +47,7 @@ final class RichCharSequence(val s: CharSequence) extends AnyVal {
    * Opposite of isBlank (alias for isNotBlank)
    */
   def nonBlank: Boolean = !isBlank
-  
+
   /**
    * Do the next characters starting at idx match the target
    */
@@ -63,6 +63,11 @@ final class RichCharSequence(val s: CharSequence) extends AnyVal {
 
     i == target.length
   }
+
+  /**
+   * Same as String.startsWith(prefix) but for a CharSequence
+   */
+  def startsWith(target: CharSequence): Boolean = nextCharsMatch(target)
   
   /**
    * Count the occurrences of the character

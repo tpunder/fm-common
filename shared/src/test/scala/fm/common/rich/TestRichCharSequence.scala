@@ -82,6 +82,14 @@ final class TestRichCharSequence extends FunSuite with Matchers {
     "".nextCharsMatch(null, 0) should equal(false)
     "foobar".nextCharsMatch(null, 0) should equal(false)
   }
+
+  test("startsWith") {
+    "foo".startsWith("foo") should equal(true)
+    "foo bar".startsWith("foo") should equal(true)
+
+    "".startsWith("foo") should equal(false)
+    "fo".startsWith("foo") should equal(false)
+  }
   
   test("indexesOf") {
     "aaaaaaaa".indexesOf("aa", withOverlaps = false) should equal (List(0, 2, 4, 6))
