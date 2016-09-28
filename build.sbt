@@ -4,7 +4,7 @@
 
 scalaVersion in ThisBuild := "2.11.8"
 
-lazy val root = project.in(file(".")).
+lazy val `fm-common` = project.in(file(".")).
   aggregate(fmCommonJS, fmCommonJVM).
   settings(
     publish := {},
@@ -13,7 +13,7 @@ lazy val root = project.in(file(".")).
     publishTo := Some(Resolver.file("Unused transient repository", file("target/unusedrepo"))) // http://stackoverflow.com/a/18522706
   )
   
-lazy val macros = project.in(file("macro")).settings(
+lazy val `fm-common-macros` = project.in(file("macro")).settings(
   publish := {},
   publishLocal := {},
   publishArtifact := false,
@@ -30,9 +30,9 @@ lazy val `fm-common-` = crossProject.in(file(".")).
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     EclipseKeys.useProjectId := true,
     // include the macro classes and resources in the main jar
-    mappings in (Compile, packageBin) <++= mappings in (macros, Compile, packageBin),
+    mappings in (Compile, packageBin) <++= mappings in (`fm-common-macros`, Compile, packageBin),
     // include the macro sources in the main source jar
-    mappings in (Compile, packageSrc) <++= mappings in (macros, Compile, packageSrc),
+    mappings in (Compile, packageSrc) <++= mappings in (`fm-common-macros`, Compile, packageSrc),
     
     libraryDependencies += "org.scalatest" %%% "scalatest" % "3.0.0" % "provided,test"
   )):_*).
@@ -85,6 +85,6 @@ lazy val `fm-common-` = crossProject.in(file(".")).
     libraryDependencies += "org.scala-js" %%% "scalajs-java-time" % "0.2.0"
   )
 
-lazy val fmCommonJVM = `fm-common-`.jvm.dependsOn(macros % "compile-internal, test-internal")
-lazy val fmCommonJS = `fm-common-`.js.dependsOn(macros % "compile-internal, test-internal")
+lazy val fmCommonJVM = `fm-common-`.jvm.dependsOn(`fm-common-macros` % "compile-internal, test-internal")
+lazy val fmCommonJS = `fm-common-`.js.dependsOn(`fm-common-macros` % "compile-internal, test-internal")
 
