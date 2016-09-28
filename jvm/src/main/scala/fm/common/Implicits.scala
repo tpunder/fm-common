@@ -50,7 +50,6 @@ trait Implicits extends ImplicitsBase {
   
   implicit def toRichLocale(locale: Locale): RichLocale = new RichLocale(locale)
   
-  
   implicit def toRichURL(url: URL): RichURL = new RichURL(url)
   
   implicit def toRichQueryParamsObject(obj: QueryParams.type): RichQueryParams.type = RichQueryParams

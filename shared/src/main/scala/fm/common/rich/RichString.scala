@@ -126,7 +126,7 @@ final class RichString(val s: String) extends AnyVal {
   
   def toBigInteger: BigInteger = toBigIntegerOption.getOrElse{ throw new NumberFormatException(s"RichString.toBigInteger parsing error on value: $s") }
 
-  def parseBigDecimal(implicit locale: Locale): Option[BigDecimal] = if (null == s) None else try {    
+  def parseBigDecimal(implicit locale: Locale): Option[BigDecimal] = if (null == s) None else try {
     val bigDecimalFormat: DecimalFormat = NumberFormat.getInstance(locale).asInstanceOf[DecimalFormat]
     bigDecimalFormat.setParseBigDecimal(true)
     val res: BigDecimal = bigDecimalFormat.parse(s).asInstanceOf[BigDecimal]
