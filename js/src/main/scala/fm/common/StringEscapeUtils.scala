@@ -22,7 +22,7 @@ object StringEscapeUtils extends StringEscapeUtilsBase {
   def escapeHTML(s: String): String = {
     // Using advice from http://benv.ca/2012/10/02/you-are-probably-misusing-DOM-text-methods/
     
-    // Note this might not be the most efficient since Scala.js compiled this to a bunch of .split and .join calls
+    // Note this might not be the most efficient since Scala.js compiles this to a bunch of .split and .join calls
     s.replace("&", "&amp;")
      .replace("<", "&lt;")
      .replace(">", "&gt;")
@@ -38,8 +38,24 @@ object StringEscapeUtils extends StringEscapeUtilsBase {
   
   // XML escaping is close to HTML escaping so lets just use HTML escaping for now
   def escapeXML(s: String): String = escapeHTML(s)
-  
-  def escapeECMAScript(s: String): String = ??? // TODO: still need an implementation for this
+
+  def escapeECMAScript(s: String): String = {
+    // Simple and very naive implementation based on
+    // https://github.com/linkedin/dustjs/blob/3fc12efd153433a21fd79ac81e8c5f5d6f273a1c/dist/dust-core.js#L1099
+
+    // Note this might not be the most efficient since Scala.js compiles this to a bunch of .split and .join calls
+    s.replace("\\", "\\\\")
+     .replace("/", "\\/")
+     .replace("'", "\\'")
+     .replace("\"", "\\\"")
+     .replace("\n", "\\n")
+     .replace("\r", "\\r")
+     .replace("\t", "\\t")
+     .replace("\b", "\\b")
+     .replace("\f", "\\f")
+     .replace("\u2028", "\\u2028")
+     .replace("\u2029", "\\u2029")
+  }
   
   // JavaScript's encodeURIComponent doesn't convert the same chars as the JVMs URLEncoder so 
   // we convert those ourselves.  See notes on https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent

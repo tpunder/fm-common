@@ -23,6 +23,13 @@ final class TestStringEscapeUtils extends FunSuite with Matchers {
     h("<foo>") should equal ("&lt;foo&gt;")
     h("<<<") should equal ("&lt;&lt;&lt;")
   }
+
+  test("escapeECMAScript") {
+    j("http://www.example.com/foo/bar") should equal ("""http:\/\/www.example.com\/foo\/bar""")
+    j("Hello\"World") should equal ("Hello\\\"World")
+    j("Multi\nLine") should equal ("Multi\\nLine")
+  }
   
   private def h(s: String): String = StringEscapeUtils.escapeHTML(s)
+  private def j(s: String): String = StringEscapeUtils.escapeECMAScript(s)
 }
