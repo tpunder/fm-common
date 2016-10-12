@@ -32,9 +32,7 @@ object ImmutableDate {
  * when it might be a mismatch to use the newer java.time.Instance (which represents things
  * as nanoseconds since or before epoch)
  */
-final case class ImmutableDate(millis: Long) extends Ordered[ImmutableDate] {
-  def this(date: Date) = this(date.getTime)
-  def this(instant: Instant) = this(instant.toEpochMilli)
+final case class ImmutableDate(millis: Long) extends AnyVal with Ordered[ImmutableDate] {
 
   def toDate: Date = new Date(millis)
   def toInstant: Instant = Instant.ofEpochMilli(millis)
