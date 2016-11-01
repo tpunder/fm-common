@@ -15,10 +15,14 @@
  */
 package fm.common
 
+import Implicits._
+
 object IPOrSubnet {
   def get(ip: String): Option[IPOrSubnet] = IP.get(ip) orElse IPSubnet.get(ip)
   
   def apply(ip: String): IPOrSubnet = get(ip).getOrElse{ throw new InvalidIPException(ip) }
+
+  def apply(start: IP, end: IP): IPOrSubnet = if (start === end) start else IPSubnet.forRange(start, end)
 }
 
 trait IPOrSubnet extends Any {

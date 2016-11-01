@@ -15,6 +15,7 @@
  */
 package fm.common
 
+import fm.common.Implicits._
 import java.net.InetAddress
 import scala.util.matching.Regex
 
@@ -25,6 +26,8 @@ final case class InvalidIPException(msg: String) extends IllegalArgumentExceptio
  */
 object IP {
   val MAX_IP: Long = 4294967295L
+
+  val empty: IP = new IP(0)
   
   /**
    * Is this a valid IPv4 Address formatted as xxx.xxx.xxx.xxx ?
@@ -47,11 +50,11 @@ object IP {
   def apply(ip: String): IP = {
     if (ip.isBlank) throw new InvalidIPException("IP Address cannot be empty")
     
-    val dotCount: Int = ip.count{_ == '.'}
+    val dotCount: Int = ip.count{ _ === '.' }
     
     try {
       // Allow 1.2.3.4 and 1.2.3.4. (trailing dot)
-      if (dotCount == 3 || dotCount == 4) apply(toInt(ip))
+      if (dotCount === 3 || dotCount === 4) apply(toInt(ip))
       else if (ip.forall{Character.isDigit(_)}) apply(ip.toLong)
       else throw new InvalidIPException("Not sure how to parse: "+ip)
     } catch {
@@ -71,14 +74,14 @@ object IP {
   def toInt(ip: String): Int = {
     val fixedIp: String = if (ip.endsWith(".")) ip.substring(0, ip.length - 1) else ip
     val octets = fixedIp.trim.split('.').map{_.toShortOption.getOrElse{ throw InvalidIPException("Invalid IP Address: "+fixedIp) }.toByte}
-    if(octets.size != 4) throw InvalidIPException("Invalid IP Address: "+fixedIp)
+    if(octets.size !== 4) throw InvalidIPException("Invalid IP Address: "+fixedIp)
     toInt(octets)
   }
 
   def toLong(ip: String): Long = toLong(toInt(ip))
 
   def toInt(bytes: Array[Byte]): Int = {
-    if(bytes.size != 4) throw InvalidIPException("Invalid IP Address: "+bytes.toSeq)
+    if(bytes.size !== 4) throw InvalidIPException("Invalid IP Address: "+bytes.toSeq)
     ((bytes(0) & 0xff) << 24) + ((bytes(1) & 0xff) << 16) + ((bytes(2) & 0xff) << 8) + (bytes(3) & 0xff)
   }
 
@@ -158,5 +161,5 @@ final class IP private(val ip: Int) extends AnyVal with Ordered[IP] with IPOrSub
   // Ordered[IP] Implementation
   def compare(that: IP): Int = longValue.compare(that.longValue)
   
-  def contains(other: IP): Boolean = ip == other.ip
+  def contains(other: IP): Boolean = ip === other.ip
 }

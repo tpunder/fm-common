@@ -19,7 +19,7 @@ import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.util.{Failure, Success, Try}
 
 object RichFuture {
-  def apply[V](f: Future[V]): RichFuture[V] = if(f.isInstanceOf[RichFuture[_]]) f.asInstanceOf[RichFuture[V]] else new RichFuture(f)
+  def apply[V](f: Future[V]): RichFuture[V] = if (f.isInstanceOf[RichFuture[_]]) f.asInstanceOf[RichFuture[V]] else new RichFuture(f)
   
   implicit def toRichFuture[V](f: Future[V]): RichFuture[V] = apply(f)
   
@@ -33,7 +33,6 @@ object RichFuture {
   }
 }
 
-// TODO: Figure out why I am forcing everything through the RichFuture.apply method...
 final class RichFuture[A] private (val self: Future[A]) extends AnyVal {
   
   /**

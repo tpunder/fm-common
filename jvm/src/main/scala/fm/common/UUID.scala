@@ -62,7 +62,9 @@ object UUID {
     
     UUID(timeAndCounter, nodeIdAndRandom)
   }
-  
+
+  def apply(bytes: ImmutableArray[Byte]): UUID = apply(bytes.toArray)
+
   def apply(bytes: Array[Byte]): UUID = {
     require(bytes.length == 16, "Not a UUID - Invalid Byte Array Length")
     val buf: ByteBuffer = ByteBuffer.wrap(bytes)
@@ -117,7 +119,11 @@ object UUID {
   }
   
   def get(uuid: String): Option[UUID] = Try{ apply(uuid) }.toOption
-  
+
+  def get(bytes: ImmutableArray[Byte]): Option[UUID] = {
+    if (bytes.length == 16) Some(apply(bytes.toArray)) else None
+  }
+
   def get(bytes: Array[Byte]): Option[UUID] = {
     if (bytes.length == 16) Some(apply(bytes)) else None
   }

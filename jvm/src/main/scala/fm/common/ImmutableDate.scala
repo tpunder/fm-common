@@ -23,6 +23,10 @@ object ImmutableDate {
   implicit object ordering extends Ordering[ImmutableDate] {
     def compare(a: ImmutableDate, b: ImmutableDate): Int = a.compare(b)
   }
+
+  def apply(): ImmutableDate = new ImmutableDate()
+
+  def now(): ImmutableDate = apply()
 }
 
 /**
@@ -31,8 +35,11 @@ object ImmutableDate {
  * This provides an immutable milliseconds since epoch representation of a date
  * when it might be a mismatch to use the newer java.time.Instance (which represents things
  * as nanoseconds since or before epoch)
+ *
+ * NOTE: NOT extending AnyVal so that nulls still work (just like with java.util.Date)
  */
-final case class ImmutableDate(millis: Long) extends AnyVal with Ordered[ImmutableDate] {
+final case class ImmutableDate(millis: Long) extends Ordered[ImmutableDate] {
+  def this() = this(System.currentTimeMillis())
 
   def toDate: Date = new Date(millis)
   def toInstant: Instant = Instant.ofEpochMilli(millis)
