@@ -139,7 +139,7 @@ final case class IPSubnet(ip: IP, bits: Int) extends IPOrSubnet {
   /**
    * The ending IP address for this subnet
    */
-  def end: IP = IP(ip.intValue | ((0xffffffff << shift) ^ 0xffffffff))
+  def end: IP = IP(ip.intValue | (mask ^ 0xffffffff))
   
   override def toString = ip.toString+"/"+bits
 }
