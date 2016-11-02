@@ -2,7 +2,7 @@
 // Note: fm-common is setup to cross build with Scala.js
 //
 
-scalaVersion in ThisBuild := "2.11.8"
+scalaVersion in ThisBuild := "2.12.0"
 
 lazy val `fm-common` = project.in(file(".")).
   aggregate(fmCommonJS, fmCommonJVM).
@@ -26,7 +26,7 @@ lazy val `fm-common-` = crossProject.in(file(".")).
     name := "fm-common",
     version := "0.7.0-SNAPSHOT",
     description := "Common Scala classes that we use at Frugal Mechanic that have no required external dependencies.",
-    scalacOptions := Seq("-unchecked", "-deprecation", "-language:implicitConversions", "-feature", "-Xlint", "-optimise", "-Yinline-warnings"),
+    scalacOptions := Seq("-unchecked", "-deprecation", "-language:implicitConversions", "-feature", "-Xlint", "-Ywarn-unused-import", "-opt:l:classpath"),
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     EclipseKeys.useProjectId := true,
     // include the macro classes and resources in the main jar
@@ -80,8 +80,8 @@ lazy val `fm-common-` = crossProject.in(file(".")).
   )):_*).
   jsSettings(
     // Add JS-specific settings here
-    libraryDependencies += "be.doeraene" %%% "scalajs-jquery" % "0.9.0",
-    libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.0",
+    libraryDependencies += "be.doeraene" %%% "scalajs-jquery" % "0.9.1",
+    libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.1",
     libraryDependencies += "org.scala-js" %%% "scalajs-java-time" % "0.2.0"
   )
 
