@@ -20,4 +20,6 @@ import scala.reflect.ClassTag
 final class RichAnyRef[A <: AnyRef](val a: A) extends AnyVal {
   def tryCast[B <: A](implicit classTag: ClassTag[B]): Option[B] = if (classTag.runtimeClass.isInstance(a)) Some(a.asInstanceOf[B]) else None
   def tryCast[B <: A](cls: Class[B]): Option[B] = if (cls.isInstance(a)) Some(a.asInstanceOf[B]) else None
+
+  def isNull: Boolean = null == a
 }
