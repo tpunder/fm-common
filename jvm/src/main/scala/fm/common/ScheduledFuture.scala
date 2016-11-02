@@ -15,7 +15,7 @@
  */
 package fm.common
 
-import java.util.concurrent.{CancellationException}
+import java.util.concurrent.CancellationException
 import scala.concurrent.{CanAwait, ExecutionContext, Future, Promise}
 import scala.concurrent.duration.Duration
 import scala.util.Try
@@ -40,7 +40,7 @@ final class ScheduledFuture[T](promise: Promise[T], task: ScheduledTask) extends
     if (res) promise.tryFailure(new CancellationException("Scheduled Task has been canceled"))
     res
   }
-  
+
   /**
    * Returns true if this task was cancelled before it completed normally.
    */
@@ -53,5 +53,7 @@ final class ScheduledFuture[T](promise: Promise[T], task: ScheduledTask) extends
   def onComplete[U](func: (Try[T]) ⇒ U)(implicit executor: ExecutionContext): Unit = self.onComplete(func)
   def ready(atMost: Duration)(implicit permit: CanAwait): this.type = { self.ready(atMost); this }
   def result(atMost: Duration)(implicit permit: CanAwait): T = self.result(atMost)
-  def value: Option[Try[T]] = self.value 
+  def transform[S](f: Try[T] => Try[S])(implicit executor: ExecutionContext): Future[S] = self.transform(f)
+  def transformWith[S](f: Try[T] => Future[S])(implicit executor: ExecutionContext): Future[S] = self.transformWith(f)
+  def value: Option[Try[T]] = self.value
 }
