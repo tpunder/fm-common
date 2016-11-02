@@ -15,7 +15,7 @@
  */
 package fm.common
 
-import org.scalajs.dom.raw.{Event, EventTarget}
+import org.scalajs.dom.raw.Event
 import org.scalajs.jquery.{JQuery, JQueryEventObject}
 import scala.scalajs.js
 

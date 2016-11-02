@@ -15,9 +15,7 @@
  */
 package fm.common.rich
 
-import fm.common.Implicits._
 import org.scalajs.dom.raw.NodeList
-import scala.collection.immutable.IndexedSeq
 
 final class RichNodeList(val self: NodeList) extends AnyVal {
   

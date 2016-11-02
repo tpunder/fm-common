@@ -15,7 +15,6 @@
  */
 package fm.common.rich
 
-import fm.common.Implicits._
 import fm.common.UserDataAttributes
 import org.scalajs.dom.window
 import org.scalajs.dom.raw.{CSSStyleDeclaration, Element}

@@ -16,7 +16,7 @@
 package fm.common
 
 import org.scalajs.dom.document
-import org.scalajs.dom.raw.{Node, NodeSelector}
+import org.scalajs.dom.raw.NodeSelector
 import scala.reflect.ClassTag
 
 object Global extends Global

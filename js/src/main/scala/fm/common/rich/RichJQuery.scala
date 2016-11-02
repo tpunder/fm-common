@@ -15,7 +15,7 @@
  */
 package fm.common.rich
 
-import org.scalajs.jquery.{JQuery, JQueryEventObject}
+import org.scalajs.jquery.JQuery
 
 final class RichJQuery(val self: JQuery) extends AnyVal {
   

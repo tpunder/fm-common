@@ -16,7 +16,7 @@
 package fm.common.rich
 
 import fm.common.Implicits._
-import org.scalajs.dom.raw.{HTMLDocument, HTMLElement, Node}
+import org.scalajs.dom.raw.{HTMLDocument, HTMLElement}
 import scala.scalajs.js
 
 object RichHTMLElement {

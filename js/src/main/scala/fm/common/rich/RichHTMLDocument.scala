@@ -15,10 +15,8 @@
  */
 package fm.common.rich
 
-import fm.common.Implicits._
 import fm.common.HTMLDocumentById
-import org.scalajs.dom.raw.{HTMLDocument, HTMLElement}
-import scala.reflect.ClassTag
+import org.scalajs.dom.raw.HTMLDocument
 
 final class RichHTMLDocument(val document: HTMLDocument) extends AnyVal {
   

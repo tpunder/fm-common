@@ -16,8 +16,7 @@
 package fm.common.rich
 
 import fm.common.Implicits._
-import org.scalajs.dom.window
-import org.scalajs.dom.raw.{CSSStyleDeclaration, Element}
+import org.scalajs.dom.raw.Element
 
 final class RichElementTraversable(val elems: Traversable[Element]) extends AnyVal {
   

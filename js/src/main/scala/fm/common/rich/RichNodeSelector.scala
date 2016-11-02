@@ -17,9 +17,8 @@ package fm.common.rich
 
 import fm.common.Implicits._
 import fm.common.NodeType
-import org.scalajs.dom.raw.{Element, Node, NodeList, NodeSelector}
+import org.scalajs.dom.raw.{Element, NodeList, NodeSelector}
 import scala.reflect.{classTag, ClassTag}
-import scala.scalajs.js.SyntaxError
 
 final class RichNodeSelector(val self: NodeSelector) extends AnyVal {
   /** Typesafe helper on top of querySelector */

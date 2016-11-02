@@ -20,8 +20,6 @@ import org.scalajs.dom.raw._
 sealed abstract class ElementType[+T <: Element](val name: String)
 
 object ElementType {
-  import Implicits._
-  
   implicit case object Anchor extends ElementType[HTMLAnchorElement]("a")
   implicit case object Div extends ElementType[HTMLDivElement]("div")
   implicit case object IFrame extends ElementType[HTMLIFrameElement]("iframe")
