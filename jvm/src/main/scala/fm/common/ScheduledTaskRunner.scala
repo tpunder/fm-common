@@ -15,7 +15,7 @@
  */
 package fm.common
 
-import java.util.concurrent.{Callable, ScheduledFuture => JavaScheduledFuture, ScheduledThreadPoolExecutor, TimeUnit}
+import java.util.concurrent.{ScheduledFuture => JavaScheduledFuture, ScheduledThreadPoolExecutor, TimeUnit}
 import scala.annotation.implicitNotFound
 import scala.concurrent.Promise
 import scala.concurrent.duration.FiniteDuration
@@ -45,7 +45,7 @@ an (implicit st: ScheduledTaskRunner) parameter to your method
 or import fm.common.ScheduledTaskRunner.Implicits.global.""")
 final case class ScheduledTaskRunner(name: String, threads: Int = Runtime.getRuntime().availableProcessors()) extends TaskRunnerBase(name) {
   import ScheduledTaskRunner.RunnableWrapper
-  import TaskRunnerBase.{ClearingBlockRunnable, ClearingBlockRunnableWithResult}
+  import TaskRunnerBase.ClearingBlockRunnableWithResult
   
   protected val executor: ScheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(threads, newTaskRunnerThreadFactory())
   

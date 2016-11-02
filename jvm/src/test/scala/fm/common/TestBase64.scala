@@ -15,7 +15,6 @@
  */
 package fm.common
 
-import fm.common.Implicits._
 import java.io.{ByteArrayInputStream, InputStream, IOException, OutputStream}
 import java.nio.charset.StandardCharsets.UTF_8
 import org.scalatest.{FunSuite, Matchers}

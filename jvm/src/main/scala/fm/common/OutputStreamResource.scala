@@ -17,7 +17,6 @@ package fm.common
 
 import java.io._
 import java.nio.charset.Charset
-import fm.common.Implicits._
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream
 import org.apache.commons.compress.compressors.xz.XZCompressorOutputStream
@@ -54,8 +53,7 @@ final case class OutputStreamResource(resource: Resource[OutputStream], fileName
   def dataOutput(): Resource[DataOutput] = flatMap{ os => Resource(new DataOutputStream(os)) }
 
   private def filteredResource(resource: Resource[OutputStream]): Resource[OutputStream] = {
-    import Resource._
-    
+
     val lowerFileName: String = fileName.toLowerCase
     
     if (!autoCompress) resource

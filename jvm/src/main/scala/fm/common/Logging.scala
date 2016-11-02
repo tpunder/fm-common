@@ -17,7 +17,6 @@ package fm.common
 
 import java.io.{File, OutputStream, PrintStream}
 import ch.qos.logback.classic.{Level => LogbackLevel, Logger => LogbackLogger}
-import scala.collection.JavaConversions._
 
 /**
  * This can be extended for basic logging functionality
@@ -135,8 +134,6 @@ object Logging {
   }
   
   private def withAppender[T](logger: ch.qos.logback.classic.Logger, appender: ch.qos.logback.core.Appender[ch.qos.logback.classic.spi.ILoggingEvent])(fun: => T): T = {
-    import ch.qos.logback.classic.LoggerContext
-
     try {
       logger.addAppender(appender)
       fun

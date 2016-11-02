@@ -15,7 +15,6 @@
  */
 package fm.common
 
-import java.io.{File, InputStream}
 import java.util.{Timer, TimerTask}
 import scala.ref.WeakReference
 import scala.util.Try

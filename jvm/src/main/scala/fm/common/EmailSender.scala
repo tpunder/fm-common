@@ -1,6 +1,5 @@
 package fm.common
 
-import fm.common.Implicits._
 import java.util.Properties
 import javax.mail.{Message, Session, Transport}
 import javax.mail.internet.{AddressException, InternetAddress, MimeMessage}

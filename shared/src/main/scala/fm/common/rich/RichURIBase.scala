@@ -15,7 +15,7 @@
  */
 package fm.common.rich
 
-import fm.common.{QueryParams, URI, URL}
+import fm.common.{QueryParams, URI}
 import fm.common.Implicits._
 import java.io.File
 

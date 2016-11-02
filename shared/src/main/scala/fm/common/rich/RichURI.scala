@@ -15,7 +15,7 @@
  */
 package fm.common.rich
 
-import fm.common.{Interner, QueryParams, URI, URL}
+import fm.common.{Interner, QueryParams, URI}
 
 object RichURI {
   private val interner: Interner[URI] = Interner()

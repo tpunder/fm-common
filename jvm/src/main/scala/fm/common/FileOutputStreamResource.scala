@@ -15,11 +15,9 @@
  */
 package fm.common
 
-import java.io.{File, FileOutputStream, IOException, OutputStream, RandomAccessFile}
-import java.nio.charset.Charset
+import java.io.{File, FileOutputStream, OutputStream}
 import java.nio.file.{Files, StandardCopyOption}
 import java.util.zip.Deflater
-import fm.common.Implicits._
 
 object FileOutputStreamResource {
   def apply(file: File, fileName: String = "", overwrite: Boolean = true, append: Boolean = false, useTmpFile: Boolean = true, autoCompress: Boolean = true, compressionLevel: Int = Deflater.BEST_SPEED, buffered: Boolean = true, internalArchiveFileName: Option[String] = None): OutputStreamResource = {

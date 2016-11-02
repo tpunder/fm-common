@@ -15,7 +15,6 @@
  */
 package fm.common
 
-import fm.common.Implicits._
 import java.io._
 import java.nio.{ByteBuffer, MappedByteBuffer}
 import java.nio.channels.FileChannel

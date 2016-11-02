@@ -16,11 +16,7 @@
 package fm.common
 
 import java.util.concurrent.{ArrayBlockingQueue, BlockingQueue, LinkedBlockingQueue, SynchronousQueue}
-import java.util.concurrent.{Callable, RejectedExecutionException, RejectedExecutionHandler, ThreadFactory, ThreadPoolExecutor, TimeUnit}
-import java.util.concurrent.atomic.AtomicInteger
-import java.io.Closeable
-import scala.util.Try
-import scala.concurrent.{Future, Promise}
+import java.util.concurrent.{RejectedExecutionException, RejectedExecutionHandler, ThreadPoolExecutor, TimeUnit}
 
 object TaskRunner extends Logging {
 

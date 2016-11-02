@@ -15,11 +15,9 @@
  */
 package fm.common
 
-import java.util.concurrent.{ArrayBlockingQueue, BlockingQueue, LinkedBlockingQueue, SynchronousQueue}
-import java.util.concurrent.{Callable, RejectedExecutionException, RejectedExecutionHandler, ThreadFactory, ThreadPoolExecutor, TimeUnit}
+import java.util.concurrent.{RejectedExecutionException, ThreadFactory, ThreadPoolExecutor, TimeUnit}
 import java.util.concurrent.atomic.AtomicInteger
 import java.io.Closeable
-import scala.util.Try
 import scala.concurrent.{Future, Promise}
 
 object TaskRunnerBase extends Logging {
@@ -98,7 +96,7 @@ object TaskRunnerBase extends Logging {
 }
 
 abstract class TaskRunnerBase(name: String) extends Closeable with Logging {
-  import TaskRunnerBase.{ShutdownHookThread, ClearingBlockRunnableWithResult, ClearingBlockRunnable, uncaughtExceptionHandler, TaskRunnerThreadFactory}
+  import TaskRunnerBase.{ShutdownHookThread, ClearingBlockRunnableWithResult, ClearingBlockRunnable, TaskRunnerThreadFactory}
   
   private[this] val shutdownHookThread: Thread = new ShutdownHookThread(name, this)
   Runtime.getRuntime.addShutdownHook(shutdownHookThread)

@@ -15,8 +15,6 @@
  */
 package fm.common
 
-import scala.collection.mutable.ArrayBuffer
-
 object ArrayUtils extends Logging {
   def permutations[T: scala.reflect.ClassTag](values: Iterable[Iterable[T]]): IndexedSeq[IndexedSeq[T]] = {
     val arg: Array[Array[T]] = values.toArray.map{ _.toArray }

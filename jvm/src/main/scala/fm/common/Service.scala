@@ -19,7 +19,6 @@ import scala.annotation.tailrec
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.concurrent.duration._
 import scala.reflect.{classTag, ClassTag}
-import scala.util.{Failure, Success, Try}
 
 object Service {
   private val defaultMaxRetries: Int = 12

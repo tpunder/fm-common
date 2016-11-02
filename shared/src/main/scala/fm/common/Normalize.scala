@@ -15,9 +15,7 @@
  */
 package fm.common
 
-import fm.common.Implicits._
 import java.util.Arrays
-import scala.annotation.switch
 import scala.collection.mutable.{ArrayBuffer,Builder}
 
 object Normalize {

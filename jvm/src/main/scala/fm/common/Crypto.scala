@@ -15,11 +15,10 @@
  */
 package fm.common
 
-import fm.common.Implicits._
 import java.nio.charset.StandardCharsets.UTF_8
 import java.security.SecureRandom
 import java.util.Arrays
-import org.bouncycastle.crypto.{BufferedBlockCipher, CipherParameters, Digest, Mac}
+import org.bouncycastle.crypto.{BufferedBlockCipher, Digest, Mac}
 import org.bouncycastle.crypto.macs.HMac
 import org.bouncycastle.crypto.digests.{SHA1Digest, SHA256Digest}
 import org.bouncycastle.crypto.engines.AESFastEngine

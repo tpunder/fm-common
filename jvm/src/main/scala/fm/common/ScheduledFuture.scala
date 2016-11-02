@@ -15,7 +15,7 @@
  */
 package fm.common
 
-import java.util.concurrent.{CancellationException, ScheduledFuture => JavaScheduledFuture}
+import java.util.concurrent.{CancellationException}
 import scala.concurrent.{CanAwait, ExecutionContext, Future, Promise}
 import scala.concurrent.duration.Duration
 import scala.util.Try

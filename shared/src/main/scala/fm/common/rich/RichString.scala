@@ -21,7 +21,6 @@ import java.io.File
 import java.math.{BigDecimal, BigInteger}
 import java.text.{DecimalFormat, NumberFormat, ParseException}
 import java.util.Locale
-import scala.util.{Success, Try}
 import scala.util.matching.Regex
 
 object RichString {

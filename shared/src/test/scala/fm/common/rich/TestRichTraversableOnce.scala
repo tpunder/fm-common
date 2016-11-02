@@ -18,9 +18,6 @@ package fm.common.rich
 import org.scalatest.{FunSuite,Matchers}
 import org.scalatest.concurrent.ScalaFutures
 import fm.common.Implicits._
-import scala.concurrent.{Await, Future}
-import scala.concurrent.duration.Duration
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class TestRichTraversableOnce extends FunSuite with Matchers with ScalaFutures {
   

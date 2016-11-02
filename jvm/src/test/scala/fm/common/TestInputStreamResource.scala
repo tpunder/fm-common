@@ -16,7 +16,7 @@
 package fm.common
 
 import org.scalatest.{FunSuite, Matchers}
-import java.io.{BufferedInputStream, File, Reader}
+import java.io.File
 
 final class TestInputStreamResource extends FunSuite with Matchers {
   test(".tar.gz")    { checkCompression("hello_world.txt.tar.gz") }

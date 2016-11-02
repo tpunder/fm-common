@@ -15,7 +15,6 @@
  */
 package fm.common
 
-import fm.common.Implicits._
 import java.net.InetAddress
 import scala.util.matching.Regex
 

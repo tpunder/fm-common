@@ -15,8 +15,6 @@
  */
 package fm.common
 
-import Implicits._
-
 object IPOrSubnet {
   def get(ip: String): Option[IPOrSubnet] = IP.get(ip) orElse IPSubnet.get(ip)
   

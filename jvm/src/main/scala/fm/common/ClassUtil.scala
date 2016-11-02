@@ -23,8 +23,6 @@ import java.nio.file.Path
 import java.util.jar.{JarFile, JarEntry}
 import scala.collection.JavaConverters._
 
-import Implicits._
-
 /**
  * This contains utility methods for scanning Classes or Files on the classpath.
  * 

@@ -18,7 +18,6 @@ package fm.common
 import java.lang.{Boolean => JavaBoolean}
 import java.util.{Collection, Iterator => JavaIterator, Set}
 import java.util.concurrent.{ConcurrentHashMap => JavaConcurrentHashMap}
-import scala.collection.JavaConverters._
 
 /**
  * EXPERIMENTAL - A Java Set based on ConcurrentHashMap

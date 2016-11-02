@@ -18,7 +18,6 @@ package fm.common
 import scala.collection.SeqLike
 import scala.collection.mutable.Builder
 import scala.util.Try
-import Implicits._
 
 object QueryParams {
   def get(uri: URI): Option[QueryParams] = Try{ apply(uri) }.toOption

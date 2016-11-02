@@ -16,7 +16,6 @@
 package fm.common
 
 import java.io.{File, InputStream}
-import java.util.{Timer, TimerTask}
 
 abstract class ReloadableFileResource[T] extends ReloadableResource[T] {
   /** Files to check (will choose the one with the newest timestamp) */
