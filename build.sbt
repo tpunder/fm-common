@@ -55,6 +55,8 @@ lazy val `fm-common-` = crossProject.in(file(".")).
       "org.xerial.snappy" % "snappy-java" % "1.1.1" % "provided"  // SnappyOutputStream might be messed up in 1.1.1.3
     ),
     
+    ProguardKeys.proguardVersion in Proguard := "5.3.1",
+    
     ProguardKeys.options in Proguard ++= Seq(
       "-dontoptimize",
       "-dontusemixedcaseclassnames", // Don't write out i.class and I.class (which won't unjar properly on case-insensitive file systems like on OSX)
