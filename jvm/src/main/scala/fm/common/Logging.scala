@@ -41,21 +41,27 @@ object Logging {
   def setLevelToInfo(logger: AnyRef):  Unit = setLevel(logger, LogbackLevel.INFO)
   def setLevelToWarn(logger: AnyRef):  Unit = setLevel(logger, LogbackLevel.WARN)
   def setLevelToError(logger: AnyRef): Unit = setLevel(logger, LogbackLevel.ERROR)
-  
-  def setLevel(logger: AnyRef, level: LogbackLevel): Unit = setLevel(Logger.SLF4JLogger(logger).underlying, level)
-  def setLevel(logger: org.slf4j.Logger, level: LogbackLevel): Unit = logger match { case logback: LogbackLogger => logback.setLevel(level) }
+
+  // Private to avoid exposing LogbackLevel which causes ProGuard issues
+  private def setLevel(logger: AnyRef, level: LogbackLevel): Unit = setLevel(Logger.SLF4JLogger(logger).underlying, level)
+
+  // Private to avoid exposing org.slf4j.Logger which causes ProGuard issues
+  private def setLevel(logger: org.slf4j.Logger, level: LogbackLevel): Unit = logger match { case logback: LogbackLogger => logback.setLevel(level) }
   
   /**
    * Capture logging to a file
+   *
+   * Note: Private to avoid exposing org.slf4j.Logger which causes ProGuard issues
    */
-  def capture[T](logger: org.slf4j.Logger, pattern: String = """%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n""", file: File, overwrite: Boolean)(fun: => T): T = FileUtil.writeFile(file, overwrite){ os => capture(logger.asInstanceOf[ch.qos.logback.classic.Logger], pattern, os)(fun) }
+  private def capture[T](logger: org.slf4j.Logger, pattern: String = """%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n""", file: File, overwrite: Boolean)(fun: => T): T = FileUtil.writeFile(file, overwrite){ os => capture(logger.asInstanceOf[ch.qos.logback.classic.Logger], pattern, os)(fun) }
   
   /**
    * Capture logging based on a LoggingCaptureConfig
+   * Note: Private to avoid exposing org.slf4j.Logger (via LoggingCaptureConfig) which causes ProGuard issues
    */
-  def capture[T](configs: LoggingCaptureConfig*)(fun: => T): T = {
+  private def capture[T](configs: LoggingCaptureConfig*)(fun: => T): T = {
     if (configs.isEmpty) return fun
-    
+
     val head: LoggingCaptureConfig = configs.head
     capture(head.logger, head.pattern, head.file, head.overwrite) {
       capture(configs.tail:_*)(fun)
@@ -65,8 +71,10 @@ object Logging {
   
   /**
    * Capture logging to an output stream
+   *
+   * Note: Private to avoid exposing ch.qos.logback.classic.Logger which causes ProGuard issues
    */
-  def capture[T](logger: ch.qos.logback.classic.Logger, pattern: String, os: OutputStream)(fun: => T): T = {
+  private def capture[T](logger: ch.qos.logback.classic.Logger, pattern: String, os: OutputStream)(fun: => T): T = {
     import ch.qos.logback.classic.LoggerContext
     
     val ctx = org.slf4j.LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext]
