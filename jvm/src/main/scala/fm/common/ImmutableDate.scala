@@ -2,6 +2,7 @@ package fm.common
 
 import java.time.Instant
 import java.util.Date
+import scala.concurrent.duration.FiniteDuration
 import scala.math.{Ordered, Ordering}
 
 object ImmutableDate {
@@ -54,6 +55,9 @@ final case class ImmutableDate(millis: Long) extends Ordered[ImmutableDate] {
 
   def +(other: ImmutableDate): ImmutableDate = ImmutableDate(millis + other.millis)
   def -(other: ImmutableDate): ImmutableDate = ImmutableDate(millis - other.millis)
+
+  def +(other: FiniteDuration): ImmutableDate = ImmutableDate(millis + other.toMillis)
+  def -(other: FiniteDuration): ImmutableDate = ImmutableDate(millis - other.toMillis)
 
   override def toString: String = toDate.toString()
 }
