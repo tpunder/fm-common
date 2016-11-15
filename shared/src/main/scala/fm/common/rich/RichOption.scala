@@ -15,6 +15,7 @@
  */
 package fm.common.rich
 
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
 final class RichOption[A](val self: Option[A]) extends AnyVal {
@@ -24,5 +25,15 @@ final class RichOption[A](val self: Option[A]) extends AnyVal {
   def tryMap[B](f: A => B): Option[B] = self match {
     case Some(a) => Try{ f(a) }.toOption
     case None    => None
+  }
+
+  /**
+   * Converts an Option[Future[B]] to a Future[Option[B]]
+   */
+  def transform[B](implicit ctx: ExecutionContext, ev: A <:< Future[B]): Future[Option[B]] = {
+    self match {
+      case Some(f) => f.map{ res: B => Option(res) }
+      case None    => Future.successful(None)
+    }
   }
 }
