@@ -15,12 +15,13 @@
  */
 package fm.common.rich
 
-import fm.common.Normalize
+import fm.common.{Normalize, ThreadLocalHashMap}
 import fm.common.Implicits.toRichTraversableOnce
 import java.io.File
 import java.math.{BigDecimal, BigInteger}
 import java.text.{DecimalFormat, NumberFormat, ParseException}
 import java.util.Locale
+import scala.collection.mutable
 import scala.util.matching.Regex
 
 object RichString {
@@ -44,6 +45,15 @@ object RichString {
     if (lower == "") return None
     
     booleanLookupMap.get(lower)
+  }
+
+  // NumberFormat.getInstance(locale) is expensive (and not thread-safe) so we need to cache it
+  private object BigDecimalFormatCache extends ThreadLocalHashMap[Locale,DecimalFormat] {
+    override protected def initialValue(locale: Locale): Option[DecimalFormat] = {
+      val bigDecimalFormat: DecimalFormat = NumberFormat.getInstance(locale).asInstanceOf[DecimalFormat]
+      bigDecimalFormat.setParseBigDecimal(true)
+      Some(bigDecimalFormat)
+    }
   }
 }
 
@@ -126,9 +136,7 @@ final class RichString(val s: String) extends AnyVal {
   def toBigInteger: BigInteger = toBigIntegerOption.getOrElse{ throw new NumberFormatException(s"RichString.toBigInteger parsing error on value: $s") }
 
   def parseBigDecimal(implicit locale: Locale): Option[BigDecimal] = if (null == s) None else try {
-    val bigDecimalFormat: DecimalFormat = NumberFormat.getInstance(locale).asInstanceOf[DecimalFormat]
-    bigDecimalFormat.setParseBigDecimal(true)
-    val res: BigDecimal = bigDecimalFormat.parse(s).asInstanceOf[BigDecimal]
+    val res: BigDecimal = RichString.BigDecimalFormatCache(locale).parse(s).asInstanceOf[BigDecimal]
     Some(res)
   } catch {
     case _: ParseException => None
