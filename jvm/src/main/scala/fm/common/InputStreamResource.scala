@@ -258,10 +258,13 @@ final case class InputStreamResource(resource: Resource[InputStream], fileName: 
   private def unzip(r: Resource[InputStream]):    Resource[InputStream] = r.flatMap{ _.unzip    }
   private def unjar(r: Resource[InputStream]):    Resource[InputStream] = r.flatMap{ _.unjar    }
   private def untar(r: Resource[InputStream]):    Resource[InputStream] = r.flatMap{ _.untar    }
-  
-  def showArchiveEntries(): Unit = resource.use { _.showArchiveEntries() }
+
+  def showArchiveEntries(): Unit = resource.use { is: InputStream =>
+    val bufferedIS: InputStream = if (is.markSupported()) is else is.toBufferedInputStream
+    bufferedIS.showArchiveEntries()
+  }
   
   private def bufferedFilter(resource: Resource[InputStream]): Resource[InputStream] = {
-    if(autoBuffer) resource.flatMap{ _.toBufferedInputStream } else resource
+    if (autoBuffer) resource.flatMap{ _.toBufferedInputStream } else resource
   }
 }
