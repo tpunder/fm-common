@@ -27,7 +27,7 @@ object Resource {
       logger.debug("Caught exception using resource", ex)
       throw ex
   } finally {
-    if(null != resource) resource.close()
+    if (null != resource) resource.close()
   }
   
   def using[T, R <% AutoCloseable](resources: Seq[R])(f: Seq[R] => T): T = try {
@@ -37,7 +37,7 @@ object Resource {
       logger.debug("Caught exception using resources", ex)
       throw ex
   } finally {
-    if(null != resources) resources.foreach{r => if(null != r) r.close() }
+    if (null != resources) resources.foreach{r => if(null != r) r.close() }
   }
   
   implicit def toCloseable[T <: { def close(): Unit }](obj: T): AutoCloseable = new AutoCloseable {
