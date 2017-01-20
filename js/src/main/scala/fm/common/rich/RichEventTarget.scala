@@ -17,11 +17,12 @@ package fm.common.rich
 
 import fm.common.EventTargetOrTargets
 import org.scalajs.dom.raw.{Event, EventTarget}
-import org.scalajs.jquery.{jQuery, JQuery}
+import org.scalajs.jquery.{JQuery, jQuery}
+import scala.scalajs.js
 
 final class RichEventTarget(val self: EventTarget) extends AnyVal with EventTargetOrTargets {
   protected def jQueryElements: JQuery = jQuery(self)
   
-  def addEventListener[T <: Event](tpe: String)(f: T => Unit): Unit = self.addEventListener(tpe, f)
-  def removeEventListener[T <: Event](tpe: String)(f: T => Unit): Unit = self.removeEventListener(tpe, f)
+  def addEventListener[T <: Event](tpe: String)(f: js.Function1[T,Unit]): Unit = self.addEventListener(tpe, f)
+  def removeEventListener[T <: Event](tpe: String)(f: js.Function1[T,Unit]): Unit = self.removeEventListener(tpe, f)
 }
