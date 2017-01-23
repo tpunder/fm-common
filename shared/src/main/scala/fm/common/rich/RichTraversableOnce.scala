@@ -18,7 +18,6 @@ package fm.common.rich
 import fm.common.Normalize
 import scala.collection.{immutable, mutable, TraversableOnce}
 import scala.concurrent.{ExecutionContext, Future}
-import scala.reflect.ClassTag
 
 final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal {
 
@@ -54,7 +53,7 @@ final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal 
       sb.toString
     } else ""
   }
-  
+
   /**
    * Like the normal sortBy but will cache the result of calling f on each element
    * (i.e. f is only called once for each element).  This is useful when f is an 
@@ -63,24 +62,26 @@ final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal 
    * If this is call on something that isn't already an IndexedSeq then it will be
    * automatically converted before sorting.
    */
-  def sortByCached[K : ClassTag](f: A => K)(implicit ord: Ordering[K]): IndexedSeq[A] = {
+  def sortByCached[K](f: A => K)(implicit ord: Ordering[K]): IndexedSeq[A] = {
     val orig: IndexedSeq[A] = self.toIndexedSeq
     val len: Int = orig.length
+    // Yes, this currently has to be an Array[Integer] because the only Arrays.sort method that takes
+    // a comparator requires an Array[Object] to work.
     val idxs: Array[Integer] = new Array(len) // Our indexes into the orig array -- this is what we will sort
-    val keys: Array[K] = new Array(len)   // Our cached keys that we will base on sorting on
+    val keys: Array[AnyRef] = new Array(len) // Our cached keys that we will base on sorting on
     
     var i: Int = 0
     
     // One pass to populate our idxs and keys arrays
     while (i < len) {
       idxs(i) = i
-      keys(i) = f(orig(i))
+      keys(i) = f(orig(i)).asInstanceOf[AnyRef]
       i += 1
     }
     
     // Perform the sorting which will give us an idxs array that has the sorted indexes for the result
     java.util.Arrays.sort(idxs.asInstanceOf[Array[Object]], new java.util.Comparator[Integer]{
-      def compare(a: Integer, b: Integer): Int = ord.compare(keys(a), keys(b))
+      def compare(a: Integer, b: Integer): Int = ord.compare(keys(a).asInstanceOf[K], keys(b).asInstanceOf[K])
     }.asInstanceOf[java.util.Comparator[Object]])
     
     val b = Vector.newBuilder[A]
