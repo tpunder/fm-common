@@ -46,25 +46,25 @@ lazy val `fm-common-` = crossProject.in(file(".")).
     // include the macro sources in the main source jar
     mappings in (Compile, packageSrc) <++= mappings in (`fm-common-macros`, Compile, packageSrc),
     
-    libraryDependencies += "org.scalatest" %%% "scalatest" % "3.0.0" % "provided,test"
+    libraryDependencies += "org.scalatest" %%% "scalatest" % "3.0.1" % "provided,test"
   )):_*).
   jvmSettings(Seq(
     // Add JVM-specific settings here
     libraryDependencies ++= Seq(
-      "ch.qos.logback" % "logback-classic" % "1.1.3",
-      "com.google.guava" % "guava" % "19.0",
+      "ch.qos.logback" % "logback-classic" % "1.1.9",
+      "com.google.guava" % "guava" % "21.0",
       "com.googlecode.juniversalchardet" % "juniversalchardet" % "1.0.3",
       "com.sun.mail" % "javax.mail" % "1.5.2" % "provided",
       "com.fasterxml.woodstox" % "woodstox-core" % "5.0.2",
       "commons-codec" % "commons-codec" % "1.10",
       "commons-io" % "commons-io" % "2.5",
-      "it.unimi.dsi" % "fastutil" % "7.0.12",
-      "org.apache.commons" % "commons-compress" % "1.12",
-      "org.apache.commons" % "commons-lang3" % "3.4",
-      "org.bouncycastle" % "bcprov-jdk15on" % "1.54",
-      "org.slf4j" % "slf4j-api" % "1.7.13",
-      "org.tukaani" % "xz" % "1.5",  // Used by commons-compress and should be synced up with whatever version commons-compress requires
-      "org.xerial.snappy" % "snappy-java" % "1.1.1"  // SnappyOutputStream might be messed up in 1.1.1.3
+      "it.unimi.dsi" % "fastutil" % "7.0.13",
+      "org.apache.commons" % "commons-compress" % "1.13",
+      "org.apache.commons" % "commons-lang3" % "3.5",
+      "org.bouncycastle" % "bcprov-jdk15on" % "1.56",
+      "org.slf4j" % "slf4j-api" % "1.7.22",
+      "org.tukaani" % "xz" % "1.6",  // Used by commons-compress and should be synced up with whatever version commons-compress requires
+      "org.xerial.snappy" % "snappy-java" % "1.1.2.6"
     )
   ):_*).
   jsSettings(
