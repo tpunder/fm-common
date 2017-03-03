@@ -37,7 +37,7 @@ lazy val `fm-common-` = crossProject.in(file(".")).
       "-Ywarn-unused-import"
     ) ++ (if (scalaVersion.value.startsWith("2.12")) Seq(
       // Scala 2.12 specific compiler flags
-      "-opt:l:classpath"
+      "-opt:l:project"
     ) else Nil),
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     EclipseKeys.useProjectId := true,
