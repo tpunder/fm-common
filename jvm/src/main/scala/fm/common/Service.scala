@@ -126,7 +126,9 @@ object Service {
               exceptionHandler: PartialFunction[Exception,Unit] = Service.defaultExceptionHandler, 
               delayBetweenCalls: FiniteDuration = Service.defaultDelayBetweenCalls, // This is a constant delay before making the call (e.g. for rate limiting to external services)
               backOffStrategy: BackOffStrategy = Service.defaultBackOffStrategy,
-              maxRetries: Int = Service.defaultMaxRetries)(f: => X): X = call0(msg, logging, exceptionHandler, delayBetweenCalls, backOffStrategy, maxRetries, f, 0, System.currentTimeMillis(), null)
+              maxRetries: Int = Service.defaultMaxRetries)(f: => X): X = {
+    call0(msg, logging, exceptionHandler, delayBetweenCalls, backOffStrategy, maxRetries, f, 0, System.currentTimeMillis(), null)
+  }
   
   @tailrec
   private def call0[X](
