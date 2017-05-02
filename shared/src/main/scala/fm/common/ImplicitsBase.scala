@@ -17,7 +17,7 @@ package fm.common
 
 import fm.common.rich._
 import java.math.{BigDecimal => JavaBigDecimal, BigInteger => JavaBigInteger}
-import java.time.Instant
+import java.time.{Instant, LocalDate}
 import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
 import scala.math.{BigDecimal => ScalaBigDecimal, BigInt => ScalaBigInt}
 
@@ -55,6 +55,7 @@ protected trait ImplicitsBase extends OrderingImplicits {
   implicit def toRichAtomicLong(long: AtomicLong): RichAtomicLong =  new RichAtomicLong(long)
   
   implicit def toRichInstant(instant: Instant): RichInstant = new RichInstant(instant)
+  implicit def toRichLocalDate(date: LocalDate): RichLocalDate = new RichLocalDate(date)
   
   implicit def toRichMap[A,B,This <: scala.collection.MapLike[A,B,This] with scala.collection.Map[A,B]](m: scala.collection.MapLike[A,B,This]) = new RichMap(m)
   implicit def toRichConcurrentMap[K,V](m: java.util.concurrent.ConcurrentMap[K,V]): RichConcurrentMap[K,V] = new RichConcurrentMap(m)
