@@ -21,7 +21,6 @@ import java.io.File
 import java.math.{BigDecimal, BigInteger}
 import java.text.{DecimalFormat, NumberFormat, ParseException}
 import java.util.Locale
-import scala.collection.mutable
 import scala.util.matching.Regex
 
 object RichString {
@@ -157,7 +156,7 @@ final class RichString(val s: String) extends AnyVal {
    * Note: The resulting string will not be longer than length.  (i.e the omission counts towards the length)
    * 
    * @param length The length to truncate the string to
-   * @param ommission If the string is truncated then add this to the end (Note: The resulting still will be at most length)
+   * @param omission If the string is truncated then add this to the end (Note: The resulting still will be at most length)
    */
   def truncate(length: Int, omission: String = ""): String = {
     if (s.length > length) s.substring(0, length-omission.length)+omission else s
