@@ -2,9 +2,9 @@
 // Note: fm-common is setup to cross build with Scala.js
 //
 
-scalaVersion in ThisBuild := "2.12.1"
+scalaVersion in ThisBuild := "2.12.2"
 
-crossScalaVersions in ThisBuild := Seq("2.11.8", "2.12.1")
+crossScalaVersions in ThisBuild := Seq("2.11.11", "2.12.2")
 
 lazy val `fm-common` = project.in(file(".")).
   aggregate(fmCommonJS, fmCommonJVM).
@@ -42,9 +42,9 @@ lazy val `fm-common-` = crossProject.in(file(".")).
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     EclipseKeys.useProjectId := true,
     // include the macro classes and resources in the main jar
-    mappings in (Compile, packageBin) <++= mappings in (`fm-common-macros`, Compile, packageBin),
+    mappings in (Compile, packageBin) ++= { mappings in (`fm-common-macros`, Compile, packageBin) }.value,
     // include the macro sources in the main source jar
-    mappings in (Compile, packageSrc) <++= mappings in (`fm-common-macros`, Compile, packageSrc),
+    mappings in (Compile, packageSrc) ++= { mappings in (`fm-common-macros`, Compile, packageSrc) }.value,
     
     libraryDependencies += "org.scalatest" %%% "scalatest" % "3.0.1" % "provided,test"
   )):_*).
