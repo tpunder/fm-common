@@ -440,8 +440,8 @@ final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal 
   }
   
   def distinctUsing[B](f: A => B)(implicit ord: Ordering[B]): IndexedSeq[A] = {
-    var seen: mutable.HashSet[B] = new mutable.HashSet[B]
-    var res =  Vector.newBuilder[A]
+    val seen: mutable.HashSet[B] = new mutable.HashSet[B]
+    val res = Vector.newBuilder[A]
     
     self.foreach { v: A =>
       val key: B = f(v)
