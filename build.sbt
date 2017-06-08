@@ -70,8 +70,8 @@ lazy val `fm-common-` = crossProject.in(file(".")).
   jsSettings(
     // Add JS-specific settings here
     libraryDependencies += "be.doeraene" %%% "scalajs-jquery" % "0.9.1",
-    libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.1",
-    libraryDependencies += "org.scala-js" %%% "scalajs-java-time" % "0.2.0"
+    libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.2",
+    libraryDependencies += "org.scala-js" %%% "scalajs-java-time" % "0.2.1"
   )
 
 lazy val fmCommonJVM = `fm-common-`.jvm.dependsOn(`fm-common-macros` % "compile-internal, test-internal")
