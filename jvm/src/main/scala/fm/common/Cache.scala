@@ -104,11 +104,11 @@ object Cache {
    * A simplified wrapper around com.google.common.cache.CacheBuilder
    * 
    * @param initialCapacity Sets the minimum total size for the internal hash tables.
-   * @param maximumSize Specifies the maximum number of entries the cache may contain.
+   * @param maxSize Specifies the maximum number of entries the cache may contain.
    * @param concurrencyLevel Guides the allowed concurrency among update operations.
    * @param expireAfterAccess Specifies that each entry should be automatically removed from the cache once a fixed duration has elapsed after the entry's creation, the most recent replacement of its value, or its last access.
    * @param expireAfterWrite Specifies that each entry should be automatically removed from the cache once a fixed duration has elapsed after the entry's creation, or the most recent replacement of its value.
-   * @param stats Enable the accumulation of CacheStats during the operation of the cache.
+   * @param recordStats Enable the accumulation of CacheStats during the operation of the cache.
    * @param refreshAfterWrite Specifies that active entries are eligible for automatic refresh once a fixed duration has elapsed after the entry's creation, or the most recent replacement of its value.
    * @param weakKeys Specifies that each key (not value) stored in the cache should be wrapped in a WeakReference (by default, strong references are used).
    * @param weakValues Specifies that each value (not key) stored in the cache should be wrapped in a WeakReference (by default, strong references are used).
@@ -223,11 +223,11 @@ object LoadingCache {
    * A simplified wrapper around com.google.common.cache.CacheBuilder
    * 
    * @param initialCapacity Sets the minimum total size for the internal hash tables.
-   * @param maximumSize Specifies the maximum number of entries the cache may contain.
+   * @param maxSize Specifies the maximum number of entries the cache may contain.
    * @param concurrencyLevel Guides the allowed concurrency among update operations.
    * @param expireAfterAccess Specifies that each entry should be automatically removed from the cache once a fixed duration has elapsed after the entry's creation, the most recent replacement of its value, or its last access.
    * @param expireAfterWrite Specifies that each entry should be automatically removed from the cache once a fixed duration has elapsed after the entry's creation, or the most recent replacement of its value.
-   * @param stats Enable the accumulation of CacheStats during the operation of the cache.
+   * @param recordStats Enable the accumulation of CacheStats during the operation of the cache.
    * @param refreshAfterWrite Specifies that active entries are eligible for automatic refresh once a fixed duration has elapsed after the entry's creation, or the most recent replacement of its value.
    * @param weakKeys Specifies that each key (not value) stored in the cache should be wrapped in a WeakReference (by default, strong references are used).
    * @param weakValues Specifies that each value (not key) stored in the cache should be wrapped in a WeakReference (by default, strong references are used).
