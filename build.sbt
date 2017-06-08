@@ -26,7 +26,7 @@ lazy val `fm-common-macros` = project.in(file("macro")).settings(
 lazy val `fm-common-` = crossProject.in(file(".")).
   settings((FMPublic ++ Seq(
     name := "fm-common",
-    version := "0.8.0-SNAPSHOT",
+    version := "0.8.0",
     description := "Common Scala classes that we use at Frugal Mechanic / Eluvio",
     scalacOptions := Seq(
       "-unchecked",
