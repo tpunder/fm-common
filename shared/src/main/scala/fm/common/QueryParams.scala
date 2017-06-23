@@ -304,7 +304,10 @@ final class QueryParams private (params: Seq[(String, String)] = Nil) extends Se
    * Convert all keys to lower case
    */
   def withLowerKeys: QueryParams = QueryParams(params.map { case (k, v) => (k.toLowerCase, v) })
-  
+
+  /** Add a prefix to each key */
+  def withPrefixedKeys(prefix: String) = mapKeys{ prefix + _ }
+
   def prettyString: String = {
     "{"+toMap.toSeq.map{ case (key, values) =>
       key+"=["+values.mkString(",")+"]"
