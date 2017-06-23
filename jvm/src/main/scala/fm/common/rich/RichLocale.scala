@@ -15,6 +15,7 @@
  */
 package fm.common.rich
 
+import fm.common.Implicits.toRichCharSequence
 import fm.common.LoadingCache
 import java.text.Collator
 import java.util.{Comparator, Locale}
@@ -49,11 +50,18 @@ object RichLocale {
 final class RichLocale(val self: Locale) extends AnyVal {
   
   def languageTag: String = self.toLanguageTag()
-  
-  def isValidLanguage: Boolean = Try{ self.getISO3Language }.isSuccess
-  def isValidCountry: Boolean = Try{ self.getISO3Country }.isSuccess
-  
-  def isValid: Boolean = isValidLanguage && isValidCountry
+
+  /** Does this locale have a valid language? */
+  def isValidLanguage: Boolean = Try{ self.getISO3Language.isNotBlank }.getOrElse(false)
+
+  /** Does this locale have a valid country set OR is the country blank? */
+  def isValidCountryOrIsBlankCountry: Boolean = Try{ self.getISO3Country }.isSuccess
+
+  /** Does this locale have a valid country set? */
+  def isValidCountry: Boolean = Try { self.getISO3Country.isNotBlank }.getOrElse(false)
+
+  /** Is this locale considered valid by having a valid language and a valid or blank country? */
+  def isValid: Boolean = isValidLanguage && isValidCountryOrIsBlankCountry
   
   def displayName(implicit locale: Locale): String = self.getDisplayName(locale)
   def displayCountry(implicit locale: Locale): String = self.getDisplayCountry(locale)
