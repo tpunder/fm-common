@@ -51,17 +51,21 @@ final class RichLocale(val self: Locale) extends AnyVal {
   
   def languageTag: String = self.toLanguageTag()
 
-  /** Does this locale have a valid language? */
-  def isValidLanguage: Boolean = Try{ self.getISO3Language.isNotBlank }.getOrElse(false)
+  // Note: This is package private since there isn't currently a use case for this method but we have tests setup for it
+  /** Does this locale have a valid non-blank language? */
+  private[common] def hasNonBlankValidLanguage: Boolean = Try{ self.getISO3Language.isNotBlank }.getOrElse(false)
 
-  /** Does this locale have a valid country set OR is the country blank? */
-  def isValidCountryOrIsBlankCountry: Boolean = Try{ self.getISO3Country }.isSuccess
+  // Note: This is package private since there isn't currently a use case for this method but we have tests setup for it
+  /** Does this locale have a valid non-blank country set? */
+  private[common] def hasNonBlankValidCountry: Boolean = Try { self.getISO3Country.isNotBlank }.getOrElse(false)
 
-  /** Does this locale have a valid country set? */
-  def isValidCountry: Boolean = Try { self.getISO3Country.isNotBlank }.getOrElse(false)
-
-  /** Is this locale considered valid by having a valid language and a valid or blank country? */
-  def isValid: Boolean = isValidLanguage && isValidCountryOrIsBlankCountry
+  /** The Locale is considered valid if there is a valid (or blank) language and a valid (or blank) country */
+  def isValid: Boolean = {
+    Try {
+      self.getISO3Language()
+      self.getISO3Country()
+    }.isSuccess
+  }
   
   def displayName(implicit locale: Locale): String = self.getDisplayName(locale)
   def displayCountry(implicit locale: Locale): String = self.getDisplayCountry(locale)

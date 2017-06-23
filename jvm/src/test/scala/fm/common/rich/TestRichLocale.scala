@@ -21,7 +21,7 @@ import org.scalatest.{FunSuite, Matchers}
 final class TestRichLocale extends FunSuite with Matchers {
   import fm.common.Implicits._
 
-  test("isValid / isValidLanguage / isValidCountry - Built-In Locales") {
+  test("isValid / hasNonBlankValidLanguage / hasNonBlankValidCountry - Built-In Locales") {
     // Language+Country Built-In Locales
     checkLocale(Locale.CANADA)
     checkLocale(Locale.CANADA_FRENCH)
@@ -40,49 +40,48 @@ final class TestRichLocale extends FunSuite with Matchers {
     checkLocale(Locale.UK)
 
     // Language Only Built-In Locales
-    checkLocale(Locale.CHINESE, isValidCountry = false)
-    checkLocale(Locale.ENGLISH, isValidCountry = false)
-    checkLocale(Locale.FRENCH, isValidCountry = false)
-    checkLocale(Locale.GERMAN, isValidCountry = false)
-    checkLocale(Locale.ITALIAN, isValidCountry = false)
-    checkLocale(Locale.JAPANESE, isValidCountry = false)
-    checkLocale(Locale.KOREAN, isValidCountry = false)
+    checkLocale(Locale.CHINESE, hasNonBlankValidCountry = false)
+    checkLocale(Locale.ENGLISH, hasNonBlankValidCountry = false)
+    checkLocale(Locale.FRENCH, hasNonBlankValidCountry = false)
+    checkLocale(Locale.GERMAN, hasNonBlankValidCountry = false)
+    checkLocale(Locale.ITALIAN, hasNonBlankValidCountry = false)
+    checkLocale(Locale.JAPANESE, hasNonBlankValidCountry = false)
+    checkLocale(Locale.KOREAN, hasNonBlankValidCountry = false)
 
-    checkLocale(Locale.ROOT, isValid = false, isValidLanguage = false, isValidCountryOrIsBlankCountry = true, isValidCountry = false)
+    checkLocale(Locale.ROOT, isValid = true, hasNonBlankValidLanguage = false, hasNonBlankValidCountry = false)
   }
 
-  test("isValid / isValidLanguage / isValidCountry - Manually Constructed Locales") {
+  test("isValid / hasNonBlankValidLanguage / hasNonBlankValidCountry - Manually Constructed Locales") {
     checkLocale(new Locale("en","US"))
     checkLocale(new Locale("en","US", "foo"))
 
-    checkLocale(new Locale("",""), isValid = false, isValidLanguage = false, isValidCountryOrIsBlankCountry = true, isValidCountry = false)
-    checkLocale(new Locale("","",""), isValid = false, isValidLanguage = false, isValidCountryOrIsBlankCountry = true, isValidCountry = false)
+    checkLocale(new Locale("",""), isValid = true, hasNonBlankValidLanguage = false, hasNonBlankValidCountry = false)
+    checkLocale(new Locale("","",""), isValid = true, hasNonBlankValidLanguage = false, hasNonBlankValidCountry = false)
   }
 
-  test("isValid / isValidLanguage / isValidCountry - Custom Tags") {
+  test("isValid / hasNonBlankValidLanguage / hasNonBlankValidCountry - Custom Tags") {
     checkTag("en-US") // Should be the same as Locale.US
 
-    checkTag("en", isValidCountry = false)
-    checkTag("de", isValidCountry = false)
-    checkTag("fr", isValidCountry = false)
+    checkTag("en", hasNonBlankValidCountry = false)
+    checkTag("de", hasNonBlankValidCountry = false)
+    checkTag("fr", hasNonBlankValidCountry = false)
 
-    checkTag("en-ZZ", isValid = false, isValidCountryOrIsBlankCountry = false, isValidCountry = false)
-    checkTag("de-ZZ", isValid = false, isValidCountryOrIsBlankCountry = false, isValidCountry = false)
-    checkTag("fr-ZZ", isValid = false, isValidCountryOrIsBlankCountry = false, isValidCountry = false)
+    checkTag("en-ZZ", isValid = false, hasNonBlankValidCountry = false)
+    checkTag("de-ZZ", isValid = false, hasNonBlankValidCountry = false)
+    checkTag("fr-ZZ", isValid = false, hasNonBlankValidCountry = false)
 
-    checkTag("zz-ZZ", isValid = false, isValidLanguage = false, isValidCountryOrIsBlankCountry = false, isValidCountry = false)
+    checkTag("zz-ZZ", isValid = false, hasNonBlankValidLanguage = false, hasNonBlankValidCountry = false)
   }
 
-  private def checkTag(tag: String, isValid: Boolean = true, isValidLanguage: Boolean = true, isValidCountryOrIsBlankCountry: Boolean = true, isValidCountry: Boolean = true): Unit = {
-    checkLocale(Locale.forLanguageTag(tag), isValid = isValid, isValidLanguage = isValidLanguage, isValidCountryOrIsBlankCountry = isValidCountryOrIsBlankCountry, isValidCountry = isValidCountry)
+  private def checkTag(tag: String, isValid: Boolean = true, hasNonBlankValidLanguage: Boolean = true, hasNonBlankValidCountry: Boolean = true): Unit = {
+    checkLocale(Locale.forLanguageTag(tag), isValid = isValid, hasNonBlankValidLanguage = hasNonBlankValidLanguage, hasNonBlankValidCountry = hasNonBlankValidCountry)
   }
 
-  private def checkLocale(locale: Locale, isValid: Boolean = true, isValidLanguage: Boolean = true, isValidCountryOrIsBlankCountry: Boolean = true, isValidCountry: Boolean = true): Unit = {
-    withClue(s"Locale: $locale   (Expected == Actual | isValid: $isValid == ${locale.isValid} | isValidLanguage: $isValidLanguage == ${locale.isValidLanguage} | isValidCountryOrIsBlankCountry: $isValidCountryOrIsBlankCountry == ${locale.isValidCountryOrIsBlankCountry} | isValidCountry: $isValidCountry == ${locale.isValidCountry})") {
+  private def checkLocale(locale: Locale, isValid: Boolean = true, hasNonBlankValidLanguage: Boolean = true, hasNonBlankValidCountry: Boolean = true): Unit = {
+    withClue(s"Locale: $locale   (Expected == Actual | isValid: $isValid == ${locale.isValid} | hasNonBlankValidLanguage: $hasNonBlankValidLanguage == ${locale.hasNonBlankValidLanguage} | hasNonBlankValidCountry: $hasNonBlankValidCountry == ${locale.hasNonBlankValidCountry})") {
       locale.isValid should equal (isValid)
-      locale.isValidLanguage should equal (isValidLanguage)
-      locale.isValidCountryOrIsBlankCountry should equal (isValidCountryOrIsBlankCountry)
-      locale.isValidCountry should equal (isValidCountry)
+      locale.hasNonBlankValidLanguage should equal (hasNonBlankValidLanguage)
+      locale.hasNonBlankValidCountry should equal (hasNonBlankValidCountry)
     }
   }
 
