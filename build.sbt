@@ -8,12 +8,13 @@ crossScalaVersions in ThisBuild := Seq("2.11.11", "2.12.2")
 
 lazy val `fm-common` = project.in(file(".")).
   aggregate(fmCommonJS, fmCommonJVM).
-  settings(
+  settings(FMPublic ++ Seq(
     publish := {},
     publishLocal := {},
     publishArtifact := false,
-    publishTo := Some(Resolver.file("Unused transient repository", file("target/unusedrepo"))) // http://stackoverflow.com/a/18522706
-  )
+    publishTo := Some(Resolver.file("Unused transient repository", file("target/unusedrepo"))), // http://stackoverflow.com/a/18522706
+    releaseCrossBuild := true // Make sure sbt-release performs cross builds
+  ))
   
 lazy val `fm-common-macros` = project.in(file("macro")).settings(
   publish := {},
@@ -24,7 +25,7 @@ lazy val `fm-common-macros` = project.in(file("macro")).settings(
 )
 
 lazy val `fm-common-` = crossProject.in(file(".")).
-  settings((FMPublic ++ Seq(
+  settings((FMPublic ++ Seq( // Note: FMPublic needs to be here for sbt-release to work
     name := "fm-common",
     description := "Common Scala classes that we use at Frugal Mechanic / Eluvio",
     scalacOptions := Seq(
