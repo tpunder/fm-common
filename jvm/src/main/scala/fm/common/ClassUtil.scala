@@ -101,7 +101,7 @@ object ClassUtil extends Logging {
   def classpathLastModified(file: String): Long = classpathLastModified(file, defaultClassLoader)
   
   /** Lookup the lastModified timestamp for a resource on the classpath */
-  def classpathLastModified(file: String, classLoader: ClassLoader): Long = classpathLastModified(file, classLoader)
+  def classpathLastModified(file: String, classLoader: ClassLoader): Long = classpathLastModified(new File(file), classLoader)
   
   /** Lookup the lastModified timestamp for a resource on the classpath */
   def classpathLastModified(file: File): Long = classpathLastModified(file, defaultClassLoader)
@@ -115,7 +115,7 @@ object ClassUtil extends Logging {
   def classpathContentLength(file: String): Long = classpathContentLength(file, defaultClassLoader)
   
   /** Lookup the legnth for a resource on the classpath */
-  def classpathContentLength(file: String, classLoader: ClassLoader): Long = classpathContentLength(file, classLoader)
+  def classpathContentLength(file: String, classLoader: ClassLoader): Long = classpathContentLength(new File(file), classLoader)
   
   /** Lookup the legnth for a resource on the classpath */
   def classpathContentLength(file: File): Long = classpathContentLength(file, defaultClassLoader)
