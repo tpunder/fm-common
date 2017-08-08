@@ -33,6 +33,12 @@ import scala.collection.JavaConverters._
  */
 object ClassUtil extends Logging {
 
+  // Note: The classpath separator is *ALWAYS* a / and should not be File.separator
+  // See:
+  //   https://www.atlassian.com/blog/archives/how_to_use_file_separator_when
+  //   http://docs.oracle.com/javase/8/docs/api/java/lang/ClassLoader.html#getResource-java.lang.String-
+  private def classpathSeparator: String = "/"
+
   /**
    * Check if a class is loaded
    */
@@ -127,7 +133,7 @@ object ClassUtil extends Logging {
   
   /** A helper for the above methods */
   private def withClasspathURL[T](file: File, classLoader: ClassLoader)(f: URL => T): Option[T] = {
-    val path: String = file.toResourcePath.stripLeading("/")
+    val path: String = file.toResourcePath.stripLeading(classpathSeparator)
     val urls: Vector[URL] = classLoader.getResources(path).asScala.toVector
     
     urls.headOption.map{ url: URL => f(url) }
@@ -201,7 +207,12 @@ object ClassUtil extends Logging {
    */
   def listClasspathFiles(basePackage: String, classLoader: ClassLoader = defaultClassLoader): Set[File] = {
     val packageDirPath: Path = new File(getPackageDirPath(basePackage)).toPath
-    findClasspathFiles(basePackage, classLoader).map{ _.toPath.subpath(0, packageDirPath.getNameCount() + 1).toFile }
+
+    // An empty Path("") will still return 1 for packageDirPath.getNameCount(), which will lead to an exception
+    // You can technically have a directory named " ", so using .isEmpty and not .isBlank
+    val subPathLength: Int = if (packageDirPath.toString.isEmpty) 1 else packageDirPath.getNameCount() + 1
+
+    findClasspathFiles(basePackage, classLoader).map{ _.toPath.subpath(0, subPathLength).toFile }
   }
   
   /**
@@ -212,16 +223,17 @@ object ClassUtil extends Logging {
     val urls: Set[URL] = classLoader.getResources(packageDirPath).asScala.toSet
     
     urls.flatMap { url: URL =>
+      val filePath: String = URLDecoder.decode(url.getFile(), "UTF-8")
+
       url.getProtocol() match {
-        case "jar" => 
-          val fullJarUrl: String = URLDecoder.decode(url.getFile(), "UTF-8")
-          val jarFile: String = fullJarUrl.substring("file:".length, fullJarUrl.indexOf("!"))
-          val jarPrefix: String = fullJarUrl.substring(fullJarUrl.indexOf("!") + 1)
-          require(jarPrefix == File.separator+packageDirPath, s"Expected jarPrefix ($jarPrefix) to equal package prefix ($packageDirPath)")
-          scanJar(packageDirPath+File.separator, new File(jarFile))
+        case "jar" =>
+          val jarFile: String = filePath.substring("file:".length, filePath.indexOf("!"))
+          val jarPrefix: String = filePath.substring(filePath.indexOf("!") + 1)
+          require(jarPrefix == classpathSeparator+packageDirPath, s"Expected jarPrefix ($jarPrefix) to equal package prefix ($classpathSeparator$packageDirPath)")
+          scanJar(packageDirPath+classpathSeparator, new File(jarFile))
           
-        case "file" => 
-          val packageDir: File = new File(url.getFile())
+        case "file" =>
+          val packageDir: File = new File(filePath)
           if (packageDir.isDirectory) recursiveListFiles(packageDir).map{ f: File => packageDir.toPath.relativize(f.toPath).toFile }.map{ f: File => new File(packageDirPath, f.toString) } else Nil
         
         case _ => 
@@ -243,8 +255,8 @@ object ClassUtil extends Logging {
   private def scanJar(prefix: String, jarFile: File): Set[File] = {
     require(jarFile.isFile, s"Missing jar file: $jarFile")
     if (prefix != "") {
-      require(!prefix.startsWith(File.separator), "Prefix should not starts with /")
-      require(prefix.endsWith(File.separator), "Non-Empty prefix should end with /")
+      require(!prefix.startsWith(classpathSeparator), s"Prefix should not starts with $classpathSeparator")
+      require(prefix.endsWith(classpathSeparator), s"Non-Empty prefix should end with $classpathSeparator")
     }
 
     val builder = Set.newBuilder[File]
@@ -259,7 +271,7 @@ object ClassUtil extends Logging {
     builder.result
   }
 
-  private def getPackageDirPath(basePackage: String): String = basePackage.stripLeading(File.separator).replace(".", File.separator)
+  private def getPackageDirPath(basePackage: String): String = basePackage.stripLeading(classpathSeparator).replace(".", classpathSeparator)
   
   private def defaultClassLoader: ClassLoader = {
     val cl: ClassLoader = Thread.currentThread.getContextClassLoader
