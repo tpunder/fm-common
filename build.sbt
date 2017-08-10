@@ -2,9 +2,9 @@
 // Note: fm-common is setup to cross build with Scala.js
 //
 
-scalaVersion in ThisBuild := "2.12.2"
+scalaVersion in ThisBuild := "2.12.3"
 
-crossScalaVersions in ThisBuild := Seq("2.11.11", "2.12.2")
+crossScalaVersions in ThisBuild := Seq("2.11.11", "2.12.3")
 
 lazy val `fm-common` = project.in(file(".")).
   aggregate(fmCommonJS, fmCommonJVM).
@@ -37,7 +37,8 @@ lazy val `fm-common-` = crossProject.in(file(".")).
       "-Ywarn-unused-import"
     ) ++ (if (scalaVersion.value.startsWith("2.12")) Seq(
       // Scala 2.12 specific compiler flags
-      "-opt:l:project"
+      "-opt:l:method,inline",
+      "-opt-inline-from:scala.Predef$:<sources>"
     ) else Nil),
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     EclipseKeys.useProjectId := true,
