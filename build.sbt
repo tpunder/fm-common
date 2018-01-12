@@ -2,9 +2,9 @@
 // Note: fm-common is setup to cross build with Scala.js
 //
 
-scalaVersion in ThisBuild := "2.12.3"
+scalaVersion in ThisBuild := "2.12.4"
 
-crossScalaVersions in ThisBuild := Seq("2.11.11", "2.12.3")
+crossScalaVersions in ThisBuild := Seq("2.11.11", "2.12.4")
 
 lazy val `fm-common` = project.in(file(".")).
   aggregate(fmCommonJS, fmCommonJVM).
@@ -37,17 +37,16 @@ lazy val `fm-common-` = crossProject.in(file(".")).
       "-Ywarn-unused-import"
     ) ++ (if (scalaVersion.value.startsWith("2.12")) Seq(
       // Scala 2.12 specific compiler flags
-      "-opt:l:method,inline",
-      "-opt-inline-from:scala.Predef$:<sources>"
+      "-opt:l:inline",
+      "-opt-inline-from:<sources>"
     ) else Nil),
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
-    EclipseKeys.useProjectId := true,
     // include the macro classes and resources in the main jar
     mappings in (Compile, packageBin) ++= { mappings in (`fm-common-macros`, Compile, packageBin) }.value,
     // include the macro sources in the main source jar
     mappings in (Compile, packageSrc) ++= { mappings in (`fm-common-macros`, Compile, packageSrc) }.value,
     
-    libraryDependencies += "org.scalatest" %%% "scalatest" % "3.0.1" % "provided,test"
+    libraryDependencies += "org.scalatest" %%% "scalatest" % "3.0.4" % "provided,test"
   )):_*).
   jvmSettings(Seq(
     // Add JVM-specific settings here
