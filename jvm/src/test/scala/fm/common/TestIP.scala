@@ -36,6 +36,7 @@ class TestIP extends FunSuite with Matchers {
   testIpConversions("65.249.66.235", 1106854635L, Array(65,249,66,235))
   testIpConversions("66.249.66.235", 1123631851L, Array(66,249,66,235))
 
+  testIpConversions("0.0.0.0", 0L, Array(0,0,0,0))
   testIpConversions("127.127.127.127", 2139062143L, Array(127,127,127,127))
   testIpConversions("126.127.128.129", 2122285185L, Array(126,127,128,129))
   testIpConversions("1.2.3.4", 16909060L, Array(1,2,3,4))
@@ -62,10 +63,19 @@ class TestIP extends FunSuite with Matchers {
     check("1.2.3", false)
     check("123.123.123", false)
 
+    check("0.0.0.0", true)
     check("1.1.1.1", true)
     check("123.123.123.123", true)
+    check("255.255.255.255", true)
     
     check("a.b.c.d", false)
+
+    check("256.256.256.256", false)
+    check("256256.256256.256256.256256", false)
+    check("256.1.2.3", false)
+    check("0.0.0.256", false)
+    check("-1.1.1.1", false)
+    check("1.1.1.-1", false)
   }
   
   test("findAllIPsIn") {
