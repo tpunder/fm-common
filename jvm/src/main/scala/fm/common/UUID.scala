@@ -1,3 +1,18 @@
+/*
+ * Copyright 2017 Frugal Mechanic (http://frugalmechanic.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package fm.common
 
 import java.lang.StringBuilder
@@ -24,7 +39,9 @@ object UUID {
   private def nextCounter(epochMilli: Long): Int = counter.getAndIncrement() & 0xffff
   
   implicit object ordering extends Ordering[UUID] { def compare(a: UUID, b: UUID): Int = a.compare(b) }
-  
+
+  val Zero: UUID = UUID(0L, 0L)
+
   def apply(): UUID = {
     // No Node Id Specified so we use a random negative Short
     
@@ -297,4 +314,6 @@ final case class UUID(timeAndCounter: Long, nodeIdAndRandom: Long) extends Order
   }
   
   def toJavaUUID: java.util.UUID = new java.util.UUID(timeAndCounter, nodeIdAndRandom)
+
+  def isZero: Boolean = timeAndCounter === 0L && nodeIdAndRandom === 0L
 }
