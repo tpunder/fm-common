@@ -19,7 +19,7 @@ import java.lang.StringBuilder
 import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.time.Instant
-import java.util.Date
+import java.util.{Arrays, Date}
 import java.util.concurrent.ThreadLocalRandom
 import java.util.concurrent.atomic.AtomicInteger
 import scala.math.Ordering
@@ -44,30 +44,40 @@ object UUID {
 
   def apply(): UUID = {
     // No Node Id Specified so we use a random negative Short
-    
-    // Get a random int between 0 (inclusive) and 32768 (exclusive)
-    val randomInt: Int = ThreadLocalRandom.current().nextInt(SignedShortMax)
-    
-    // Add one (we don't want zero as a value) and make it negative.
-    // This should give us a number between -32768 (inclusive) and -1 (inclusive) 
-    // which corresponds to the range of all negative Short values
-    val randomNodeId: Int = (randomInt + 1) * -1
-    
-    make(randomNodeId)
+    makeWithNodeId(makeRandomNodeId())
   }
   
   def apply(nodeId: Int): UUID = {
     if (nodeId < 0 || nodeId > 32767) throw new IllegalArgumentException("Invalid NodeId: '"+nodeId+"'. NodeId must be between 0 and 32767 (inclusive).")
-    make(nodeId)
+    makeWithNodeId(nodeId)
   }
-  
-  private def make(nodeId: Int): UUID = {
-    val epochMilli: Long = System.currentTimeMillis()
+
+  def apply(date: Date): UUID = forEpochMilli(date.getTime)
+  def apply(date: ImmutableDate): UUID = forEpochMilli(date.getTime)
+  def apply(instant: Instant): UUID = forEpochMilli(instant.toEpochMilli)
+
+  def forEpochMilli(epochMilli: Long): UUID = makeWithNodeIdAndEpochMilli(makeRandomNodeId(), epochMilli)
+
+  private def makeRandomNodeId(): Int = {
+    // Get a random int between 0 (inclusive) and 32768 (exclusive)
+    val randomInt: Int = ThreadLocalRandom.current().nextInt(SignedShortMax)
+
+    // Add one (we don't want zero as a value) and make it negative.
+    // This should give us a number between -32768 (inclusive) and -1 (inclusive)
+    // which corresponds to the range of all negative Short values
+    (randomInt + 1) * -1
+  }
+
+  private def makeWithNodeId(nodeId: Int): UUID = {
+    makeWithNodeIdAndEpochMilli(nodeId, System.currentTimeMillis())
+  }
+
+  private def makeWithNodeIdAndEpochMilli(nodeId: Int, epochMilli: Long): UUID = {
     val counter: Int = nextCounter(epochMilli)
     val random: Long = ThreadLocalRandom.current().nextLong(UnsignedSixByteMax + 1)
     apply(epochMilli, counter, nodeId, random)
   }
-  
+
   def apply(epochMilli: Long, counter: Int, nodeId: Int, random: Long): UUID = {
     checkUnsignedSixByteRange("epochMilli", epochMilli)
     checkUnsignedShortRange("counter", counter)
@@ -89,8 +99,28 @@ object UUID {
   }
   
   def apply(uuid: java.util.UUID): UUID = apply(uuid.getMostSignificantBits, uuid.getLeastSignificantBits)
-  
-  def apply(uuid: BigInteger): UUID = apply(uuid.toByteArray)
+
+  def apply(uuid: BigInt): UUID = apply(uuid.bigInteger)
+
+  def apply(uuid: BigInteger): UUID = {
+    val bytes: Array[Byte] = uuid.toByteArray()
+    require(bytes.length <= 16, "Not a UUID - Invalid Byte Array Length")
+
+    // If we have less than 16 bytes then we need to extend the byte array to be 16 bytes
+    val newBytes: Array[Byte] = if (bytes.length < 16) {
+      val tmp: Array[Byte] = new Array(16)
+
+      // If the BigInteger is negative then we need to fill in -1s in our array otherwise we use the default 0s
+      if (uuid.isNegative) Arrays.fill(tmp, -1.toByte)
+
+      System.arraycopy(bytes, 0, tmp, 16 - bytes.length, bytes.length)
+      tmp
+    } else {
+      bytes
+    }
+
+    apply(newBytes)
+  }
   
   def apply(uuid: String): UUID = {
     uuid.length match {
@@ -239,10 +269,13 @@ final case class UUID(timeAndCounter: Long, nodeIdAndRandom: Long) extends Order
   
   /** The java.time.Instant represented by the epochMilli */
   def instant: Instant = Instant.ofEpochMilli(epochMilli)
-  
+
+  /** The fm.common.ImmutableDate represented by the epochMilli */
+  def date: ImmutableDate = new ImmutableDate(epochMilli)
+
   /** The java.util.Date represented by the epochMilli */
-  def date: Date = new Date(epochMilli)
-  
+  def javaDate: Date = new Date(epochMilli)
+
   /** Is this UUID using a random node id? */
   def isRandomNodeId: Boolean = nodeId < 0
   

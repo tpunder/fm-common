@@ -15,6 +15,8 @@
  */
 package fm.common
 
+import java.time.Instant
+import java.util.Date
 import org.scalatest.{FunSuite, Matchers}
 
 final class TestUUID extends FunSuite with Matchers {
@@ -26,9 +28,20 @@ final class TestUUID extends FunSuite with Matchers {
     
     check(0, 0, Short.MinValue, 0)
     check(0xffffffffffffL, Short.MaxValue, Short.MaxValue, 0xffffffffffffL)
+    check(0xffffffffffffL, 0, 0, 0xffffffffffffL)
     
     check(123456789L, 30321, 12345, 987654321L)
     check(123456789L, 30321, -12345, 987654321L)
+
+    check(UUID.Zero)
+    check(UUID(0, Long.MaxValue))
+    check(UUID(0, Long.MinValue))
+    check(UUID(Long.MaxValue, 0))
+    check(UUID(Long.MinValue, 0))
+    check(UUID(Long.MaxValue, Long.MaxValue))
+    check(UUID(Long.MinValue, Long.MinValue))
+    check(UUID(Long.MaxValue, Long.MinValue))
+    check(UUID(Long.MinValue, Long.MaxValue))
   }
   
   test("Invalid Timestamp Values") {
@@ -58,35 +71,61 @@ final class TestUUID extends FunSuite with Matchers {
     checkInvalidArgument(123, 456, 789, Long.MinValue)
     checkInvalidArgument(123, 456, 789, Long.MaxValue)
   }
+
+  test("checkEpochMilli") {
+    checkEpochMilli(0L) // Min Value
+    checkEpochMilli(281474976710655L) // Max 6-byte value
+    checkEpochMilli(System.currentTimeMillis())
+  }
   
   test("Random Values") {
     (0 until 1000000).foreach{ i => checkRandom() }
   }
-  
-  private def checkRandom(): Unit = {
-    val uuid: UUID = UUID()
+
+  private def checkRandom(): Unit = check(UUID())
+
+  private def check(uuid: UUID): Unit = {
     check(uuid.epochMilli, uuid.counter, uuid.nodeId, uuid.random, uuid)
+  }
+
+  private def checkEpochMilli(epochMilli: Long): Unit = TestHelpers.withCallerInfo {
+    checkEpochMilli(epochMilli, UUID.forEpochMilli(epochMilli))
+    checkEpochMilli(epochMilli, UUID(ImmutableDate(epochMilli)))
+    checkEpochMilli(epochMilli, UUID(new Date(epochMilli)))
+    checkEpochMilli(epochMilli, UUID(Instant.ofEpochMilli(epochMilli)))
+  }
+
+  private def checkEpochMilli(epochMilli: Long, uuid: UUID): Unit = TestHelpers.withCallerInfo {
+    // Note: We pass in the original epochMilli into this since that is what we want to check
+    check(epochMilli, uuid.counter, uuid.nodeId, uuid.random)
   }
   
   private def check(epochMilli: Long, counter: Int, nodeId: Int, random: Long): Unit = TestHelpers.withCallerInfo {
+    def go(uuidToCheck: UUID): Unit = check(epochMilli, counter, nodeId, random, uuidToCheck)
+
     val uuid: UUID = UUID(epochMilli, counter, nodeId, random)
-    check(epochMilli, counter, nodeId, random, uuid)
-    check(epochMilli, counter, nodeId, random, UUID(uuid.toHex))
-    check(epochMilli, counter, nodeId, random, UUID(uuid.toBase64))
-    check(epochMilli, counter, nodeId, random, UUID(uuid.toBase64NoPadding))
-    check(epochMilli, counter, nodeId, random, UUID(uuid.toBase64URL))
-    check(epochMilli, counter, nodeId, random, UUID(uuid.toBase64URLNoPadding))
-    check(epochMilli, counter, nodeId, random, UUID(uuid.toPrettyString))
-    check(epochMilli, counter, nodeId, random, UUID(uuid.toPrettyString('_')))
-    check(epochMilli, counter, nodeId, random, UUID(uuid.toPrettyString(':')))
-    check(epochMilli, counter, nodeId, random, UUID(uuid.toPrettyString('?')))
-    check(epochMilli, counter, nodeId, random, UUID(uuid.toStandardString))
-    check(epochMilli, counter, nodeId, random, UUID(uuid.toStandardString('_')))
-    check(epochMilli, counter, nodeId, random, UUID(uuid.toStandardString(':')))
-    check(epochMilli, counter, nodeId, random, UUID(uuid.toStandardString('?')))
-    check(epochMilli, counter, nodeId, random, UUID(uuid.toString))
-    check(epochMilli, counter, nodeId, random, UUID(uuid.toJavaUUID))
-    check(epochMilli, counter, nodeId, random, UUID(uuid.toJavaUUID.toString))
+
+    go(uuid)
+    go(UUID(uuid.toByteArray()))
+    go(UUID(uuid.toBigInt))
+    go(UUID(uuid.toBigInteger))
+    go(UUID(uuid.toHex))
+    go(UUID(uuid.toBase16))
+    go(UUID(uuid.toBase64))
+    go(UUID(uuid.toBase64NoPadding))
+    go(UUID(uuid.toBase64URL))
+    go(UUID(uuid.toBase64URLNoPadding))
+    go(UUID(uuid.toPrettyString))
+    go(UUID(uuid.toPrettyString('_')))
+    go(UUID(uuid.toPrettyString(':')))
+    go(UUID(uuid.toPrettyString('?')))
+    go(UUID(uuid.toStandardString))
+    go(UUID(uuid.toStandardString('_')))
+    go(UUID(uuid.toStandardString(':')))
+    go(UUID(uuid.toStandardString('?')))
+    go(UUID(uuid.toString))
+    go(UUID(uuid.toJavaUUID))
+    go(UUID(uuid.toJavaUUID.toString))
   }
   
   private def check(epochMilli: Long, counter: Int, nodeId: Int, random: Long, uuid: UUID): Unit = TestHelpers.withCallerInfo {
