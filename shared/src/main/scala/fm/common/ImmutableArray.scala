@@ -97,7 +97,12 @@ final class ImmutableArrayBuilder[@specialized A: ClassTag] (initialSize: Int) e
   private var capacity: Int = arr.length
   private var length: Int = 0
   @volatile private var done: Boolean = false
-  
+
+  /**
+   * The number of items that have been added to this builder
+   */
+  def size: Int = length
+
   def +=(elem: A): this.type = {
     assert(!done, "Trying to add to an already closed ImmutableArrayBuilder")
     ensureCapacity(length + 1)
