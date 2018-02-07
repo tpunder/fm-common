@@ -15,6 +15,8 @@
  */
 package fm.common
 
+import java.time.Instant
+import java.util.Date
 import scala.math.Ordering
 
 /**
@@ -29,6 +31,12 @@ abstract class UUIDFactory[T <: UUIDWrapper[T]](create: UUID => T) {
 
   // Note: This gets overridden if you use a case class
   def apply(uuid: UUID): T = create(uuid)
+
+  def apply(uuid: Date): T = create(UUID(uuid))
+  def apply(uuid: ImmutableDate): T = create(UUID(uuid))
+  def apply(uuid: Instant): T = create(UUID(uuid))
+
+  def forEpochMilli(epochMilli: Long): T = create(UUID.forEpochMilli(epochMilli))
 
   final def apply(uuid: String): T = create(UUID(uuid))
   final def get(uuid: String): Option[T] = if (UUID.isValid(uuid)) Some(apply(uuid)) else None
