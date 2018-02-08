@@ -46,4 +46,32 @@ final class TestBitUtils extends FunSuite with Matchers {
     checkLong(-1, 1, -4294967295L)
     checkLong(1, -1, 8589934591L)
   }
+
+
+  private def checkInt(a: Short, b: Short, res: Int): Unit = TestHelpers.withCallerInfo{
+    BitUtils.makeInt(a, b) should equal (res)
+    BitUtils.getUpper(res) should equal (a)
+    BitUtils.getLower(res) should equal (b)
+    BitUtils.splitInt(res) should equal ((a, b))
+  }
+
+  test("makeInt") {
+    checkInt(0, 0, 0)
+    checkInt(Short.MinValue, Short.MinValue, -2147450880)
+    checkInt(Short.MaxValue, Short.MaxValue, 2147450879)
+
+    checkInt(Short.MinValue, Short.MaxValue, -2147450881)
+    checkInt(Short.MaxValue, Short.MinValue, 2147450880)
+
+    checkInt(0, Short.MinValue, 32768)
+    checkInt(0, Short.MaxValue, 32767)
+
+    checkInt(Short.MinValue, 0, -2147483648)
+    checkInt(Short.MaxValue, 0, 2147418112)
+
+    checkInt(1, 1, 65537)
+    checkInt(-1, -1, -1)
+    checkInt(-1, 1, -65535)
+    checkInt(1, -1, 131071)
+  }
 }

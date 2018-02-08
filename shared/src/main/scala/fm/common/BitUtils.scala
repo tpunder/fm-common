@@ -23,19 +23,37 @@ object BitUtils {
    * [a - upper 32 bits][b - lower 32 bits]
    */
   def makeLong(a: Int, b: Int): Long = ((a: Long) << 32) | (b & 0xffffffffL)
+
+  def makeInt(a: Short, b: Short): Int = ((a: Int) << 16) | (b & 0xffff)
   
   /**
    * Split a long into 2 ints (the reverse of makeLong())
    */
   def splitLong(long: Long): (Int, Int) = (getUpper(long), getLower(long))
+
+  /**
+   * Split an int into 2 shorts (the reverse of makeInt())
+   */
+  def splitInt(int: Int): (Short, Short) = (getUpper(int), getLower(int))
   
   /**
    * Get the upper 32 bits of the long
    */
   def getUpper(long: Long): Int = (long >> 32).toInt
-  
+
+  /**
+   * Get the upper 16 bits of the int
+   */
+  def getUpper(int: Int): Short = (int >> 16).toShort
+
   /**
    * Get the lower 32 bits of the long
    */
   def getLower(long: Long): Int = long.toInt
+
+  /**
+   * Get the lower 16 bits of the int
+   */
+  def getLower(int: Int): Short = int.toShort
+
 }
