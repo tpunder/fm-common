@@ -40,13 +40,37 @@ object UUID {
   
   implicit object ordering extends Ordering[UUID] { def compare(a: UUID, b: UUID): Int = a.compare(b) }
 
+  /** 000000000000-0000-0000-000000000000 */
   val Zero: UUID = UUID(0L, 0L)
 
+  /** ffffffffffff-ffff-ffff-ffffffffffff */
+  val UnsignedMaxValue: UUID = UUID(-1L, -1L)
+
+  /** 7fffffffffff-ffff-7fff-ffffffffffff */
+  val SignedMaxValue: UUID = UUID(Long.MaxValue, Long.MaxValue)
+
+  /** 800000000000-0000-8000-000000000000 */
+  val SignedMinValue: UUID = UUID(Long.MinValue, Long.MinValue)
+
+  /**
+   * Creates a completely random UUID
+   */
+  def random(): UUID = {
+    val random: ThreadLocalRandom = ThreadLocalRandom.current()
+    UUID(random.nextLong(), random.nextLong())
+  }
+
+  /**
+   * Creates a new UUID based on the current time with a random node id
+   */
   def apply(): UUID = {
     // No Node Id Specified so we use a random negative Short
     makeWithNodeId(makeRandomNodeId())
   }
-  
+
+  /**
+   * Creates a new UUID based on the current time with the given node id
+   */
   def apply(nodeId: Int): UUID = {
     if (nodeId < 0 || nodeId > 32767) throw new IllegalArgumentException("Invalid NodeId: '"+nodeId+"'. NodeId must be between 0 and 32767 (inclusive).")
     makeWithNodeId(nodeId)
@@ -291,7 +315,9 @@ final case class UUID(timeAndCounter: Long, nodeIdAndRandom: Long) extends Order
   
   def toHex(): String = Base16.encode(toByteArray)
   def toBase16(): String = Base16.encode(toByteArray)
-  
+
+  def toBase58(): String = Base58.encode(toByteArray)
+
   def toBase64(): String = Base64Strict.encode(toByteArray)
   def toBase64NoPadding(): String = Base64Strict.encodeNoPadding(toByteArray)
   def toBase64URL(): String = Base64URL.encode(toByteArray)
@@ -349,4 +375,7 @@ final case class UUID(timeAndCounter: Long, nodeIdAndRandom: Long) extends Order
   def toJavaUUID: java.util.UUID = new java.util.UUID(timeAndCounter, nodeIdAndRandom)
 
   def isZero: Boolean = timeAndCounter === 0L && nodeIdAndRandom === 0L
+  def isUnsignedMaxValue: Boolean = timeAndCounter === -1L && nodeIdAndRandom === -1L
+  def isSignedMinValue: Boolean = timeAndCounter === Long.MinValue && nodeIdAndRandom === Long.MinValue
+  def isSignedMaxValue: Boolean = timeAndCounter === Long.MaxValue && nodeIdAndRandom === Long.MaxValue
 }

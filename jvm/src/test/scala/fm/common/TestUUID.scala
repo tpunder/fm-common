@@ -20,6 +20,22 @@ import java.util.Date
 import org.scalatest.{FunSuite, Matchers}
 
 final class TestUUID extends FunSuite with Matchers {
+  test("UUID.Zero") {
+    checkSpecial(UUID(0L, 0L), UUID.Zero, _.isZero)
+  }
+
+  test("UUID.UnsignedMaxValue") {
+    checkSpecial(UUID(-1L, -1L), UUID.UnsignedMaxValue, _.isUnsignedMaxValue)
+  }
+
+  test("UUID.SignedMaxValue") {
+    checkSpecial(UUID(Long.MinValue, Long.MinValue), UUID.SignedMinValue, _.isSignedMinValue)
+  }
+
+  test("UUID.SignedMinValue") {
+    checkSpecial(UUID(Long.MaxValue, Long.MaxValue), UUID.SignedMaxValue, _.isSignedMaxValue)
+  }
+
   test("Encoding/Decoding") {
     check(0, 0, 0, 0)
     check(1, 1, 1, 1)
@@ -83,6 +99,13 @@ final class TestUUID extends FunSuite with Matchers {
   }
 
   private def checkRandom(): Unit = check(UUID())
+
+  private def checkSpecial(value: UUID, expected: UUID, isSpecial: UUID => Boolean): Unit = {
+    check(value)
+    value should equal (expected)
+    isSpecial(expected) should equal (true)
+    isSpecial(value) should equal (true)
+  }
 
   private def check(uuid: UUID): Unit = {
     check(uuid.epochMilli, uuid.counter, uuid.nodeId, uuid.random, uuid)
