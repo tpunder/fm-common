@@ -18,16 +18,16 @@ package fm.common
 /**
  * Deprecated.  Prefer the fm.common.Base16 object
  */
-object Hex {
+@Deprecated object Hex {
   /** Converts an array of characters representing hexadecimal values into an array of bytes of those same values. */
-  def decodeHex(data: Array[Char]): Array[Byte] = Base16.decode(data)
+  @Deprecated def decodeHex(data: Array[Char]): Array[Byte] = Base16.decode(data)
   
   /** Converts an array of bytes into an array of characters representing the hexadecimal values of each byte in order. */
-  def encodeHex(data: Array[Byte]): Array[Char] = Base16.encode(data).toCharArray
+  @Deprecated def encodeHex(data: Array[Byte]): Array[Char] = Base16.encode(data).toCharArray
   
   /** Converts an array of bytes into an array of characters representing the hexadecimal values of each byte in order.*/
-  def encodeHex(data: Array[Byte], toLowerCase: Boolean): Array[Char] = if (toLowerCase) Base16.encode(data).toCharArray else Base16.encodeUpper(data).toCharArray
+  @Deprecated def encodeHex(data: Array[Byte], toLowerCase: Boolean): Array[Char] = if (toLowerCase) Base16.encode(data).toCharArray else Base16.encodeUpper(data).toCharArray
   
   /** Converts an array of bytes into a String representing the hexadecimal values of each byte in order. */
-  def encodeHexString(data: Array[Byte]): String = Base16.encode(data)
+  @Deprecated def encodeHexString(data: Array[Byte]): String = Base16.encode(data)
 }

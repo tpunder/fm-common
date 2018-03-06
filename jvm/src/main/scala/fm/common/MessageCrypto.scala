@@ -77,7 +77,7 @@ final class MessageCrypto(key: Array[Byte], json: Boolean = false) {
     }
   }
 
-  def hexHmac(msg: String): String = new String(Hex.encodeHex(hmac(msg.getBytes(UTF_8))))
+  def hexHmac(msg: String): String = new String(Base16.encode(hmac(msg.getBytes(UTF_8))))
 
   private def hmac(data: Array[Byte]): Array[Byte] = crypto.mac(data)
 

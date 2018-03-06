@@ -271,7 +271,7 @@ final class Crypto private (key: Array[Byte], cipher: Crypto.Cipher) extends Log
   def macHex(data: String): String = macHex(data.getBytes(UTF_8))
   
   /** The Hex Encoded MAC for an array of bytes */
-  def macHex(data: Array[Byte]): String = new String(Hex.encodeHex(mac(data)))
+  def macHex(data: Array[Byte]): String = new String(Base16.encode(mac(data)))
    
   /** Calculate the MAC for an array of bytes */
   def mac(data: Array[Byte]): Array[Byte] = mac.synchronized {
