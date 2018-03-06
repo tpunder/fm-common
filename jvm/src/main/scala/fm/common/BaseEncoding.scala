@@ -222,7 +222,7 @@ object BaseEncoding {
   }
 }
 
-sealed trait BaseEncoding {
+trait BaseEncoding {
   final protected def exceptionHandler: PartialFunction[Throwable,Nothing] = BaseEncoding.exceptionHandler
   
   def decode(data: Array[Char]): Array[Byte]
