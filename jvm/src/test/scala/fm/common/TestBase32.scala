@@ -49,14 +49,12 @@ final class TestBase32 extends FunSuite with Matchers {
     
     Base32.decode(encodedNoPadding) should equal (bytes)
     Base32.decode(encodedNoPadding.toCharArray) should equal (bytes)
-    Base32.decode(encodedNoPadding.toCharArray) should equal (bytes)
-    
+
     // def decode(data: Array[Char])
     Base32.decode(encoded.toCharArray) should equal (bytes)
     Base32.decode(encoded.toLowerCase.toCharArray) should equal (bytes)
     Base32.decode(encoded.toUpperCase.toCharArray) should equal (bytes)
-    
-    Base32.decode(encodedNoPadding.toCharArray) should equal (bytes)
+
     Base32.decode(encodedNoPadding.toLowerCase.toCharArray) should equal (bytes)
     Base32.decode(encodedNoPadding.toUpperCase.toCharArray) should equal (bytes)
   }
