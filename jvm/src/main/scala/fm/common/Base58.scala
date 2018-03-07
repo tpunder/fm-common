@@ -63,6 +63,33 @@ object Base58 extends BaseEncoding {
     arr
   }
 
+  def main(args: Array[String]): Unit = {
+    def go(iter: Int): String = {
+      var res: Long = 0
+      var i: Int = 0
+      while (i < iter) {
+        val base58: String = UUID().toBase58()
+        res += Base58.decode(base58).length
+        //res += UUID().toBase58.length
+        i += 1
+      }
+
+      res.toString
+    }
+
+    def benchmark(iter: Int): Unit = {
+      val (time: Long, res: String) = Util.time{ go(iter) }
+
+      println(s"ENCODING - Res: $res  Time (ms): $time  ops/ms: ${iter.toDouble/time.toDouble}  ms/op: ${time.toDouble/iter.toDouble}")
+    }
+
+    // Warmup
+    go(1000000)
+
+    // Actual run
+    benchmark(1000000)
+  }
+
   def encode(bytes: Array[Byte], offset: Int, length: Int): String = {
     encodeImpl(Arrays.copyOfRange(bytes, offset, offset + length))
   }
@@ -95,11 +122,8 @@ object Base58 extends BaseEncoding {
 
     while (inputStart < input.length) {
       outputStart -= 1
-
-      encoded(outputStart) = ALPHABET(divmod(input, inputStart, 256, ALPHABET.length))
-      if (input(inputStart) == 0) {
-        inputStart += 1
-      }
+      encoded(outputStart) = ALPHABET(divmodForEncode(input, inputStart))
+      if (input(inputStart) == 0) inputStart += 1
     }
 
     // Preserve exactly as many leading encoded zeros in output as there were leading zeros in input.
@@ -194,10 +218,8 @@ object Base58 extends BaseEncoding {
 
     while (inputStart < input58.length) {
       outputStart -= 1
-      decoded(outputStart) = divmod(input58, inputStart, ALPHABET.length, 256)
-      if (input58(inputStart) == 0) {
-        inputStart += 1 // optimization - skip leading zeros
-      }
+      decoded(outputStart) = divmodForDecode(input58, inputStart)
+      if (input58(inputStart) == 0) inputStart += 1 // optimization - skip leading zeros
     }
     // Ignore extra leading zeroes that were added during the calculation.
     while (outputStart < decoded.length && decoded(outputStart) == 0) {
@@ -226,18 +248,11 @@ object Base58 extends BaseEncoding {
   }
 
   /**
-   * Divides a number, represented as an array of bytes each containing a single digit
-   * in the specified base, by the given divisor. The given number is modified in-place
-   * to contain the quotient, and the return value is the remainder.
+   * See Commented out JavaDocs for the original divmod method.
    *
-   * @param number the number to divide
-   * @param firstDigit the index within the array of the first non-zero digit
-   *        (this is used for optimization by skipping the leading zeros)
-   * @param base the base in which the number's digits are represented (up to 256)
-   * @param divisor the number to divide by (up to 256)
-   * @return the remainder of the division operation
+   * This has hardcoded values of base=256 and divisor=58 which almost doubles performance of the method
    */
-  private def divmod(number: Array[Byte], firstDigit: Int, base: Int, divisor: Int): Byte = {
+  private def divmodForEncode(number: Array[Byte], firstDigit: Int): Byte = {
     // this is just long division which accounts for the base of the input digits
     var remainder: Int = 0
 
@@ -245,14 +260,65 @@ object Base58 extends BaseEncoding {
 
     while (i < number.length) {
       val digit: Int = number(i) & 0xFF
-      val temp: Int = remainder * base + digit
-      number(i) = (temp / divisor).toByte
-      remainder = temp % divisor
+      val temp: Int = remainder * 256 + digit
+      number(i) = (temp / 58).toByte
+      remainder = temp % 58
       i += 1
     }
 
     remainder.toByte
   }
+
+  /**
+   * See Commented out JavaDocs for the original divmod method.
+   *
+   * This has hardcoded values of base=58 and divisor=256 which almost doubles performance of the method
+   */
+  private def divmodForDecode(number: Array[Byte], firstDigit: Int): Byte = {
+    // this is just long division which accounts for the base of the input digits
+    var remainder: Int = 0
+
+    var i: Int = firstDigit
+
+    while (i < number.length) {
+      val digit: Int = number(i) & 0xFF
+      val temp: Int = remainder * 58 + digit
+      number(i) = (temp / 256).toByte
+      remainder = temp % 256
+      i += 1
+    }
+
+    remainder.toByte
+  }
+
+//  /**
+//   * Divides a number, represented as an array of bytes each containing a single digit
+//   * in the specified base, by the given divisor. The given number is modified in-place
+//   * to contain the quotient, and the return value is the remainder.
+//   *
+//   * @param number the number to divide
+//   * @param firstDigit the index within the array of the first non-zero digit
+//   *        (this is used for optimization by skipping the leading zeros)
+//   * @param base the base in which the number's digits are represented (up to 256)
+//   * @param divisor the number to divide by (up to 256)
+//   * @return the remainder of the division operation
+//   */
+//  private def divmod(number: Array[Byte], firstDigit: Int, base: Int, divisor: Int): Byte = {
+//    // this is just long division which accounts for the base of the input digits
+//    var remainder: Int = 0
+//
+//    var i: Int = firstDigit
+//
+//    while (i < number.length) {
+//      val digit: Int = number(i) & 0xFF
+//      val temp: Int = remainder * base + digit
+//      number(i) = (temp / divisor).toByte
+//      remainder = temp % divisor
+//      i += 1
+//    }
+//
+//    remainder.toByte
+//  }
 
   private def hashTwice(input: Array[Byte], offset: Int, length: Int): Array[Byte] = {
     hashTwice(Arrays.copyOfRange(input, offset, offset + length))
