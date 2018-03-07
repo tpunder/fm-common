@@ -147,6 +147,12 @@ object UUID {
   }
   
   def apply(uuid: String): UUID = {
+    // Note: If the UUID looks like Base58 then we go with that.  In some cases this will conflict with Base64 encoded
+    //       with no padding.  Specifically when length in 22 and all characters look like valid Base58 we will treat
+    //       it as Base58 and not as Base64.  I'm tempted to remove any Base64 references in UUID to discourage use of
+    //       it as a way to serialize the UUID.
+    if (mightBeBase58(uuid)) return apply(Base58.decode(uuid))
+
     uuid.length match {
       // Base 64: AVJHfgdafGqJBjASSLG0GQ==, AVJHfgdafGqJBjASSLG0GQ=, AVJHfgdafGqJBjASSLG0GQ
       case 22 | 23 | 24 =>
@@ -178,6 +184,29 @@ object UUID {
         
       case _ => throw new IllegalArgumentException("Invalid UUID")
     }
+  }
+
+  private def mightBeBase58(uuid: String): Boolean = !isNotBase58(uuid)
+
+  private def isNotBase58(uuid: String): Boolean = {
+    if (uuid.length < 11 || uuid.length > 22) return true
+
+    var i: Int = 0
+
+    while (i < uuid.length) {
+      val hasIllegalChar: Boolean = uuid.charAt(i) match {
+        case '0' | 'O' | 'I' | 'l' => true // Alpha Chars omitted from Base58
+        case '/' | '+' | '_' | '-' => true // Special Chars omitted from Base58
+        case '='                   => true // Padding char (not used in Base 58)
+        case _                     => false
+      }
+
+      if (hasIllegalChar) return true
+
+      i += 1
+    }
+
+    false
   }
   
   /**
@@ -302,7 +331,11 @@ final case class UUID(timeAndCounter: Long, nodeIdAndRandom: Long) extends Order
 
   /** Is this UUID using a random node id? */
   def isRandomNodeId: Boolean = nodeId < 0
-  
+
+  def toImmutableByteArray(): ImmutableArray[Byte] = {
+    ImmutableArray.wrap(toByteArray())
+  }
+
   def toByteArray(): Array[Byte] = {
     val buf: ByteBuffer = ByteBuffer.allocate(16)
     buf.putLong(timeAndCounter)
