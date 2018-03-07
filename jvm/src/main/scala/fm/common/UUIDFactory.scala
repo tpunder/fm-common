@@ -26,6 +26,9 @@ import scala.math.Ordering
  */
 abstract class UUIDFactory[T <: UUIDWrapper[T]](create: UUID => T) {
   final val Zero: T = create(UUID.Zero)
+  final val UnsignedMaxValue: T = create(UUID.UnsignedMaxValue)
+  final val SignedMaxValue: T = create(UUID.SignedMaxValue)
+  final val SignedMinValue: T = create(UUID.SignedMinValue)
 
   final def apply(): T = create(UUID())
 
@@ -35,6 +38,9 @@ abstract class UUIDFactory[T <: UUIDWrapper[T]](create: UUID => T) {
   def apply(uuid: Date): T = create(UUID(uuid))
   def apply(uuid: ImmutableDate): T = create(UUID(uuid))
   def apply(uuid: Instant): T = create(UUID(uuid))
+
+  def apply(bytes: ImmutableArray[Byte]): T = create(UUID(bytes))
+  def apply(bytes: Array[Byte]): T = create(UUID(bytes))
 
   def forEpochMilli(epochMilli: Long): T = create(UUID.forEpochMilli(epochMilli))
 
