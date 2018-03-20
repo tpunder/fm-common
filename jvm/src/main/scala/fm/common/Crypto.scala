@@ -187,13 +187,19 @@ final class Crypto private (key: Array[Byte], cipher: Crypto.Cipher) extends Log
   }
   
   def encryptBase64String(plaintext: String): String = encryptBase64String(plaintext, urlSafe = false)
+
+  def encryptBase64(bytes: Array[Byte]): String = encryptBase64(bytes, urlSafe = false)
   
   def encryptBase64StringURLSafe(plaintext: String): String = encryptBase64String(plaintext, urlSafe = true)
+
+  def encryptBase64URLSafe(bytes: Array[Byte]): String = encryptBase64(bytes, urlSafe = true)
   
-  def encryptBase64String(plaintext: String, urlSafe: Boolean): String = {
-    Base64.encodeBytes(encrypt(plaintext.getBytes(UTF_8)), if (urlSafe) Base64.URL_SAFE else Base64.NO_OPTIONS)
+  def encryptBase64String(plaintext: String, urlSafe: Boolean): String = encryptBase64(plaintext.getBytes(UTF_8), urlSafe)
+
+  def encryptBase64(bytes: Array[Byte], urlSafe: Boolean): String = {
+    Base64.encodeBytes(encrypt(bytes), if (urlSafe) Base64.URL_SAFE else Base64.NO_OPTIONS)
   }
-  
+
   /** Encrypt bytes returning the iv and ciphertext combined into a single byte array (iv followed by the cipher text) */
   def encrypt(plaintext: Array[Byte]): Array[Byte] = {
     val (iv, ciphertext) = encryptRaw(plaintext)
@@ -227,11 +233,16 @@ final class Crypto private (key: Array[Byte], cipher: Crypto.Cipher) extends Log
   def tryDecrypt(ivAndCiphertext: Array[Byte]): Option[Array[Byte]] = tryWrap{ decrypt(ivAndCiphertext) }
   
   def tryDecrypt(iv: Array[Byte], ciphertext: Array[Byte]): Option[Array[Byte]] = tryWrap{ decrypt(iv, ciphertext) }
-  
+
+  /** Decrypt a string encrypted using encryptBase64() */
+  def decryptBase64(base64IvAndCiphertext: String): Array[Byte] = {
+    require(null != base64IvAndCiphertext, "Null base64IvAndCiphertext parameter")
+    decrypt(base64Decode(base64IvAndCiphertext))
+  }
+
   /** Decrypt a string encrypted using encryptBase64String() */
   def decryptBase64String(base64IvAndCiphertext: String): String = {
-    require(null != base64IvAndCiphertext, "Null base64IvAndCiphertext parameter")
-    val plaintextBytes: Array[Byte] = decrypt(base64Decode(base64IvAndCiphertext))
+    val plaintextBytes: Array[Byte] = decryptBase64(base64IvAndCiphertext)
     new String(plaintextBytes, UTF_8)
   }
 
