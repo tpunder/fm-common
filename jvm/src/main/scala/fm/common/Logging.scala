@@ -17,6 +17,7 @@ package fm.common
 
 import java.io.{File, OutputStream, PrintStream}
 import ch.qos.logback.classic.{Level => LogbackLevel, Logger => LogbackLogger}
+import org.slf4j.Logger.ROOT_LOGGER_NAME
 
 /**
  * This can be extended for basic logging functionality
@@ -41,6 +42,18 @@ object Logging {
   def setLevelToInfo(logger: AnyRef):  Unit = setLevel(logger, LogbackLevel.INFO)
   def setLevelToWarn(logger: AnyRef):  Unit = setLevel(logger, LogbackLevel.WARN)
   def setLevelToError(logger: AnyRef): Unit = setLevel(logger, LogbackLevel.ERROR)
+  def setLevelToOff(logger: AnyRef): Unit = setLevel(logger, LogbackLevel.OFF)
+
+  // Set the ROOT logger
+  def setRootLevelToTrace(): Unit = setRootLevel(LogbackLevel.TRACE)
+  def setRootLevelToDebug(): Unit = setRootLevel(LogbackLevel.DEBUG)
+  def setRootLevelToInfo():  Unit = setRootLevel(LogbackLevel.INFO)
+  def setRootLevelToWarn():  Unit = setRootLevel(LogbackLevel.WARN)
+  def setRootLevelToError(): Unit = setRootLevel(LogbackLevel.ERROR)
+  def setRootLevelToOff(): Unit = setRootLevel(LogbackLevel.OFF)
+
+  // Set the ROOT logger
+  def setRootLevel(level: LogbackLevel): Unit = setLevel(ROOT_LOGGER_NAME, level)
 
   // Private to avoid exposing LogbackLevel which causes ProGuard issues
   private def setLevel(logger: AnyRef, level: LogbackLevel): Unit = setLevel(Logger.SLF4JLogger(logger).underlying, level)
