@@ -15,6 +15,8 @@
  */
 package fm.common
 
-class StacklessException(msg: String = "") extends Exception(msg) {
+class StacklessException(msg: String) extends Exception(msg) {
+  def this() = this(null)
+
   override def fillInStackTrace: Throwable = this
 }

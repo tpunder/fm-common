@@ -15,6 +15,8 @@
  */
 package fm.common
 
-class StacklessThrowable(msg: String = "") extends Throwable(msg) {
+class StacklessThrowable(msg: String) extends Throwable(msg) {
+  def this() = this(null)
+
   override def fillInStackTrace: Throwable = this
 }
