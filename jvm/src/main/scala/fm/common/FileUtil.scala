@@ -30,28 +30,34 @@ object FileUtil extends Logging {
   def detectCharsetName(f: File): Option[String] = InputStreamResource.forFileOrResource(f).detectCharsetName()
 
   def getDirectoryForFile(f: File): File = {
-    val tmp = if(f.isDirectory) f else f.getParentFile
+    val tmp: File = if (f.isDirectory) f else f.getParentFile
     assert(tmp.isDirectory)
     tmp
   }
 
-  def writeRawFile(f: File, overwrite: Boolean)(fun: OutputStream => Unit): Unit = FileOutputStreamResource(f, overwrite = overwrite, autoCompress = false).use(fun)
+  def writeRawFile(f: File, overwrite: Boolean)(fun: OutputStream => Unit): Unit = {
+    FileOutputStreamResource(f, overwrite = overwrite, autoCompress = false).use(fun)
+  }
   
-  def writeRawFile(f: File, is: InputStream, overwrite: Boolean): Unit = writeRawFile(f, overwrite){ os =>
+  def writeRawFile(f: File, is: InputStream, overwrite: Boolean): Unit = writeRawFile(f, overwrite){ os: OutputStream =>
     IOUtils.copy(is, os)
   }
   
-  def writeFile[T](f: File, overwrite: Boolean)(fun: OutputStream => T): T = FileOutputStreamResource(f, overwrite = overwrite).use(fun)
+  def writeFile[T](f: File, overwrite: Boolean)(fun: OutputStream => T): T = {
+    FileOutputStreamResource(f, overwrite = overwrite).use(fun)
+  }
 
-  def writeFile(f: File, contents: String, overwrite: Boolean): Unit = writeFile(f, contents.getBytes(UTF_8), overwrite)
+  def writeFile(f: File, contents: String, overwrite: Boolean): Unit = {
+    writeFile(f, contents.getBytes(UTF_8), overwrite)
+  }
   
   def writeFile(f: File, bytes: Array[Byte], overwrite: Boolean): Unit = {
-    writeFile(f, overwrite) { os =>
+    writeFile(f, overwrite) { os: OutputStream =>
       os.write(bytes)
     }
   }
   
-  def writeFile(f: File, is: InputStream, overwrite: Boolean): Unit = writeFile(f, overwrite){ os =>
+  def writeFile(f: File, is: InputStream, overwrite: Boolean): Unit = writeFile(f, overwrite){ os: OutputStream =>
     IOUtils.copy(is, os)
   }
   
@@ -97,11 +103,11 @@ object FileUtil extends Logging {
     }
   }
   
-  def copy(src: File, dst: File, overwrite: Boolean = true) {    
+  def copy(src: File, dst: File, overwrite: Boolean = true): Unit = {
     def bothEndWith(s: String): Boolean = src.getName.endsWith(s) && dst.getName.endsWith(s)
     
     // Only enable autoDecompress/autoCompress if the compression formats don't already match 
-    val compression = if(bothEndWith(".gz") || bothEndWith(".zip") || bothEndWith(".snappy")) false else true
+    val compression: Boolean = if (bothEndWith(".gz") || bothEndWith(".zip") || bothEndWith(".snappy")) false else true
     
     InputStreamResource.forFile(src, autoDecompress = compression).use { is =>
       FileOutputStreamResource(dst, autoCompress = compression).use { os =>
@@ -140,16 +146,26 @@ object FileUtil extends Logging {
   def readFileOrResource(file: String, encoding: Charset): String = readFileOrResource(new File(file), encoding)
 
   def readFileOrResource(f: File): String = readFileOrResource(f, UTF_8)
-  def readFileOrResource(f: File, encoding: String): String = InputStreamResource.forFileOrResource(f).readToString(encoding)
-  def readFileOrResource(f: File, encoding: Charset): String = InputStreamResource.forFileOrResource(f).readToString(encoding)
+
+  def readFileOrResource(f: File, encoding: String): String = {
+    InputStreamResource.forFileOrResource(f).readToString(encoding)
+  }
+
+  def readFileOrResource(f: File, encoding: Charset): String = {
+    InputStreamResource.forFileOrResource(f).readToString(encoding)
+  }
   
-  def readLines(file: File)(f: String => Unit): Unit = readLines(InputStreamResource.forFile(file).bufferedReader())(f)
+  def readLines(file: File)(f: String => Unit): Unit = {
+    readLines(InputStreamResource.forFile(file).bufferedReader())(f)
+  }
   
-  def readLines(is: InputStream)(f: String => Unit): Unit = readLines(InputStreamResource.forInputStream(is).bufferedReader())(f)
+  def readLines(is: InputStream)(f: String => Unit): Unit = {
+    readLines(InputStreamResource.forInputStream(is).bufferedReader())(f)
+  }
   
   def readLines(resource: Resource[BufferedReader])(f: String => Unit): Unit = resource.use{ reader: BufferedReader =>
-    var line = reader.readLine
-    while(null != line) {
+    var line: String = reader.readLine
+    while (null != line) {
       f(line)
       line = reader.readLine
     }
@@ -164,8 +180,8 @@ object FileUtil extends Logging {
   def readInputStream(is: InputStream, encoding: String): String = readInputStream(is, Charset.forName(encoding))
   
   def readInputStream(is: InputStream, charset: Charset): String = {
-    val reader = new BufferedReader(new InputStreamReader(is, charset))
-    val writer = new StringWriter()
+    val reader: BufferedReader = new BufferedReader(new InputStreamReader(is, charset))
+    val writer: StringWriter = new StringWriter()
 
     IOUtils.copy(reader, writer)
     reader.close()
@@ -175,15 +191,15 @@ object FileUtil extends Logging {
   def rm_rf(dir: File, keepDirectory: Boolean = false): Boolean = {
     logger.warn("rm -rf " + dir.getAbsolutePath)
     if (dir.isDirectory) {
-      val children = dir.list
+      val children: Array[String] = dir.list
       children.foreach { child =>
-        if(!rm_rf(new File(dir, child))) return false
+        if (!rm_rf(new File(dir, child))) return false
       }
 
-      if(!keepDirectory) dir.delete() else true
+      if (!keepDirectory) dir.delete() else true
     } else {
-      val success = dir.delete()
-      if(!success) logger.warn(s"File deletion for ${dir.getAbsolutePath} failed")
+      val success: Boolean = dir.delete()
+      if (!success) logger.warn(s"File deletion for ${dir.getAbsolutePath} failed")
       success
     }
   }
