@@ -71,6 +71,31 @@ object FileUtil extends Logging {
         throw ex
     }
   }
+
+  /**
+   * Creates a temp file, passes it to the function, and then deletes the temp file
+   */
+  def withTempFile[T](prefix: String, suffix: String)(f: File => T): T = {
+    useFileThenDelete(File.createTempFile(prefix, suffix))(f)
+  }
+
+  /**
+   * Creates a temp file, passes it to the function, and then deletes the temp file
+   */
+  def withTempFile[T](prefix: String, suffix: String, directory: File)(f: File => T): T = {
+    useFileThenDelete(File.createTempFile(prefix, suffix, directory))(f)
+  }
+
+  /**
+   * Passes the file into the passed in function and then delete the file
+   */
+  def useFileThenDelete[T](file: File)(f: File => T): T = {
+    try {
+      f(file)
+    } finally {
+      if (file.isFile) file.delete()
+    }
+  }
   
   def copy(src: File, dst: File, overwrite: Boolean = true) {    
     def bothEndWith(s: String): Boolean = src.getName.endsWith(s) && dst.getName.endsWith(s)
