@@ -115,7 +115,7 @@ object Normalize {
   }
   
   // Used by lowerAlphanumericWithPositionsImpl
-  private def makePositionsArray(length: Int, fillLength: Int = 0): Array[Int] = {
+  private def makePositionsArray(length: Int, fillLength: Int): Array[Int] = {
     val arr: Array[Int] = new Array(length)
     
     var i: Int = 0
@@ -211,9 +211,11 @@ object Normalize {
    * Transform the string into something that is URL Friendly.
    */
   def urlName(raw: String): String = {
+    if (null == raw) return ""
+
     // 2015-02-19 - This additional step to added to strip accented chars
     val s: String = stripAccents(raw)
-    
+
     val sb = new java.lang.StringBuilder(s.length)
     var i: Int = 0
     var lastCharWasSep: Boolean = false
@@ -238,10 +240,10 @@ object Normalize {
 
       i += 1
     }
-    
+
     // We can end up with a leading and/or trailing SepChar so lets remove those
-    if (sb.charAt(0) == SepChar) sb.deleteCharAt(0)
-    if (sb.charAt(sb.length - 1) == SepChar) sb.deleteCharAt(sb.length - 1)
+    if (sb.length() > 0 && sb.charAt(0) == SepChar) sb.deleteCharAt(0)
+    if (sb.length() > 0 && sb.charAt(sb.length - 1) == SepChar) sb.deleteCharAt(sb.length - 1)
     
     sb.toString
   }

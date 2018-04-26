@@ -1,4 +1,4 @@
-// Generated Thu Jul 07 15:34:54 PDT 2016
+// Generated Thu Apr 26 13:09:46 PDT 2018
 // AUTO-GENERATED FROM THE makeAccents.sh SCRIPT
 // AUTO-GENERATED FROM THE makeAccents.sh SCRIPT
 // AUTO-GENERATED FROM THE makeAccents.sh SCRIPT
@@ -44,6 +44,8 @@ object ASCIIUtil {
    * Note: This expands stuff like Æ to AE)
    */
   def convertToASCII(s: String): String = {
+    if (null == s) return ""
+    
     val sb = new java.lang.StringBuilder(s.length)
 
     var i: Int = 0

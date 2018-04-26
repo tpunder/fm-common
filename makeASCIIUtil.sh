@@ -108,7 +108,18 @@ object ASCIIUtil {
    * Note: This expands stuff like Æ to AE)
    */
   def convertToASCII(s: String): String = {
-    s.flatMap{ toASCIIString }
+    if (null == s) return ""
+    
+    val sb = new java.lang.StringBuilder(s.length)
+
+    var i: Int = 0
+
+    while (i < s.length) {
+      sb.append(toASCIIString(s.charAt(i)))
+      i += 1
+    }
+
+    sb.toString()
   }
   
   /**

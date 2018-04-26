@@ -25,7 +25,12 @@ class TestNormalize extends FunSuite with Matchers {
       val (str, urlName) = pair
       Normalize.lowerAlphanumericWithSpaces(str) should equal(urlName)
     }
-    
+
+    t((null: String) -> "")
+    t("" -> "")
+    t("  " -> "")
+    t("-" -> "")
+    t(" - " -> "")
     t("Foo" -> "foo")
     t("  Foo  " -> "foo")
     t(" - Foo - " -> "foo")
@@ -41,8 +46,12 @@ class TestNormalize extends FunSuite with Matchers {
       val (str, urlName) = pair
       Normalize.lowerAlphanumeric(str) should equal(urlName)
     }
-    
+
+    t((null: String) -> "")
     t("" -> "")
+    t("  " -> "")
+    t("-" -> "")
+    t(" - " -> "")
     t("Foo" -> "foo")
     t("  Foo  " -> "foo")
     t(" - Foo - " -> "foo")
@@ -61,7 +70,8 @@ class TestNormalize extends FunSuite with Matchers {
       
       (res._1, res._2.toIndexedSeq) should equal ((normalized, positions.toIndexedSeq))
     }
-    
+
+    t((null: String), "", Array())
     t("", "", Array())
     t("Foo", "foo", Array(0,1,2))
     t("  Foo  ", "foo", Array(2,3,4))
@@ -91,6 +101,8 @@ class TestNormalize extends FunSuite with Matchers {
   }
   
   test("reverseLowerAlphanumeric") {
+    Normalize.reverseLowerAlphanumeric(null, null) should equal (None)
+    Normalize.reverseLowerAlphanumeric("", "") should equal (None)
     Normalize.reverseLowerAlphanumeric("Foo B.O.S.C.H. Bar", "bosch") should equal (Some("B.O.S.C.H."))
     Normalize.reverseLowerAlphanumeric("FooB.O.S.C.H.Bar", "bosch") should equal (Some("B.O.S.C.H."))
     Normalize.reverseLowerAlphanumeric("B.O.S.C.H. Bar", "bosch") should equal (Some("B.O.S.C.H."))
@@ -119,6 +131,11 @@ class TestNormalize extends FunSuite with Matchers {
       Normalize.urlName(str) should equal(urlName)
     }
 
+    t((null: String) -> "")
+    t("" -> "")
+    t("  " -> "")
+    t("-" -> "")
+    t(" - " -> "")
     t("Foo" -> "foo")
     t("  Foo  " -> "foo")
     t(" - Foo - " -> "foo")
