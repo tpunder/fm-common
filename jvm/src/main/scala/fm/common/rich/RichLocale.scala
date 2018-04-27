@@ -16,34 +16,68 @@
 package fm.common.rich
 
 import fm.common.Implicits.toRichCharSequence
-import fm.common.LoadingCache
+import fm.common.{ImmutableArray, LoadingCache}
 import java.text.Collator
+import java.util.ResourceBundle.Control
 import java.util.{Comparator, Locale}
 import scala.util.Try
+import scala.collection.JavaConverters._
 
 object RichLocale {
-  private val comparatorCache: LoadingCache[Locale, Comparator[String]] = LoadingCache(){ locale: Locale =>
-    Option(Collator.getInstance(locale)).map{ c => c.setStrength(Collator.PRIMARY); c.setDecomposition(Collator.CANONICAL_DECOMPOSITION); c }.map{ _.asInstanceOf[Comparator[String]] } getOrElse String.CASE_INSENSITIVE_ORDER
+  import fm.common.Implicits.toRichString
+
+  private def DefaultCacheSize: Int = 256
+  
+  private val LocaleCacheSize: Int = System.getProperty("fm.common.LocaleCacheSize").toIntOption.getOrElse(DefaultCacheSize)
+
+  private val comparatorCache: LoadingCache[Locale, Comparator[String]] = {
+    LoadingCache(maxSize = LocaleCacheSize){ locale: Locale =>
+      Option(Collator.getInstance(locale)).map{ c => c.setStrength(Collator.PRIMARY); c.setDecomposition(Collator.CANONICAL_DECOMPOSITION); c }.map{ _.asInstanceOf[Comparator[String]] } getOrElse String.CASE_INSENSITIVE_ORDER
+    }
   }
   
-  private val stringOrderingCache: LoadingCache[Locale, Ordering[String]] = LoadingCache(){ locale: Locale =>
-    Ordering.comparatorToOrdering(comparatorCache.get(locale))
+  private val stringOrderingCache: LoadingCache[Locale, Ordering[String]] = {
+    LoadingCache(maxSize = LocaleCacheSize){ locale: Locale =>
+      Ordering.comparatorToOrdering(comparatorCache.get(locale))
+    }
   }
   
-  private val stringOptionOrderingCache: LoadingCache[Locale, Ordering[Option[String]]] = LoadingCache(){ locale: Locale =>
-    Ordering.Option(stringOrderingCache.get(locale))
+  private val stringOptionOrderingCache: LoadingCache[Locale, Ordering[Option[String]]] = {
+    LoadingCache(maxSize = LocaleCacheSize){ locale: Locale =>
+      Ordering.Option(stringOrderingCache.get(locale))
+    }
   }
   
-  private val reversedComparatorCache: LoadingCache[Locale, Comparator[String]] = LoadingCache(){ locale: Locale =>
-    comparatorCache.get(locale).reversed()
+  private val reversedComparatorCache: LoadingCache[Locale, Comparator[String]] = {
+    LoadingCache(maxSize = LocaleCacheSize){ locale: Locale =>
+      comparatorCache.get(locale).reversed()
+    }
   }
   
-  private val reversedStringOrderingCache: LoadingCache[Locale, Ordering[String]] = LoadingCache(){ locale: Locale =>
-    Ordering.comparatorToOrdering(reversedComparatorCache.get(locale))
+  private val reversedStringOrderingCache: LoadingCache[Locale, Ordering[String]] = {
+    LoadingCache(maxSize = LocaleCacheSize){ locale: Locale =>
+      Ordering.comparatorToOrdering(reversedComparatorCache.get(locale))
+    }
   }
   
-  private val reversedStringOptionOrderingCache: LoadingCache[Locale, Ordering[Option[String]]] = LoadingCache(){ locale: Locale =>
-    Ordering.Option(reversedStringOrderingCache.get(locale))
+  private val reversedStringOptionOrderingCache: LoadingCache[Locale, Ordering[Option[String]]] = {
+    LoadingCache(maxSize = LocaleCacheSize){ locale: Locale =>
+      Ordering.Option(reversedStringOrderingCache.get(locale))
+    }
+  }
+
+  // Note: It looks like there is already some caching in Control.getCandidateLocales.  However there might still
+  //       be benefit in caching the resulting ImmutableArray here to prevent excessive allocation since it looks like
+  //       Control.getCandidateLocales makes an ArrayList copy on every lookup which is not ideal.
+  private val candidateLocalesCache: LoadingCache[Locale, ImmutableArray[Locale]] = {
+    LoadingCache(maxSize = LocaleCacheSize){ locale: Locale =>
+      // We do not directly use the ResourceBundle class but we do make use of
+      // the ResourceBundle.Control class to handle the lookup logic via the
+      // getCandidateLocales method.
+      val control: Control = Control.getNoFallbackControl(Control.FORMAT_DEFAULT)
+
+      ImmutableArray.copy(control.getCandidateLocales("", locale).asScala)
+    }
   }
 }
 
@@ -66,6 +100,8 @@ final class RichLocale(val self: Locale) extends AnyVal {
       self.getISO3Country()
     }.isSuccess
   }
+
+  def candidateLocales: ImmutableArray[Locale] = RichLocale.candidateLocalesCache.get(self)
   
   def displayName(implicit locale: Locale): String = self.getDisplayName(locale)
   def displayCountry(implicit locale: Locale): String = self.getDisplayCountry(locale)
