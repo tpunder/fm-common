@@ -2,9 +2,9 @@
 // Note: fm-common is setup to cross build with Scala.js
 //
 
-scalaVersion in ThisBuild := "2.12.4"
+scalaVersion in ThisBuild := "2.12.6"
 
-crossScalaVersions in ThisBuild := Seq("2.11.11", "2.12.4")
+crossScalaVersions in ThisBuild := Seq("2.11.11", "2.12.6")
 
 lazy val `fm-common` = project.in(file(".")).
   aggregate(fmCommonJS, fmCommonJVM).
