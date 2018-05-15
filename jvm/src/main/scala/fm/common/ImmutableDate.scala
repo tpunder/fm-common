@@ -22,19 +22,29 @@ import scala.math.{Ordered, Ordering}
 
 object ImmutableDate {
   /** lossless conversion so I think this is okay as an implicit */
-  implicit def immutableDateToJavaDate(date: ImmutableDate): Date = date.toDate
+  implicit def immutableDateToJavaDate(date: ImmutableDate): Date = {
+    if (null == date) null else date.toDate
+  }
 
   /** lossless conversion so I think this is okay as an implicit */
-  implicit def javaDateToImmutableDate(date: Date): ImmutableDate = ImmutableDate(date)
+  implicit def javaDateToImmutableDate(date: Date): ImmutableDate = {
+    if (null == date) null else ImmutableDate(date)
+  }
 
   /** lossless conversion so I think this is okay as an implicit */
-  implicit def immutableDateToJavaInstant(date: ImmutableDate): Instant = date.toInstant
+  implicit def immutableDateToJavaInstant(date: ImmutableDate): Instant = {
+    if (null == date) null else date.toInstant
+  }
 
   /** This is a lossless conversion from Date to ImmutableDate */
-  def apply(date: Date): ImmutableDate = new ImmutableDate(date.getTime)
+  def apply(date: Date): ImmutableDate = {
+    if (null == date) null else new ImmutableDate(date.getTime)
+  }
 
   /** This is a potentially lossy conversion from java.time.Instant to ImmutableDate */
-  def apply(instant: Instant): ImmutableDate = new ImmutableDate(instant.toEpochMilli)
+  def apply(instant: Instant): ImmutableDate = {
+    if (null == instant) null else new ImmutableDate(instant.toEpochMilli)
+  }
 
   implicit object ordering extends Ordering[ImmutableDate] {
     def compare(a: ImmutableDate, b: ImmutableDate): Int = a.compare(b)
