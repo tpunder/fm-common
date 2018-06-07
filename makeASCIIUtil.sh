@@ -205,7 +205,7 @@ def toASCIIStringImpl: String = {
   println("    } else {")
   println("      (c: @switch) match {")
 
-  groupedByAscii.filter{ case (ascii, _) => ascii.length == 1 }.foreach{ case (ascii, unicodeChars) => 
+  groupedByAscii.foreach{ case (ascii, unicodeChars) => 
     println()
     println(s"        // ASCII: $ascii")
     println()
