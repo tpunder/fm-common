@@ -1,4 +1,4 @@
-// Generated Thu Apr 26 13:09:46 PDT 2018
+// Generated Thu Jun 07 15:13:06 PDT 2018
 // AUTO-GENERATED FROM THE makeAccents.sh SCRIPT
 // AUTO-GENERATED FROM THE makeAccents.sh SCRIPT
 // AUTO-GENERATED FROM THE makeAccents.sh SCRIPT
@@ -21,6 +21,7 @@
  */
 package fm.common
 
+import java.lang.{StringBuilder => JavaStringBuilder}
 import scala.annotation.switch
 
 object ASCIIUtil {
@@ -40,18 +41,33 @@ object ASCIIUtil {
   
   /**
    * Converts Accented Characters to the Non-Accented Equivalent String.
-   * 
+   *
    * Note: This expands stuff like Æ to AE)
    */
   def convertToASCII(s: String): String = {
     if (null == s) return ""
-    
-    val sb = new java.lang.StringBuilder(s.length)
 
     var i: Int = 0
 
+    while (i < s.length && s.charAt(i) < ''){
+      i += 1
+    }
+
+    // If we made it through the entire string then there are no accents
+    // otherwise we need to switch to convertToASCIIStartingAt
+    if (i == s.length) s else convertToASCIIStartingAt(s, i)
+  }
+
+  private def convertToASCIIStartingAt(s: String, idx: Int): String = {
+    val sb: JavaStringBuilder = new JavaStringBuilder(s.length)
+
+    // Add anything up to idx
+    sb.append(s, 0, idx)
+
+    var i: Int = idx
+
     while (i < s.length) {
-      sb.append(toASCIIString(s.charAt(i)))
+      appendASCIIString(s.charAt(i), sb)
       i += 1
     }
 
@@ -61,12 +77,17 @@ object ASCIIUtil {
   /**
    * Converts Accented Characters to the Non-Accented Equivalent String.
    */
-  private def toASCIIString(c: Char): String = {
+  private def appendASCIIString(c: Char, sb: JavaStringBuilder): Unit = {
     // This is potentially more JIT friendly since the JVM should be able
     // to inline this method and will almost always hit the common case
     // of just returning the original character.  The slower path will be
     // calling stripAccentStringImpl()
-    if (c < '\u0080') c.toString else stripAccentStringImpl(c)
+    if (c < '\u0080') {
+      sb.append(c)
+    } else {
+      val str: String = stripAccentStringImplOrNull(c)
+      if (null == str) sb.append(c) else sb.append(str)
+    }
   }
   
     /** Generated From Lucene's ASCIIFoldingFilter.java */
@@ -1513,7 +1534,7 @@ object ASCIIUtil {
   
 
   /** Generated From Lucene's ASCIIFoldingFilter.java */
-  private def stripAccentStringImpl(c: Char): String = {
+  private def stripAccentStringImplOrNull(c: Char): String = {
     // Quick test: if it's not in range then just keep current character
     if (c < '\u0080') {
       c.toString
@@ -2947,7 +2968,7 @@ object ASCIIUtil {
         // ｝  [FULLWIDTH RIGHT CURLY BRACKET]
         case '\u2775' | '\uFF5D' => "}"
 
-        case _ => c.toString // Default
+        case _ => null // avoid the String memory allocation from calling c.toString
       }
     }
   }

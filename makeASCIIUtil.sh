@@ -85,6 +85,7 @@ println(s"""// Generated ${new java.util.Date()}
  */
 package fm.common
 
+import java.lang.{StringBuilder => JavaStringBuilder}
 import scala.annotation.switch
 
 object ASCIIUtil {
@@ -104,18 +105,33 @@ object ASCIIUtil {
   
   /**
    * Converts Accented Characters to the Non-Accented Equivalent String.
-   * 
+   *
    * Note: This expands stuff like Æ to AE)
    */
   def convertToASCII(s: String): String = {
     if (null == s) return ""
-    
-    val sb = new java.lang.StringBuilder(s.length)
 
     var i: Int = 0
 
+    while (i < s.length && s.charAt(i) < '\u0080'){
+      i += 1
+    }
+
+    // If we made it through the entire string then there are no accents
+    // otherwise we need to switch to convertToASCIIStartingAt
+    if (i == s.length) s else convertToASCIIStartingAt(s, i)
+  }
+
+  private def convertToASCIIStartingAt(s: String, idx: Int): String = {
+    val sb: JavaStringBuilder = new JavaStringBuilder(s.length)
+
+    // Add anything up to idx
+    sb.append(s, 0, idx)
+
+    var i: Int = idx
+
     while (i < s.length) {
-      sb.append(toASCIIString(s.charAt(i)))
+      appendASCIIString(s.charAt(i), sb)
       i += 1
     }
 
@@ -125,12 +141,17 @@ object ASCIIUtil {
   /**
    * Converts Accented Characters to the Non-Accented Equivalent String.
    */
-  private def toASCIIString(c: Char): String = {
+  private def appendASCIIString(c: Char, sb: JavaStringBuilder): Unit = {
     // This is potentially more JIT friendly since the JVM should be able
     // to inline this method and will almost always hit the common case
     // of just returning the original character.  The slower path will be
     // calling stripAccentStringImpl()
-    if (c < '\\u0080') c.toString else stripAccentStringImpl(c)
+    if (c < '\\u0080') {
+      sb.append(c)
+    } else {
+      val str: String = stripAccentStringImplOrNull(c)
+      if (null == str) sb.append(c) else sb.append(str)
+    }
   }
   
   ${toASCIICharImpl}
@@ -177,7 +198,7 @@ def toASCIIStringImpl: String = {
   println()
   println()
   println("  /** Generated From Lucene's ASCIIFoldingFilter.java */")
-  println("  private def stripAccentStringImpl(c: Char): String = {")
+  println("  private def stripAccentStringImplOrNull(c: Char): String = {")
   println("    // Quick test: if it's not in range then just keep current character")
   println("    if (c < '\\u0080') {")
   println("      c.toString")
@@ -193,7 +214,7 @@ def toASCIIStringImpl: String = {
   }
 
   println()
-  println("        case _ => c.toString // Default")
+  println("        case _ => null // avoid the String memory allocation from calling c.toString")
   println("      }")
   println("    }")
   println("  }")
