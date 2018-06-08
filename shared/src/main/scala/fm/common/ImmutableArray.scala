@@ -93,8 +93,8 @@ final class ImmutableArrayBuilder[@specialized A: ClassTag] (initialSize: Int) e
   //
   // Note: DO NOT make these private[this] since that doesn't play well with @specialized
   //
-  private var arr: Array[A] = if (initialSize > 0) new Array[A](initialSize) else Array.empty
-  private var capacity: Int = arr.length
+  private var arr: Array[A] = if (initialSize > 0) new Array[A](initialSize) else null // Array.empty creates a new array each time so avoid using that
+  private var capacity: Int = if (null == arr) 0 else arr.length
   private var length: Int = 0
   @volatile private var done: Boolean = false
 
@@ -119,13 +119,13 @@ final class ImmutableArrayBuilder[@specialized A: ClassTag] (initialSize: Int) e
     if (length == 0) return ImmutableArray.empty
     assert(length <= arr.length, s"Length: $length,  Array.length: ${arr.length}")
     
-    val buf = new Array[A](length)
+    val buf: Array[A] = new Array[A](length)
     System.arraycopy(arr, 0, buf, 0, length)
     new ImmutableArray[A](buf)
   }
   
   def clear(): Unit = {
-    arr = Array.empty
+    arr = null
     capacity = 0
     length = 0
     done = false
@@ -144,8 +144,8 @@ final class ImmutableArrayBuilder[@specialized A: ClassTag] (initialSize: Int) e
   }
   
   private def resize(size: Int): Unit = {
-    val buf = new Array[A](size)
-    if (length > 0) System.arraycopy(arr, 0, buf, 0, length)
+    val buf: Array[A] = new Array[A](size)
+    if (length > 0 && null != arr) System.arraycopy(arr, 0, buf, 0, length)
     arr = buf
     capacity = size
   }
