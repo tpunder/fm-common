@@ -55,13 +55,13 @@ lazy val `fm-common-` = crossProject.in(file(".")).
       "com.google.guava" % "guava" % "21.0",
       "com.googlecode.juniversalchardet" % "juniversalchardet" % "1.0.3",
       "com.sun.mail" % "javax.mail" % "1.5.2" % "provided",
-      "com.fasterxml.woodstox" % "woodstox-core" % "5.0.2",
-      "commons-codec" % "commons-codec" % "1.10",
-      "commons-io" % "commons-io" % "2.5",
+      "com.fasterxml.woodstox" % "woodstox-core" % "5.1.0",
+      "commons-codec" % "commons-codec" % "1.11",
+      "commons-io" % "commons-io" % "2.6",
       "it.unimi.dsi" % "fastutil" % "7.0.13",
-      "org.apache.commons" % "commons-compress" % "1.13",
-      "org.apache.commons" % "commons-lang3" % "3.5",
-      "org.bouncycastle" % "bcprov-jdk15on" % "1.56",
+      "org.apache.commons" % "commons-compress" % "1.17",
+      "org.apache.commons" % "commons-lang3" % "3.7",
+      "org.bouncycastle" % "bcprov-jdk15on" % "1.59",
       "org.slf4j" % "slf4j-api" % "1.7.25",
       "org.tukaani" % "xz" % "1.6",  // Used by commons-compress and should be synced up with whatever version commons-compress requires
       "org.xerial.snappy" % "snappy-java" % "1.1.2.6"
@@ -69,9 +69,9 @@ lazy val `fm-common-` = crossProject.in(file(".")).
   ):_*).
   jsSettings(
     // Add JS-specific settings here
-    libraryDependencies += "be.doeraene" %%% "scalajs-jquery" % "0.9.1",
-    libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.2",
-    libraryDependencies += "org.scala-js" %%% "scalajs-java-time" % "0.2.1"
+    libraryDependencies += "be.doeraene" %%% "scalajs-jquery" % "0.9.3",
+    libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.6",
+    libraryDependencies += "org.scala-js" %%% "scalajs-java-time" % "0.2.4"
   )
 
 lazy val fmCommonJVM = `fm-common-`.jvm.dependsOn(`fm-common-macros` % "compile-internal, test-internal")
