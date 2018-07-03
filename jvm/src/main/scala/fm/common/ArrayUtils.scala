@@ -15,8 +15,10 @@
  */
 package fm.common
 
+import scala.reflect.ClassTag
+
 object ArrayUtils extends Logging {
-  def permutations[T: scala.reflect.ClassTag](values: Iterable[Iterable[T]]): IndexedSeq[IndexedSeq[T]] = {
+  def permutations[T: ClassTag](values: Iterable[Iterable[T]]): IndexedSeq[IndexedSeq[T]] = {
     val arg: Array[Array[T]] = values.toArray.map{ _.toArray }
     
     ImmutableArray.wrap(permutations(arg)).map{ ImmutableArray.wrap }
@@ -105,5 +107,46 @@ object ArrayUtils extends Logging {
     }
     
     results
+  }
+
+  def shingles[T: ClassTag](parts: IndexedSeq[T]): ImmutableArray[ImmutableArray[T]] = {
+    shingles(parts, 1, Int.MaxValue, true)
+  }
+
+  def shingles[T: ClassTag](parts: IndexedSeq[T], minShingleSize: Int, maxShingleSize: Int, forceIncludeOriginal: Boolean): ImmutableArray[ImmutableArray[T]] = {
+    require(minShingleSize >= 1, "minShingleSize must be >= 1 but got: "+minShingleSize)
+    require(maxShingleSize >= 1, "maxShingleSize must be >= 1 but got: "+maxShingleSize)
+    require(minShingleSize <= maxShingleSize, s"minShingleSize <= maxShingleSize but got minShingleSize: $minShingleSize and maxShingleSize: $maxShingleSize")
+
+    if (null == parts || parts.isEmpty) return ImmutableArray.empty
+
+    val b = ImmutableArray.newBuilder[ImmutableArray[T]]
+
+    if (forceIncludeOriginal && maxShingleSize < parts.length) b += ImmutableArray.wrap(parts.toArray)
+
+    var i: Int = 0
+
+    while (i < parts.size) {
+      var j: Int = minShingleSize
+
+      val maxSize: Int = math.min(parts.size - i, maxShingleSize)
+
+      while (j <= maxSize) {
+        val dst: Array[T] = new Array[T](j)
+        var x: Int = 0
+
+        while (x < j) {
+          dst(x) = parts(x + i)
+          x += 1
+        }
+
+        b += ImmutableArray.wrap(dst)
+        j += 1
+      }
+
+      i += 1
+    }
+
+    b.result()
   }
 }
