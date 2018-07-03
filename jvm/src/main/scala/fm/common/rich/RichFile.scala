@@ -94,4 +94,16 @@ final class RichFile(val f: File) extends AnyVal {
       else if (child.isFile) builder += child
     }
   }
+
+  /**
+   * The File.lastModified value truncated to seconds (which matches the pre JDK-9 Linux/OSX behavior of File.lastModified)
+   *
+   * @return The number of milliseconds since since the epoch (00:00:00 GMT, January 1, 1970) truncated to second precision.
+   */
+  def lastModifiedWithSecondPrecision: Long = {
+    val millis: Long = f.lastModified()
+    if (0L == millis) return 0L
+
+    millis - (millis % 1000L)
+  }
 }
