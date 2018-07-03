@@ -15,7 +15,7 @@
  */
 package fm.common.rich
 
-import fm.common.Implicits.toRichCharSequence
+import fm.common.Implicits.{toRichCharSequence, toTypeSafeEquals}
 import fm.common.{ImmutableArray, LoadingCache}
 import java.text.Collator
 import java.util.ResourceBundle.Control
@@ -82,7 +82,17 @@ object RichLocale {
 }
 
 final class RichLocale(val self: Locale) extends AnyVal {
-  
+
+  def isChinese: Boolean = matchesLanguage(Locale.CHINESE)
+  def isEnglish: Boolean = matchesLanguage(Locale.ENGLISH)
+  def isFrench: Boolean = matchesLanguage(Locale.FRENCH)
+  def isGerman: Boolean = matchesLanguage(Locale.GERMAN)
+  def isItalian: Boolean = matchesLanguage(Locale.ITALIAN)
+  def isJapanese: Boolean = matchesLanguage(Locale.JAPANESE)
+  def isKorean: Boolean = matchesLanguage(Locale.KOREAN)
+
+  @inline private def matchesLanguage(other: Locale): Boolean = null != other && other.getLanguage === self.getLanguage
+
   def languageTag: String = self.toLanguageTag()
 
   // Note: This is package private since there isn't currently a use case for this method but we have tests setup for it

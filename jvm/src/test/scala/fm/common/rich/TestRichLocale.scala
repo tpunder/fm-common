@@ -73,6 +73,34 @@ final class TestRichLocale extends FunSuite with Matchers {
     checkTag("zz-ZZ", isValid = false, hasNonBlankValidLanguage = false, hasNonBlankValidCountry = false)
   }
 
+  test("isChinese") {
+    checkLanguageHelper(Locale.CHINESE, Locale.CHINA, Locale.SIMPLIFIED_CHINESE, Locale.TRADITIONAL_CHINESE){ _.isChinese }
+  }
+
+  test("isEnglish") {
+    checkLanguageHelper(Locale.ENGLISH, Locale.US, Locale.UK, Locale.CANADA){ _.isEnglish }
+  }
+
+  test("isFrench") {
+    checkLanguageHelper(Locale.FRENCH, Locale.FRANCE, Locale.CANADA_FRENCH){ _.isFrench }
+  }
+
+  test("isGerman") {
+    checkLanguageHelper(Locale.GERMAN, Locale.GERMANY){ _.isGerman }
+  }
+
+  test("isItalian") {
+    checkLanguageHelper(Locale.ITALIAN, Locale.ITALY){ _.isItalian }
+  }
+
+  test("isJapanese") {
+    checkLanguageHelper(Locale.JAPANESE, Locale.JAPAN){ _.isJapanese }
+  }
+
+  test("isKorean") {
+    checkLanguageHelper(Locale.KOREAN, Locale.KOREA){ _.isKorean }
+  }
+
   private def checkTag(tag: String, isValid: Boolean = true, hasNonBlankValidLanguage: Boolean = true, hasNonBlankValidCountry: Boolean = true): Unit = {
     checkLocale(Locale.forLanguageTag(tag), isValid = isValid, hasNonBlankValidLanguage = hasNonBlankValidLanguage, hasNonBlankValidCountry = hasNonBlankValidCountry)
   }
@@ -82,6 +110,12 @@ final class TestRichLocale extends FunSuite with Matchers {
       locale.isValid should equal (isValid)
       locale.hasNonBlankValidLanguage should equal (hasNonBlankValidLanguage)
       locale.hasNonBlankValidCountry should equal (hasNonBlankValidCountry)
+    }
+  }
+
+  private def checkLanguageHelper(locales: Locale*)(f: Locale => Boolean): Unit = {
+    locales.foreach{ locale: Locale =>
+      f(locale) should equal (true)
     }
   }
 
