@@ -20,14 +20,15 @@ import fm.common.Implicits._
 
 class TestRichAnyRef extends FunSuite with Matchers {
   
-  test("Basics") {
+  test("tryCast") {
     val a: AnyRef = "Foo"
     
     require(a.tryCast[String].isDefined)
     
-    // Compile Error:
-    //val b: String = "asd"
-    //b.tryCast[java.math.BigDecimal]
+    """
+    val b: String = "asd"
+    b.tryCast[java.math.BigDecimal]
+    """ shouldNot compile
   }
-  
+
 }

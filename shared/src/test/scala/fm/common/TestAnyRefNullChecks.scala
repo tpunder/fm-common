@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Frugal Mechanic (http://frugalmechanic.com)
+ * Copyright 2018 Frugal Mechanic (http://frugalmechanic.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package fm.common.rich
+package fm.common
 
-import scala.reflect.ClassTag
+import org.scalatest.{FunSuite,Matchers}
 
-final class RichAnyRef[A <: AnyRef](val a: A) extends AnyVal {
-  def tryCast[B <: A](implicit classTag: ClassTag[B]): Option[B] = if (classTag.runtimeClass.isInstance(a)) Some(a.asInstanceOf[B]) else None
-  def tryCast[B <: A](cls: Class[B]): Option[B] = if (cls.isInstance(a)) Some(a.asInstanceOf[B]) else None
+class TestAnyRefNullChecks extends FunSuite with Matchers {
+
+  test("isNull / isNotNull / nonNull") {
+    val strNull: String = null
+    val strNonNull: String = "non-null"
+
+    strNull.isNull should equal (true)
+    strNull.isNotNull should equal (false)
+    strNull.nonNull should equal (false)
+
+    strNonNull.isNull should equal (false)
+    strNonNull.isNotNull should equal (true)
+    strNonNull.nonNull should equal (true)
+  }
+
 }

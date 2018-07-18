@@ -48,7 +48,7 @@ final class TestTypeSafeEquals extends FunSuite with Matchers {
     nonNullStr ≠ null should equal (true)
 
     // Can't get the implicits to work for these to compile:
-    
+
 //    null ≡ nullStr should equal (true)
 //    null ≠ nullStr should equal (false)
 
