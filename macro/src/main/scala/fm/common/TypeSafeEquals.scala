@@ -27,8 +27,13 @@ object TypeSafeEquals {
   def equals[L,R](left: L, right: R): Boolean = macro equalsMacro[L,R]
   def notEquals[L,R](left: L, right: R): Boolean = macro notEqualsMacro[L,R]
   
-  def equalsMacro[L: c.WeakTypeTag, R: c.WeakTypeTag](c: Context)(left: c.Expr[L], right: c.Expr[R]): c.Tree = equalsMacroImpl(c)(left, right, true)
-  def notEqualsMacro[L: c.WeakTypeTag, R: c.WeakTypeTag](c: Context)(left: c.Expr[L], right: c.Expr[R]): c.Tree = equalsMacroImpl(c)(left, right, false)
+  def equalsMacro[L: c.WeakTypeTag, R: c.WeakTypeTag](c: Context)(left: c.Expr[L], right: c.Expr[R]): c.Tree = {
+    equalsMacroImpl(c)(left, right, true)
+  }
+
+  def notEqualsMacro[L: c.WeakTypeTag, R: c.WeakTypeTag](c: Context)(left: c.Expr[L], right: c.Expr[R]): c.Tree = {
+    equalsMacroImpl(c)(left, right, false)
+  }
   
   private def equalsMacroImpl[L, R](c: Context)(left: c.Expr[L], right: c.Expr[R], isEquals: Boolean)(implicit L: c.WeakTypeTag[L], R: c.WeakTypeTag[R]): c.Tree = {
     import c.universe._
@@ -36,8 +41,13 @@ object TypeSafeEquals {
     if (isEquals) q"$left == $right" else q"$left != $right"
   }
   
-  def tripleEqualsMacro[R: c.WeakTypeTag](c: Context)(right: c.Expr[R]): c.Tree = tripleEqualsMacroImpl(c)(right, true)
-  def notTripleEqualsMacro[R: c.WeakTypeTag](c: Context)(right: c.Expr[R]): c.Tree = tripleEqualsMacroImpl(c)(right, false)
+  def tripleEqualsMacro[R: c.WeakTypeTag](c: Context)(right: c.Expr[R]): c.Tree = {
+    tripleEqualsMacroImpl(c)(right, true)
+  }
+
+  def notTripleEqualsMacro[R: c.WeakTypeTag](c: Context)(right: c.Expr[R]): c.Tree = {
+    tripleEqualsMacroImpl(c)(right, false)
+  }
   
   private def tripleEqualsMacroImpl[R](c: Context)(right: c.Expr[R], isEquals: Boolean)(implicit R: c.WeakTypeTag[R]): c.Tree = {
     import c.universe._
@@ -61,7 +71,9 @@ object TypeSafeEquals {
     (tpe.getOrElse(arg).tpe, arg)
   }
   
-  private def requireWeakTypeTagSubRelationship[L, R](c: Context)(implicit L: c.WeakTypeTag[L], R: c.WeakTypeTag[R]): Unit = requireSubTypeRelationship(c)(L.tpe, R.tpe)
+  private def requireWeakTypeTagSubRelationship[L, R](c: Context)(implicit L: c.WeakTypeTag[L], R: c.WeakTypeTag[R]): Unit = {
+    requireSubTypeRelationship(c)(L.tpe, R.tpe)
+  }
   
   private def requireSubTypeRelationship(c: Context)(l: c.Type, r: c.Type): Unit = {
     val isSubType: Boolean = l =:= r || l <:< r || r <:< l

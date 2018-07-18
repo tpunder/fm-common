@@ -19,7 +19,7 @@ import org.scalatest.{FunSuite, Matchers}
 
 // Note: Using ≡ and ≠ to avoid conflicts with ScalaTest === method
 final class TestTypeSafeEquals extends FunSuite with Matchers {
-  
+
   test("Basics") {
     1 ≡ 1 should equal (true)
     1 ≠ 1 should equal (false)
@@ -35,6 +35,30 @@ final class TestTypeSafeEquals extends FunSuite with Matchers {
     
     """"foo" ≡ Option("foo")""" shouldNot compile
     """Option("foo") ≡ "foo""" shouldNot compile
+  }
+
+  test("nulls") {
+    val nullStr: String = null
+    val nonNullStr: String = "non-null"
+
+    nullStr ≡ null should equal (true)
+    nullStr ≠ null should equal (false)
+
+    nonNullStr ≡ null should equal (false)
+    nonNullStr ≠ null should equal (true)
+
+    // Can't get the implicits to work for these to compile:
+    
+//    null ≡ nullStr should equal (true)
+//    null ≠ nullStr should equal (false)
+
+//    null ≡ null should equal (true)
+//    null ≠ null should equal (false)
+
+    """null ≡ 1""" shouldNot compile
+    """null ≠ 1""" shouldNot compile
+    """1 ≡ null""" shouldNot compile
+    """1 ≠ null""" shouldNot compile
   }
   
   test("Subtypes") {
